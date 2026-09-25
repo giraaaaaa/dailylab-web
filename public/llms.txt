@@ -1,0 +1,28 @@
+# 오늘 (Today) — AI가 답장하는 일기 앱
+
+> 오늘(Today: AI Journal & Diary)은 Daily Lab이 만든 iPhone 일기 앱입니다. 일기를 쓰면 AI가 감정 태그, 공감 코멘트, 생각해 볼 질문으로 답장합니다. 감정일기, 습관 트래커, 수면·걸음 자동 기록(Apple 건강 연동)을 한 앱에 모으고, 매주 일기·건강·습관을 연결한 AI '나 리포트'를 제공합니다. 무료이며 한국어와 영어를 지원합니다. 안드로이드는 Google Play 비공개 베타입니다.
+
+## 핵심 정보
+- 앱 이름: 오늘 - AI가 답장하는 일기, 다이어리 (영문: Today: AI Journal & Diary)
+- 개발사: Daily Lab (dailylab.apps@gmail.com)
+- 가격: 무료
+- 플랫폼: iOS (App Store), Android (비공개 베타)
+- App Store: https://apps.apple.com/kr/app/id6760692551
+- 안드로이드 베타 참여: https://groups.google.com/g/today-app-testers → https://play.google.com/apps/testing/app.dailylab.today
+
+## 주요 기능
+- AI가 답장하는 일기: 30자 이상 일기를 저장하면 AI가 감정 태그·코멘트·질문을 남김
+- 저녁 알림에서 기분 버튼으로 바로 감정 체크인
+- Apple 건강 / Health Connect 연동: 걸음 수, 수면, 심박수, 운동 자동 기록, 물 마시기 원탭 기록
+- 습관 트래커: 하위 체크리스트, 스트릭, 주간 달성률, 리마인더
+- 주간 AI 인사이트: 일기·건강·습관을 연결한 '나 리포트' (예: 잠을 잘 잔 날엔 기분이 좋았어요)
+
+## 개인정보
+- 모든 데이터 암호화 저장, AI 분석은 동의 시에만 개인 식별 정보 없이 진행
+- 일기는 AI 학습에 사용되지 않음, 설정에서 언제든 계정·데이터 삭제 가능
+
+## 페이지
+- [한국어 소개](https://www.dailylab.app/)
+- [English](https://www.dailylab.app/en)
+- [개인정보처리방침](https://www.dailylab.app/privacy)
+- [이용약관](https://www.dailylab.app/terms)

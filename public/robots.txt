@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+Disallow: /hf/
+Disallow: /ad
+
+# AI 검색 크롤러도 허용 (ChatGPT, Perplexity, Claude 등에서 앱이 인용되도록)
+User-agent: GPTBot
+Allow: /
+Disallow: /hf/
+Disallow: /ad
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+Disallow: /hf/
+Disallow: /ad
+
+Sitemap: https://www.dailylab.app/sitemap.xml

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://www.dailylab.app/</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/" />
+    <image:image><image:loc>https://www.dailylab.app/img/og-ko.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.dailylab.app/img/shots/diary.webp</image:loc></image:image>
+    <image:image><image:loc>https://www.dailylab.app/img/shots/insights.webp</image:loc></image:image>
+    <image:image><image:loc>https://www.dailylab.app/img/shots/home.webp</image:loc></image:image>
+    <image:image><image:loc>https://www.dailylab.app/img/shots/health.webp</image:loc></image:image>
+    <image:image><image:loc>https://www.dailylab.app/img/shots/habits.webp</image:loc></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://www.dailylab.app/video/promo-ko-poster.jpg</video:thumbnail_loc>
+      <video:title>오늘 앱 소개 — 일기를 쓰면 AI가 답장을 보내요</video:title>
+      <video:description>한 줄 일기에 AI가 답장하고, 기분·수면·걸음·습관을 한 곳에 모아 매주 나 리포트를 보내주는 오늘 앱 20초 소개 영상.</video:description>
+      <video:content_loc>https://www.dailylab.app/video/promo-ko.mp4</video:content_loc>
+      <video:duration>20</video:duration>
+      <video:publication_date>2026-09-25T21:00:00+09:00</video:publication_date>
+    </video:video>
+  </url>
+  <url>
+    <loc>https://www.dailylab.app/en</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/" />
+    <image:image><image:loc>https://www.dailylab.app/img/og-en.jpg</image:loc></image:image>
+    <video:video>
+      <video:thumbnail_loc>https://www.dailylab.app/video/promo-en-poster.jpg</video:thumbnail_loc>
+      <video:title>Today app — Write in your journal, get a reply from AI</video:title>
+      <video:description>A 20-second tour of Today: a journal that writes back, with mood, sleep, steps and habits in one place and a weekly AI report.</video:description>
+      <video:content_loc>https://www.dailylab.app/video/promo-en.mp4</video:content_loc>
+      <video:duration>20</video:duration>
+      <video:publication_date>2026-09-25T21:00:00+09:00</video:publication_date>
+    </video:video>
+  </url>
+  <url>
+    <loc>https://www.dailylab.app/privacy</loc>
+    <lastmod>2026-09-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.dailylab.app/terms</loc>
+    <lastmod>2026-03-15</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko" data-composition-variables='[
+  {"id":"lang","type":"string","label":"Language (ko | en)","default":"ko"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1200, height=630" />
+  <meta name="robots" content="noindex" />
+  <title>오늘 — OG 이미지 (HyperFrames)</title>
+  <style>
+    @font-face {
+      font-family: "Pretendard HF";
+      src: url("assets/pretendard-hf.woff2") format("woff2");
+      font-weight: 45 920;
+      font-display: block;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    #root {
+      position: relative; width: 1200px; height: 630px; overflow: hidden;
+      background: radial-gradient(700px 500px at 85% 0%, #F3DAC0 0%, #FAF6F1 70%);
+      font-family: "Pretendard HF", -apple-system, sans-serif; color: #2C2420; letter-spacing: -0.025em;
+    }
+    .brand { position: absolute; left: 72px; top: 64px; display: flex; align-items: center; gap: 18px; font-size: 34px; font-weight: 800; }
+    .brand img { width: 64px; height: 64px; border-radius: 16px; }
+    h1 { position: absolute; left: 72px; top: 190px; margin: 0; font-size: 72px; line-height: 1.16; font-weight: 800; white-space: pre-line; }
+    .sub { position: absolute; left: 72px; top: 390px; font-size: 30px; font-weight: 600; color: #6B5E54; white-space: pre-line; line-height: 1.45; }
+    .url { position: absolute; left: 72px; bottom: 56px; font-size: 26px; font-weight: 700; color: #B8864F; }
+    .phone {
+      position: absolute; width: 290px; height: 628px; border-radius: 48px; padding: 10px; background: #1d1714;
+      box-shadow: 0 30px 80px rgba(80, 50, 20, .3);
+    }
+    .phone img { width: 100%; height: 100%; border-radius: 38px; object-fit: cover; object-position: top; display: block; }
+    #ph1 { left: 760px; top: 120px; transform: rotate(-6deg); }
+    #ph2 { left: 900px; top: 70px; transform: rotate(5deg); }
+    .bubble {
+      position: absolute; left: 640px; top: 400px; width: 330px; padding: 20px 24px; border-radius: 24px 24px 24px 6px;
+      background: #fff; border: 3px solid #D4A574; font-size: 21px; font-weight: 600; line-height: 1.45;
+      box-shadow: 0 20px 50px rgba(120, 80, 40, .22);
+    }
+    .bubble b { display: block; color: #B8864F; font-size: 18px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="og" data-start="0" data-duration="1" data-width="1200" data-height="630" data-no-timeline>
+    <div class="brand"><img src="assets/icon.png" alt="" /><span id="name"></span></div>
+    <h1 id="title"></h1>
+    <div class="sub" id="sub"></div>
+    <div class="url">dailylab.app</div>
+    <div class="phone" id="ph1"><img src="assets/insights.webp" alt="" /></div>
+    <div class="phone" id="ph2"><img src="assets/diary.webp" alt="" /></div>
+    <div class="bubble"><b id="blabel"></b><span id="btext"></span></div>
+  </div>
+  <script>
+    const COPY = {
+      ko: { name: "오늘", title: "일기를 쓰면,\nAI가 답장을 보내요", sub: "감정일기 · 습관 · 수면 · 걸음을 한 곳에\n매주 도착하는 AI ‘나 리포트’",
+            label: "✨ AI 답장", text: "고생 많았어요. 오늘 가장 힘들었던 순간은 언제였나요?" },
+      en: { name: "Today", title: "Write in your journal.\nGet a reply from AI.", sub: "Mood, habits, sleep & steps in one app\nplus a weekly AI report about you",
+            label: "✨ AI reply", text: "That sounds exhausting. What was the hardest moment today?" },
+    };
+    const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+    const lang = (new URLSearchParams(location.search).get("lang") || vars.lang) === "en" ? "en" : "ko";
+    const C = COPY[lang];
+    document.documentElement.lang = lang;
+    if (lang === "en") document.getElementById("title").style.fontSize = "58px";
+    for (const [id, key] of [["name", "name"], ["title", "title"], ["sub", "sub"], ["blabel", "label"], ["btext", "text"]]) {
+      document.getElementById(id).textContent = C[key];
+    }
+  </script>
+</body>
+</html>

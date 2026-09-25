@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ko" data-composition-variables='[
+  {"id":"lang","type":"string","label":"Language (ko | en)","default":"ko"},
+  {"id":"hook","type":"string","label":"Hook line 1","default":""},
+  {"id":"hook2","type":"string","label":"Hook line 2","default":""},
+  {"id":"cta","type":"string","label":"CTA button","default":""}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1080, height=1920" />
+  <meta name="robots" content="noindex" />
+  <title>오늘 — 세로 광고 (HyperFrames)</title>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Pretendard HF";
+      src: url("assets/pretendard-hf.woff2") format("woff2");
+      font-weight: 45 920;
+      font-display: block;
+    }
+    :root {
+      --bg: #FAF6F1; --card: #FFFFFF; --ink: #2C2420; --ink2: #6B5E54; --muted: #9B8E83;
+      --brand: #D4A574; --brand-dk: #B8864F; --line: #EBE0D0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); }
+    #root {
+      position: relative; width: 1080px; height: 1920px; overflow: hidden;
+      background: radial-gradient(900px 900px at 50% 0%, #F6E2CB 0%, var(--bg) 65%);
+      font-family: "Pretendard HF", -apple-system, sans-serif; color: var(--ink); letter-spacing: -0.025em;
+    }
+    .scene { position: absolute; inset: 0; opacity: 0; }
+    /* Reels/Shorts safe zone: keep copy between y=220 and y=1540 */
+    .head { position: absolute; left: 80px; right: 80px; top: 230px; text-align: center; }
+    .head h2 { margin: 0; font-size: 96px; font-weight: 800; line-height: 1.15; white-space: pre-line; }
+    .phone {
+      position: absolute; left: 50%; width: 560px; height: 1212px; margin-left: -280px; border-radius: 84px; padding: 18px;
+      background: #1d1714; box-shadow: 0 60px 140px rgba(80, 50, 20, .30), 0 0 0 2px #3a2f29 inset;
+    }
+    .screen { position: relative; width: 100%; height: 100%; border-radius: 68px; overflow: hidden; background: #FAFAF8; }
+    .screen img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top; }
+
+    /* A hook */
+    #a { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 0 90px; }
+    #hook { font-size: 116px; font-weight: 800; line-height: 1.18; white-space: pre-line; }
+    html[lang="en"] #hook { font-size: 100px; }
+    html[lang="en"] .head h2 { font-size: 84px; }
+    #hook .w { display: inline-block; opacity: 0; }
+    #hook2 {
+      margin-top: 70px; font-size: 70px; font-weight: 800; color: #fff; background: var(--ink);
+      padding: 26px 50px; border-radius: 999px; opacity: 0;
+    }
+
+    /* B reply */
+    #b .phone { top: 600px; }
+    .bubble {
+      position: absolute; left: 90px; right: 90px; top: 1180px; padding: 44px 48px; border-radius: 44px 44px 44px 10px;
+      background: var(--card); border: 4px solid var(--brand); box-shadow: 0 40px 100px rgba(120, 80, 40, .25);
+      font-size: 46px; line-height: 1.45; font-weight: 600; opacity: 0;
+    }
+    .bubble b { display: block; font-size: 38px; color: var(--brand-dk); margin-bottom: 12px; }
+    .userline {
+      position: absolute; left: 150px; right: 150px; top: 560px; padding: 34px 44px; border-radius: 40px 40px 10px 40px;
+      background: var(--ink); color: #fff; font-size: 52px; font-weight: 700; text-align: right; opacity: 0; z-index: 2;
+    }
+
+    /* C features */
+    #c .phone { top: 640px; }
+    #c .head { height: 260px; }
+    #c .head h2 { position: absolute; left: 0; right: 0; top: 0; opacity: 0; }
+    .scr-2, .scr-3 { opacity: 0; }
+    .pills .p span {
+      display: inline-block; padding: 24px 42px; border-radius: 999px; background: var(--card); border: 3px solid var(--line);
+      font-size: 48px; font-weight: 800; box-shadow: 0 24px 60px rgba(120, 80, 40, .16);
+    }
+    .pills { position: absolute; z-index: 3; top: 1440px; left: 0; right: 0; height: 120px; }
+    .pills .p { position: absolute; left: 0; right: 0; text-align: center; opacity: 0; }
+
+    /* D end card */
+    #d { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding-bottom: 120px; }
+    #d img { width: 300px; height: 300px; border-radius: 70px; box-shadow: 0 40px 90px rgba(120, 70, 20, .32); opacity: 0; }
+    .d-title { font-size: 150px; font-weight: 800; margin-top: 50px; opacity: 0; }
+    .d-tag { font-size: 60px; font-weight: 600; color: var(--ink2); margin-top: 6px; opacity: 0; }
+    .d-cta {
+      margin-top: 90px; padding: 40px 90px; border-radius: 999px; background: var(--brand-dk); color: #fff;
+      font-size: 64px; font-weight: 800; box-shadow: 0 30px 70px rgba(184, 134, 79, .45); opacity: 0;
+    }
+    .d-sub { margin-top: 40px; font-size: 42px; font-weight: 600; color: var(--muted); opacity: 0; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="ad" data-start="0" data-duration="15" data-width="1080" data-height="1920">
+
+    <section id="a" class="scene clip" data-start="0" data-duration="3.4" data-track-index="1">
+      <div id="hook"></div>
+      <div id="hook2"></div>
+    </section>
+
+    <section id="b" class="scene clip" data-start="3.2" data-duration="4.6" data-track-index="2">
+      <div class="head"><h2 id="b-h"></h2></div>
+      <div class="phone" id="b-phone"><div class="screen"><img src="assets/diary.webp" alt="" /></div></div>
+      <div class="userline" id="userline"></div>
+      <div class="bubble" id="bubble"><b id="bubble-label"></b><span id="bubble-text"></span></div>
+    </section>
+
+    <section id="c" class="scene clip" data-start="7.6" data-duration="4.2" data-track-index="1">
+      <div class="head">
+        <h2 id="c-h1"></h2><h2 id="c-h2"></h2><h2 id="c-h3"></h2>
+      </div>
+      <div class="phone" id="c-phone"><div class="screen">
+        <img class="scr-1" src="assets/health.webp" alt="" />
+        <img class="scr-2" src="assets/habits.webp" alt="" />
+        <img class="scr-3" src="assets/insights.webp" alt="" />
+      </div></div>
+      <div class="pills">
+        <div class="p" id="c-p1"><span></span></div>
+        <div class="p" id="c-p2"><span></span></div>
+        <div class="p" id="c-p3"><span></span></div>
+      </div>
+    </section>
+
+    <section id="d" class="scene clip" data-start="11.6" data-duration="3.4" data-track-index="2">
+      <img src="assets/icon.png" alt="" id="d-icon" />
+      <div class="d-title" id="d-title"></div>
+      <div class="d-tag" id="d-tag"></div>
+      <div class="d-cta" id="d-cta"></div>
+      <div class="d-sub" id="d-sub"></div>
+    </section>
+  </div>
+
+  <script>
+    const COPY = {
+      ko: {
+        hook: "일기, 써도\n아무도 안 읽어줬죠?", hook2: "이제는 답장이 와요 💌",
+        bH: "한 줄만 쓰면\nAI가 답장해요", user: "오늘 좀 지쳤어", label: "✨ AI 답장",
+        reply: "고생 많았어요. 지친 날엔 일찍 쉬어도 괜찮아요. 오늘 가장 힘들었던 순간은 언제였나요?",
+        c: ["수면·걸음은\n자동으로 기록", "습관은\n작게, 가볍게", "매주 도착하는\n‘나 리포트’"],
+        pills: ["😴 수면 7.2시간", "🔥 12일 연속", "💡 잘 잔 날엔 기분 UP"],
+        title: "오늘", tag: "AI가 답장하는 일기", cta: "무료로 시작하기", sub: "App Store · dailylab.app",
+      },
+      en: {
+        hook: "You journal.\nBut who reads it?", hook2: "Now it writes back 💌",
+        bH: "Write one line.\nGet a reply from AI.", user: "Rough day today", label: "✨ AI reply",
+        reply: "That sounds exhausting. It's okay to rest early tonight. What was the hardest moment today?",
+        c: ["Sleep & steps,\nlogged for you", "Habits,\nsmall and light", "Your weekly\n“Me report”"],
+        pills: ["😴 Sleep 7.2h", "🔥 12-day streak", "💡 Good sleep → better mood"],
+        title: "Today", tag: "The journal that writes back", cta: "Start free", sub: "App Store · dailylab.app",
+      },
+    };
+    const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+    const qs = new URLSearchParams(location.search);
+    const lang = (qs.get("lang") || vars.lang) === "en" ? "en" : "ko";
+    const C = Object.assign({}, COPY[lang]);
+    // Variables (render) or query params (web player) override the hook/CTA for A/B creatives.
+    ["hook", "hook2", "cta"].forEach((k) => { const v = qs.get(k) || vars[k]; if (v) C[k] = v.replace(/\\n/g, "\n"); });
+    document.documentElement.lang = lang;
+    const $ = (id) => document.getElementById(id);
+    const text = (id, v) => { $(id).textContent = v; };
+
+    // hook: word-by-word reveal, keep line breaks
+    $("hook").innerHTML = C.hook.split("\n")
+      .map((line) => line.split(" ").map((w) => `<span class="w">${w}</span>`).join(" ")).join("<br>");
+    text("hook2", C.hook2);
+    text("b-h", C.bH); text("userline", C.user); text("bubble-label", C.label); text("bubble-text", C.reply);
+    C.c.forEach((t, i) => text(`c-h${i + 1}`, t));
+    C.pills.forEach((t, i) => { $(`c-p${i + 1}`).firstElementChild.textContent = t; });
+    text("d-title", C.title); text("d-tag", C.tag); text("d-cta", C.cta); text("d-sub", C.sub);
+
+    // initial poses
+    gsap.set("#hook .w", { y: 60 });
+    gsap.set("#hook2", { scale: 0.6 });
+    gsap.set("#b .head", { opacity: 0, y: 40 });
+    gsap.set("#b-phone", { y: 400 });
+    gsap.set("#userline", { y: 30, scale: 0.9, transformOrigin: "100% 100%" });
+    gsap.set("#bubble", { y: 40, scale: 0.9, transformOrigin: "0% 100%" });
+    gsap.set("#c-phone", { y: 300 });
+    gsap.set("#d-icon", { scale: 0.5 });
+
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+    // A — hook
+    tl.to("#a", { opacity: 1, duration: 0.25 }, 0);
+    tl.to("#hook .w", { opacity: 1, y: 0, duration: 0.5, stagger: 0.16 }, 0.15);
+    tl.to("#hook2", { opacity: 1, scale: 1, duration: 0.55, ease: "back.out(2)" }, 1.7);
+    tl.to("#a", { opacity: 0, scale: 1.06, duration: 0.35, ease: "power2.in" }, 3.05);
+
+    // B — diary + AI reply
+    tl.to("#b", { opacity: 1, duration: 0.3 }, 3.2);
+    tl.to("#b .head", { opacity: 1, y: 0, duration: 0.6 }, 3.25);
+    tl.to("#b-phone", { y: 0, duration: 0.9 }, 3.3);
+    tl.to("#userline", { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.8)" }, 4.0);
+    tl.to("#bubble", { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: "back.out(1.6)" }, 4.9);
+    tl.to("#b", { opacity: 0, duration: 0.3, ease: "power2.in" }, 7.5);
+
+    // C — three quick feature beats (screen + headline + pill swap)
+    tl.to("#c", { opacity: 1, duration: 0.3 }, 7.6);
+    tl.to("#c-phone", { y: 0, duration: 0.8 }, 7.6);
+    const beats = [7.7, 9.0, 10.3];
+    beats.forEach((t, i) => {
+      const n = i + 1;
+      tl.fromTo(`#c-h${n}`, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4 }, t);
+      tl.fromTo(`#c-p${n}`, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: "back.out(1.8)" }, t + 0.15);
+      if (n > 1) tl.fromTo(`#c .scr-${n}`, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "none" }, t - 0.05);
+      if (n < 3) {
+        tl.to(`#c-h${n}`, { opacity: 0, y: -30, duration: 0.25, ease: "power2.in" }, beats[i + 1] - 0.25);
+        tl.to(`#c-p${n}`, { opacity: 0, duration: 0.2, ease: "none" }, beats[i + 1] - 0.2);
+      }
+    });
+    tl.to("#c", { opacity: 0, duration: 0.3, ease: "power2.in" }, 11.5);
+
+    // D — end card
+    tl.to("#d", { opacity: 1, duration: 0.3 }, 11.6);
+    tl.to("#d-icon", { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.8)" }, 11.65);
+    tl.fromTo(["#d-title", "#d-tag"], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.12 }, 12.0);
+    tl.fromTo("#d-cta", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2)" }, 12.4);
+    tl.to("#d-cta", { scale: 1.06, duration: 0.35, repeat: 3, yoyo: true, ease: "sine.inOut" }, 13.1);
+    tl.fromTo("#d-sub", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 12.7);
+
+    tl.set({}, {}, 15); // hold the end card until the declared duration
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines.ad = tl;
+  </script>
+</body>
+</html>

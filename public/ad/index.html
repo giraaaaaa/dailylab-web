@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>일기 쓰면 AI가 답장해요 — 오늘 무료 다운로드</title>
+  <meta name="description" content="한 줄만 적어도 AI가 따뜻한 답장을 보내요. 감정일기·습관·수면·걸음을 한 곳에, 매주 AI '나 리포트'까지. 오늘 앱을 무료로 시작하세요." />
+  <!-- 광고 유입 전용 페이지: 메인(/)과 검색 순위를 나눠 먹지 않도록 색인 제외. 공유 미리보기(OG)는 유지. -->
+  <meta name="robots" content="noindex, follow" />
+  <meta name="theme-color" content="#FAF6F1" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="apple-itunes-app" content="app-id=6760692551" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="오늘 - Daily Lab" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:url" content="https://www.dailylab.app/ad" />
+  <meta property="og:title" content="일기 쓰면, AI가 답장해요 💌" />
+  <meta property="og:description" content="한 줄만 적어도 괜찮아요. 감정일기·습관·수면을 한 곳에. 무료로 시작하세요." />
+  <meta property="og:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:video" content="https://www.dailylab.app/video/ad-vertical-ko.mp4" />
+  <meta property="og:video:type" content="video/mp4" />
+  <meta property="og:video:width" content="1080" />
+  <meta property="og:video:height" content="1920" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/img/icons/icon-180.png" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preload" as="image" href="/video/ad-vertical-ko-poster.jpg" fetchpriority="high" />
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'" crossorigin />
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" /></noscript>
+  <link rel="stylesheet" href="/assets/site.css" />
+  <style>
+    .ad-top { display: flex; justify-content: center; padding: 14px 0 0; }
+    .ad-hero { padding: 20px 0 40px; text-align: center; }
+    .ad-hero .wrap { display: grid; grid-template-columns: 1fr; justify-items: center; gap: 0; max-width: 1040px; }
+    .ad-hero h1 { font-size: clamp(34px, 8.4vw, 60px); font-weight: 800; white-space: pre-line; }
+    .ad-hero h1 em { font-style: normal; color: var(--brand-dk); }
+    .ad-hero .lead { font-size: clamp(16px, 4.2vw, 20px); color: var(--ink-2); margin: 14px auto 20px; max-width: 30em; }
+    .ad-player {
+      width: min(300px, 62vw); aspect-ratio: 9 / 16; border-radius: 28px; margin: 28px auto 0;
+      box-shadow: 0 30px 80px rgba(80, 50, 20, .25); border: 6px solid #1d1714;
+    }
+    .ad-player .play { background: rgba(44, 36, 32, .06); }
+    .ad-cta { min-width: min(360px, 88vw); min-height: 60px; font-size: 18px; }
+    .ad-hero .fine { margin-top: 12px; }
+    @media (min-width: 900px) {
+      .ad-hero .wrap { grid-template-columns: 1fr 380px; text-align: left; gap: 56px; align-items: center; justify-items: start; }
+      .ad-hero .lead { margin-left: 0; }
+      .ad-player { grid-row: 1 / span 2; grid-column: 2; margin: 0; width: 340px; }
+    }
+    .benefits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .benefit { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 24px; }
+    .benefit .emoji { font-size: 30px; }
+    .benefit h2 { font-size: 20px; font-weight: 800; margin-top: 10px; }
+    .benefit p { font-size: 15px; color: var(--ink-2); margin-top: 6px; }
+    @media (max-width: 760px) { .benefits { grid-template-columns: 1fr; } }
+    .shots {
+      display: grid; grid-auto-flow: column; grid-auto-columns: min(220px, 58vw); gap: 16px; overflow-x: auto;
+      scroll-snap-type: x mandatory; padding: 8px 24px 24px; margin: 0 -24px; scrollbar-width: none;
+    }
+    .shots::-webkit-scrollbar { display: none; }
+    .shots figure { margin: 0; scroll-snap-align: center; }
+    .shots .phone { border-radius: 34px; padding: 7px; }
+    .shots .phone img { border-radius: 28px; }
+    .shots figcaption { text-align: center; font-size: 14px; font-weight: 700; color: var(--ink-2); margin-top: 10px; }
+    .ad-sec { padding: 48px 0; }
+    .ad-sec h2.t { font-size: clamp(26px, 6vw, 36px); font-weight: 800; text-align: center; margin-bottom: 26px; }
+  </style>
+</head>
+<body>
+  <header class="ad-top">
+    <a class="logo" href="/" aria-label="오늘 홈"><img src="/img/icons/icon-192.png" width="34" height="34" alt="" /><span>오늘</span></a>
+  </header>
+
+  <main id="main">
+    <section class="ad-hero hero" aria-labelledby="ad-title">
+      <div class="wrap">
+        <div>
+          <h1 id="ad-title">일기, 써도 아무도 안 읽어줬죠?
+<em>이제는 답장이 와요</em></h1>
+          <p class="lead" id="ad-lead">한 줄만 적어도 AI가 따뜻한 코멘트와 질문으로 답장해요. 기분·수면·걸음·습관을 한 곳에 모으고, 매주 ‘나 리포트’를 받아보세요.</p>
+        </div>
+
+        <div>
+          <a class="btn btn-dark ad-cta" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="ad-hero" data-auto-store data-android-label="안드로이드 베타 무료 참여">
+            <span data-label>App Store에서 무료로 시작하기</span>
+          </a>
+          <p class="fine">무료 · 가입 1분 · 내 일기는 AI 학습에 사용되지 않아요</p>
+          <a hidden data-store="android" href="https://groups.google.com/g/today-app-testers">Android beta</a>
+        </div>
+        <div class="player-shell ad-player" id="ad-player" data-src="/hf/ad/" data-width="1080" data-height="1920" data-autoplay="true" data-controls="false"
+             style="background-image:url('/video/ad-vertical-ko-poster.jpg')" aria-label="오늘 앱 15초 광고 영상">
+          <button class="play" type="button" aria-label="영상 재생"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg></span></button>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="ad-sec" aria-label="핵심 기능">
+      <div class="wrap">
+        <div class="benefits">
+          <div class="benefit"><div class="emoji" aria-hidden="true">💌</div><h2>AI가 답장하는 일기</h2><p>감정 태그, 공감 코멘트, 생각해 볼 질문까지. 혼자 쓰는 일기장은 이제 그만.</p></div>
+          <div class="benefit"><div class="emoji" aria-hidden="true">😴</div><h2>수면·걸음 자동 기록</h2><p>Apple 건강과 연결하면 알아서 쌓여요. 저녁 알림에선 기분만 톡.</p></div>
+          <div class="benefit"><div class="emoji" aria-hidden="true">💡</div><h2>매주 ‘나 리포트’</h2><p>“잘 잔 날엔 기분도 좋았어요” — 몰랐던 내 패턴을 알려줘요.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ad-sec" aria-labelledby="shots-title" style="padding-top:8px">
+      <div class="wrap">
+        <h2 class="t" id="shots-title">이렇게 기록돼요</h2>
+        <div class="shots" tabindex="0" aria-label="앱 화면 미리보기 (가로로 넘겨보세요)">
+          <figure><div class="phone"><img src="/img/shots/diary.webp" width="860" height="1864" loading="lazy" alt="일기와 AI 코멘트, 감정 분석 화면" /></div><figcaption>AI 코멘트 · 감정 분석</figcaption></figure>
+          <figure><div class="phone"><img src="/img/shots/home.webp" width="860" height="1864" loading="lazy" alt="날짜별 일기 카드 홈 화면" /></div><figcaption>하루가 한눈에</figcaption></figure>
+          <figure><div class="phone"><img src="/img/shots/insights.webp" width="860" height="1864" loading="lazy" alt="주간 AI 리포트 화면" /></div><figcaption>주간 ‘나 리포트’</figcaption></figure>
+          <figure><div class="phone"><img src="/img/shots/habits.webp" width="860" height="1864" loading="lazy" alt="습관 트래커 화면" /></div><figcaption>습관 · 스트릭</figcaption></figure>
+          <figure><div class="phone"><img src="/img/shots/health.webp" width="860" height="1864" loading="lazy" alt="건강 데이터 화면" /></div><figcaption>수면 · 걸음 · 심박수</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="ad-sec privacy" aria-labelledby="ad-privacy">
+      <div class="wrap">
+        <h2 class="t" id="ad-privacy">안심하고 털어놓으세요</h2>
+        <div class="privacy-grid">
+          <div><h3>🔒 암호화 저장</h3><p>모든 기록은 암호화돼요.</p></div>
+          <div><h3>🙆 동의 기반 AI</h3><p>동의한 경우에만, 식별 정보 없이.</p></div>
+          <div><h3>🧠 학습 미사용</h3><p>내 일기는 AI 학습에 쓰이지 않아요.</p></div>
+          <div><h3>🗑️ 언제든 삭제</h3><p>설정에서 계정·데이터 즉시 삭제.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ad-sec" aria-labelledby="ad-faq">
+      <div class="wrap">
+        <h2 class="t" id="ad-faq">궁금한 점</h2>
+        <div class="faq">
+          <details><summary>정말 무료인가요?</summary><p>네, 일기·기분·습관·건강 기록과 AI 답장 모두 무료로 쓸 수 있어요.</p></details>
+          <details><summary>안드로이드도 되나요?</summary><p>안드로이드는 Google Play 비공개 베타 중이에요. <a href="https://groups.google.com/g/today-app-testers" data-store="android" data-placement="ad-faq" rel="noopener">테스터 그룹</a> 가입 후 <a href="https://play.google.com/apps/testing/app.dailylab.today" data-store="android" data-placement="ad-faq" rel="noopener">테스트 페이지</a>에서 설치할 수 있어요.</p></details>
+          <details><summary>매일 길게 써야 하나요?</summary><p>아니요. 한 줄도 괜찮고, 바쁜 날엔 저녁 알림에서 기분 버튼만 눌러도 기록돼요.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="block final" style="padding-top:8px" aria-labelledby="ad-final">
+      <div class="wrap">
+        <div class="final-box">
+          <img src="/img/icons/icon-192.png" width="88" height="88" alt="오늘 앱 아이콘" loading="lazy" />
+          <h2 id="ad-final">오늘 하루, 어땠나요?</h2>
+          <p>지금 한 줄로 시작해 보세요.</p>
+          <div class="cta-row">
+            <a class="btn btn-dark ad-cta" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="ad-final" data-auto-store data-android-label="안드로이드 베타 무료 참여">
+              <span data-label>무료로 시작하기</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>© 2026 Daily Lab · 오늘</p>
+      <nav aria-label="하단 메뉴"><a href="/">서비스 소개</a><a href="/terms">이용약관</a><a href="/privacy">개인정보처리방침</a></nav>
+    </div>
+  </footer>
+
+  <div class="sticky-cta">
+    <a class="btn btn-dark" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="ad-sticky" data-auto-store data-android-label="안드로이드 베타 무료 참여">
+      <span data-label>무료로 시작하기 →</span>
+    </a>
+  </div>
+
+  <script>
+    // 광고 소재별 메시지 매칭: /ad?v=sleep 처럼 들어오면 헤드라인과 영상 훅이 소재에 맞게 바뀐다.
+    // (site.js보다 먼저 실행돼야 플레이어 src에 반영됨)
+    (function () {
+      var VARIANTS = {
+        lonely: { h: "일기, 써도 아무도 안 읽어줬죠?\n<em>이제는 답장이 와요</em>", hook: "일기, 써도\n아무도 안 읽어줬죠?", hook2: "이제는 답장이 와요 💌" },
+        tired:  { h: "“오늘 좀 지쳤어”\n<em>한 줄이면 AI가 답장해요</em>", hook: "오늘 좀\n지쳤어…", hook2: "AI가 답장해 줄게요 💌" },
+        sleep:  { h: "잘 잔 날, 기분도 좋았을까?\n<em>AI가 내 패턴을 찾아줘요</em>", hook: "잘 잔 날엔\n기분도 좋았을까?", hook2: "AI가 패턴을 찾아줘요 💡" },
+        habit:  { h: "작심삼일 루틴,\n<em>이번엔 가볍게 이어가요</em>", hook: "작심삼일,\n또 끝났나요?", hook2: "작게, 가볍게, 오늘부터 🔥" }
+      };
+      var v = VARIANTS[new URLSearchParams(location.search).get("v")];
+      if (!v) return;
+      var h1 = document.getElementById("ad-title");
+      var tmp = document.createElement("div");
+      tmp.textContent = v.h; // escape, then re-allow the single <em> we authored
+      h1.innerHTML = tmp.innerHTML.replace("&lt;em&gt;", "<em>").replace("&lt;/em&gt;", "</em>");
+      var shell = document.getElementById("ad-player");
+      shell.dataset.src = "/hf/ad/?hook=" + encodeURIComponent(v.hook) + "&hook2=" + encodeURIComponent(v.hook2);
+    })();
+  </script>
+  <script src="/assets/site.js" defer></script>
+</body>
+</html>
