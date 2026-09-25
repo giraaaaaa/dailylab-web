@@ -92,7 +92,7 @@
           <p class="fine">무료 · 가입 1분 · 내 일기는 AI 학습에 사용되지 않아요</p>
           <a hidden data-store="android" href="https://groups.google.com/g/today-app-testers">Android beta</a>
         </div>
-        <div class="player-shell ad-player" id="ad-player" data-src="/hf/ad/" data-width="1080" data-height="1920" data-autoplay="true" data-controls="false"
+        <div class="player-shell ad-player" id="ad-player" data-src="/hf/ad" data-width="1080" data-height="1920" data-autoplay="true" data-controls="false"
              style="background-image:url('/video/ad-vertical-ko-poster.jpg')" aria-label="오늘 앱 15초 광고 영상">
           <button class="play" type="button" aria-label="영상 재생"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg></span></button>
         </div>
@@ -192,7 +192,7 @@
       tmp.textContent = v.h; // escape, then re-allow the single <em> we authored
       h1.innerHTML = tmp.innerHTML.replace("&lt;em&gt;", "<em>").replace("&lt;/em&gt;", "</em>");
       var shell = document.getElementById("ad-player");
-      shell.dataset.src = "/hf/ad/?hook=" + encodeURIComponent(v.hook) + "&hook2=" + encodeURIComponent(v.hook2);
+      shell.dataset.src = "/hf/ad?hook=" + encodeURIComponent(v.hook) + "&hook2=" + encodeURIComponent(v.hook2);
     })();
   </script>
   <script src="/assets/site.js" defer></script>

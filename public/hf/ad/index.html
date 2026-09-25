@@ -7,6 +7,11 @@
 ]'>
 <head>
   <meta charset="UTF-8" />
+  <script>
+    // Vercel(trailingSlash:false)은 /hf/promo/ → /hf/promo 로 리다이렉트한다. 그러면 assets/… 상대 경로가
+    // /hf/assets/… 로 풀려 404가 나므로, 확장자 없는 경로로 열렸을 때만 폴더 기준 <base>를 건다.
+    (function () { var p = location.pathname; if (!/\/$|\.[a-z0-9]+$/i.test(p)) document.write('<base href="' + p + '/">'); })();
+  </script>
   <meta name="viewport" content="width=1080, height=1920" />
   <meta name="robots" content="noindex" />
   <title>오늘 — 세로 광고 (HyperFrames)</title>
