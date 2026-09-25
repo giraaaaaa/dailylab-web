@@ -1,26 +1,418 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>오늘 - Daily Lab</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 60px 24px; color: #333; text-align: center; background: #FAFAF8; }
-    h1 { font-size: 48px; margin-bottom: 0; }
-    .subtitle { font-size: 18px; color: #666; margin-top: 8px; }
-    .tagline { font-size: 15px; color: #999; margin-top: 24px; line-height: 1.6; }
-    .links { margin-top: 48px; display: flex; gap: 24px; justify-content: center; }
-    .links a { font-size: 14px; color: #888; text-decoration: none; }
-    .links a:hover { color: #333; text-decoration: underline; }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>오늘 - AI가 답장하는 일기 앱 | 감정일기·습관·수면 기록</title>
+  <meta name="description" content="일기를 쓰면 AI가 답장을 보내요. 감정일기, 습관 트래커, 수면·걸음 기록을 앱 하나로 모으고 매주 도착하는 AI '나 리포트'로 몰랐던 내 패턴을 발견하세요. iPhone 무료 다운로드." />
+  <link rel="canonical" href="https://www.dailylab.app/" />
+  <link rel="alternate" hreflang="ko" href="https://www.dailylab.app/" />
+  <link rel="alternate" hreflang="en" href="https://www.dailylab.app/en" />
+  <link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="author" content="Daily Lab" />
+  <meta name="application-name" content="오늘" />
+  <meta name="theme-color" content="#FAF6F1" />
+  <meta name="format-detection" content="telephone=no" />
+  <!-- iOS Safari 스마트 앱 배너 -->
+  <meta name="apple-itunes-app" content="app-id=6760692551" />
+  <!-- 검색 엔진 소유 확인: 발급받은 코드로 교체 후 주석 해제
+  <meta name="google-site-verification" content="GOOGLE_CODE" />
+  <meta name="naver-site-verification" content="NAVER_CODE" />
+  -->
+
+  <!-- Open Graph / 카카오톡 · 페이스북 · 네이버 공유 -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="오늘 - Daily Lab" />
+  <meta property="og:locale" content="ko_KR" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:url" content="https://www.dailylab.app/" />
+  <meta property="og:title" content="오늘 - AI가 답장하는 일기 앱" />
+  <meta property="og:description" content="한 줄만 적어도 AI가 따뜻한 답장을 보내요. 감정일기·습관·수면·걸음을 한 곳에, 매주 '나 리포트'까지." />
+  <meta property="og:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="오늘 앱 — 일기를 쓰면 AI가 답장을 보내요" />
+  <meta property="og:video" content="https://www.dailylab.app/video/promo-ko.mp4" />
+  <meta property="og:video:type" content="video/mp4" />
+  <meta property="og:video:width" content="1920" />
+  <meta property="og:video:height" content="1080" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="오늘 - AI가 답장하는 일기 앱" />
+  <meta name="twitter:description" content="한 줄만 적어도 AI가 따뜻한 답장을 보내요. 감정일기·습관·수면·걸음을 한 곳에." />
+  <meta name="twitter:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="icon" type="image/png" href="/img/icons/icon-192.png" sizes="192x192" />
+  <link rel="apple-touch-icon" href="/img/icons/icon-180.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preload" as="image" href="/img/shots/diary.webp" fetchpriority="high" />
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" media="print" onload="this.media='all'" crossorigin />
+  <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" /></noscript>
+  <link rel="stylesheet" href="/assets/site.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://www.dailylab.app/#org",
+        "name": "Daily Lab",
+        "alternateName": "데일리랩",
+        "url": "https://www.dailylab.app/",
+        "logo": { "@type": "ImageObject", "url": "https://www.dailylab.app/img/icons/icon-512.png", "width": 512, "height": 512 },
+        "email": "dailylab.apps@gmail.com",
+        "contactPoint": { "@type": "ContactPoint", "contactType": "customer support", "email": "dailylab.apps@gmail.com", "availableLanguage": ["Korean", "English"] },
+        "sameAs": ["https://apps.apple.com/kr/app/id6760692551"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.dailylab.app/#website",
+        "url": "https://www.dailylab.app/",
+        "name": "오늘 - Daily Lab",
+        "inLanguage": "ko-KR",
+        "publisher": { "@id": "https://www.dailylab.app/#org" }
+      },
+      {
+        "@type": "WebPage",
+        "@id": "https://www.dailylab.app/#webpage",
+        "url": "https://www.dailylab.app/",
+        "name": "오늘 - AI가 답장하는 일기 앱 | 감정일기·습관·수면 기록",
+        "description": "일기를 쓰면 AI가 답장을 보내요. 감정일기, 습관 트래커, 수면·걸음 기록을 앱 하나로 모으고 매주 AI '나 리포트'를 받아보세요.",
+        "inLanguage": "ko-KR",
+        "isPartOf": { "@id": "https://www.dailylab.app/#website" },
+        "about": { "@id": "https://www.dailylab.app/#app" },
+        "primaryImageOfPage": "https://www.dailylab.app/img/og-ko.jpg",
+        "dateModified": "2026-09-25"
+      },
+      {
+        "@type": "MobileApplication",
+        "@id": "https://www.dailylab.app/#app",
+        "name": "오늘 - AI가 답장하는 일기, 다이어리",
+        "alternateName": ["오늘", "Today: AI Journal & Diary"],
+        "description": "일기를 쓰면 AI가 답장을 보내는 감정일기 앱. 습관 트래커, 수면·걸음 자동 기록, 저녁 알림 기분 체크인, 주간 AI 인사이트 리포트를 제공합니다.",
+        "operatingSystem": "iOS",
+        "applicationCategory": "LifestyleApplication",
+        "applicationSubCategory": "Journal",
+        "inLanguage": ["ko", "en"],
+        "softwareVersion": "1.1.0",
+        "installUrl": "https://apps.apple.com/kr/app/id6760692551",
+        "downloadUrl": "https://apps.apple.com/kr/app/id6760692551",
+        "url": "https://www.dailylab.app/",
+        "image": "https://www.dailylab.app/img/icons/icon-512.png",
+        "screenshot": [
+          "https://www.dailylab.app/img/shots/diary.webp",
+          "https://www.dailylab.app/img/shots/insights.webp",
+          "https://www.dailylab.app/img/shots/home.webp",
+          "https://www.dailylab.app/img/shots/health.webp",
+          "https://www.dailylab.app/img/shots/habits.webp"
+        ],
+        "featureList": ["AI가 답장하는 일기", "감정 태그·감정 분석", "저녁 알림 기분 체크인", "Apple 건강 연동(걸음·수면·심박수·운동)", "습관 트래커·스트릭", "주간 AI 인사이트 리포트"],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW", "availability": "https://schema.org/InStock" },
+        "publisher": { "@id": "https://www.dailylab.app/#org" }
+      },
+      {
+        "@type": "VideoObject",
+        "@id": "https://www.dailylab.app/#video",
+        "name": "오늘 앱 소개 — 일기를 쓰면 AI가 답장을 보내요",
+        "description": "한 줄 일기에 AI가 답장하고, 기분·수면·걸음·습관을 한 곳에 모아 매주 '나 리포트'를 보내주는 오늘 앱을 20초 만에 소개합니다.",
+        "thumbnailUrl": ["https://www.dailylab.app/video/promo-ko-poster.jpg", "https://www.dailylab.app/img/og-ko.jpg"],
+        "uploadDate": "2026-09-25T21:00:00+09:00",
+        "duration": "PT20S",
+        "contentUrl": "https://www.dailylab.app/video/promo-ko.mp4",
+        "inLanguage": "ko",
+        "publisher": { "@id": "https://www.dailylab.app/#org" }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://www.dailylab.app/#faq",
+        "mainEntity": [
+          { "@type": "Question", "name": "오늘 앱은 무료인가요?", "acceptedAnswer": { "@type": "Answer", "text": "네, App Store에서 무료로 다운로드할 수 있어요. 일기·기분·습관·건강 기록과 AI 답장 모두 무료로 사용할 수 있습니다." } },
+          { "@type": "Question", "name": "한 줄만 써도 AI가 답장해 주나요?", "acceptedAnswer": { "@type": "Answer", "text": "한 줄 일기도 기록돼요. AI 답장은 일기가 30자 이상일 때 도착하고, 저장하면 AI가 감정 태그와 따뜻한 코멘트, 생각해 볼 질문을 남겨요." } },
+          { "@type": "Question", "name": "내 일기가 AI 학습에 사용되나요?", "acceptedAnswer": { "@type": "Answer", "text": "아니요. 일기는 AI 학습에 사용되지 않아요. AI 분석은 동의한 경우에만 개인 식별 정보 없이 진행되고, 모든 데이터는 암호화되어 저장됩니다." } },
+          { "@type": "Question", "name": "안드로이드에서도 쓸 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "현재 iPhone은 App Store에 출시되어 있고, 안드로이드는 Google Play 비공개 베타 테스트 중이에요. 테스터 그룹에 가입하면 바로 설치할 수 있습니다." } },
+          { "@type": "Question", "name": "어떤 건강 데이터를 가져오나요?", "acceptedAnswer": { "@type": "Answer", "text": "Apple 건강(안드로이드는 Health Connect)과 연결하면 걸음 수, 수면, 심박수, 운동 기록을 자동으로 불러와요. 물 마시기는 탭 한 번으로 직접 기록합니다." } },
+          { "@type": "Question", "name": "AI 인사이트 리포트는 무엇인가요?", "acceptedAnswer": { "@type": "Answer", "text": "일기·기분·수면·걸음·습관을 연결해 매주 '나 리포트'를 만들어 줘요. '잠을 잘 잔 날엔 기분이 좋았어요'처럼 스스로 알아채기 어려운 패턴을 알려줍니다." } },
+          { "@type": "Question", "name": "기록을 삭제하거나 탈퇴할 수 있나요?", "acceptedAnswer": { "@type": "Answer", "text": "네. 앱 설정에서 언제든 계정과 모든 데이터를 삭제할 수 있어요." } },
+          { "@type": "Question", "name": "AI가 응답하지 않으면 일기는 저장되지 않나요?", "acceptedAnswer": { "@type": "Answer", "text": "일기는 AI와 관계없이 항상 먼저 저장돼요. AI 답장은 부가 기능이라 네트워크 문제 등으로 늦어지더라도 기록은 안전합니다." } }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
-  <h1>☀️</h1>
-  <div class="subtitle"><strong>오늘</strong></div>
-  <div class="tagline">나의 하루를 기록하는 가장 따뜻한 방법</div>
-  <div class="links">
-    <a href="/terms">이용약관</a>
-    <a href="/privacy">개인정보처리방침</a>
+  <a class="skip" href="#main">본문 바로가기</a>
+
+  <header class="site-header">
+    <div class="wrap">
+      <a class="logo" href="/" aria-label="오늘 홈">
+        <img src="/img/icons/icon-192.png" width="34" height="34" alt="" />
+        <span>오늘</span>
+      </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="#features">기능</a>
+        <a href="#video">영상</a>
+        <a href="#privacy">개인정보 보호</a>
+        <a href="#faq">자주 묻는 질문</a>
+      </nav>
+      <a class="lang-link" href="/en" hreflang="en" lang="en">EN</a>
+      <a class="btn btn-dark header-cta" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="header" data-auto-store data-android-label="베타 참여">
+        <span data-label>다운로드</span>
+      </a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap">
+        <div>
+          <p class="eyebrow">✨ AI 감정일기 · 습관 · 수면 기록</p>
+          <h1 id="hero-title">일기를 쓰면,<br /><em>AI가 답장</em>을 보내요</h1>
+          <p class="lead">"오늘 좀 지쳤어" 한 줄이면 충분해요. 혼자 쓰는 일기장이 아니라 나를 알아주는 다이어리. 기분·수면·걸음·습관을 한 곳에 모으고, 매주 도착하는 <strong>'나 리포트'</strong>로 몰랐던 내 패턴을 발견하세요.</p>
+          <div class="cta-row">
+            <a class="btn btn-dark btn-store" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="hero">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.64c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.9c.63-.77 1.06-1.83.94-2.9-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.27z"/></svg>
+              <span><span class="btn-sub">무료 다운로드</span>App Store</span>
+            </a>
+            <a class="btn btn-line btn-store" href="https://groups.google.com/g/today-app-testers" data-store="android" data-placement="hero" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3.2v17.6c0 .5.5.8.9.6L20.3 12.6c.4-.2.4-.9 0-1.1L4.9 2.6c-.4-.2-.9.1-.9.6z"/></svg>
+              <span><span class="btn-sub">안드로이드 베타</span>Google Play</span>
+            </a>
+          </div>
+          <p class="fine">무료 · iPhone 출시 · 안드로이드 비공개 베타 모집 중 · 한국어/English</p>
+        </div>
+
+        <div class="hero-visual">
+          <div class="phone">
+            <img src="/img/shots/diary.webp" width="860" height="1864" fetchpriority="high"
+                 alt="오늘 앱 일기 상세 화면 — 한강 러닝 일기에 AI 코멘트와 감정 분석(활기, 에너지 높음)이 표시됨" />
+          </div>
+          <div class="float float-reply" aria-hidden="true"><b>✨ AI 답장</b>고생 많았어요. 오늘 가장 힘들었던 순간은 언제였나요?</div>
+          <div class="float float-stat" aria-hidden="true">😴 7.2시간 · 🚶 9,174보</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust" role="note" aria-label="개인정보 보호 요약">
+      <ul>
+        <li>🔒 모든 기록 암호화 저장</li>
+        <li>🧠 내 일기는 AI 학습에 사용 안 함</li>
+        <li>🙆 AI 분석은 동의한 경우에만</li>
+        <li>🗑️ 언제든 계정·데이터 삭제</li>
+      </ul>
+    </div>
+
+    <!-- FEATURES -->
+    <section class="block" id="features" aria-labelledby="features-title">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">FEATURES</p>
+          <h2 id="features-title">흩어진 하루를, 한 앱에서</h2>
+          <p>일기장, 무드 트래커, 습관 트래커, 만보기를 따로 쓰지 마세요. 오늘은 기록을 연결해 나를 이해하는 단서로 바꿔줘요.</p>
+        </header>
+
+        <article class="feature reveal">
+          <div class="feature-media"><div class="phone">
+            <img src="/img/shots/home.webp" width="860" height="1864" loading="lazy" decoding="async"
+                 alt="오늘 앱 홈 화면 — 날짜별 일기 카드에 감정 이모지, 해시태그, 수면·걸음 수, AI 코멘트가 함께 표시됨" />
+          </div></div>
+          <div>
+            <span class="tag">AI 답장 일기</span>
+            <h3>혼자 쓰는 일기장이 아니라,<br />답장이 오는 다이어리</h3>
+            <p>한 줄 일기도, 긴 하루 회고도 괜찮아요. 저장하면 AI가 내 이야기를 읽고 공감 코멘트와 생각해 볼 질문으로 답해줘요.</p>
+            <ul>
+              <li>AI가 감정 태그와 해시태그를 자동으로 달아줘요</li>
+              <li>감정·에너지 흐름을 분석해 요즘의 나를 보여줘요</li>
+              <li>감정일기, 감사일기, 한줄일기 — 어떤 방식이든 OK</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="feature reveal">
+          <div class="feature-media"><div class="phone">
+            <img src="/img/shots/health.webp" width="860" height="1864" loading="lazy" decoding="async"
+                 alt="오늘 앱 건강 화면 — Apple 건강에서 동기화된 체중, 수면 7.2시간, 심박수 68bpm, 걸음 8.4k, 수분 섭취 기록" />
+          </div></div>
+          <div>
+            <span class="tag">건강 자동 연동</span>
+            <h3>걸음 수·수면·심박수는<br />알아서 기록돼요</h3>
+            <p>Apple 건강과 연결하면 걸음 수, 수면, 심박수, 운동이 앱을 열 때마다 조용히 동기화돼요. 물 마시기는 탭 한 번이면 끝.</p>
+            <ul>
+              <li>저녁 알림에서 기분 버튼만 누르면 오늘의 감정 체크인 완료</li>
+              <li>바쁜 날에도 끊기지 않는 무드 트래커</li>
+              <li>안드로이드는 Health Connect 연동 (베타)</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="feature reveal">
+          <div class="feature-media"><div class="phone">
+            <img src="/img/shots/habits.webp" width="860" height="1864" loading="lazy" decoding="async"
+                 alt="오늘 앱 습관 트래커 화면 — 오늘 진행률 80%, 아침 산책 12일 연속, 운동하기와 독서 30분 체크리스트" />
+          </div></div>
+          <div>
+            <span class="tag">습관 · 루틴</span>
+            <h3>작게 쪼개서,<br />가볍게 이어가는 습관</h3>
+            <p>습관을 작은 체크 항목으로 나누면 부담이 줄어요. 연속 기록(스트릭)과 주간 달성률이 갓생 루틴을 이어가게 도와줘요.</p>
+            <ul>
+              <li>하위 체크리스트로 쪼개는 습관 관리</li>
+              <li>🔥 스트릭과 요일별 달성 기록</li>
+              <li>잊지 않게 알려주는 리마인더 알림</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="feature reveal">
+          <div class="feature-media"><div class="phone">
+            <img src="/img/shots/insights.webp" width="860" height="1864" loading="lazy" decoding="async"
+                 alt="오늘 앱 AI 인사이트 화면 — 오늘의 AI 코멘트, AI 질문, 감정 요약·평균 수면·걸음·습관 완료율이 담긴 주간 리포트" />
+          </div></div>
+          <div>
+            <span class="tag">주간 AI 인사이트</span>
+            <h3>몰랐던 내 패턴,<br />매주 '나 리포트'로</h3>
+            <p>일기 + 건강 + 습관 데이터를 연결해 매주 리포트를 보내드려요. "잠을 잘 잔 날엔 기분이 좋았어요" 같은 나만의 패턴을 발견해 보세요.</p>
+            <ul>
+              <li>감정 요약, 가장 행복했던 날, 평균 수면·걸음</li>
+              <li>습관 완료율과 다음 주를 위한 제안</li>
+              <li>쌓일수록 더 깊어지는 자기 이해</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- VIDEO (HyperFrames) -->
+    <section class="block video-sec" id="video" aria-labelledby="video-title">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">20초 소개 영상</p>
+          <h2 id="video-title">오늘이 하루를 기록하는 방법</h2>
+          <p>한 줄 쓰기부터 매주 도착하는 리포트까지, 20초면 충분해요.</p>
+        </header>
+        <div class="player-shell reveal" data-src="/hf/promo/" data-width="1920" data-height="1080" data-autoplay="true"
+             style="background-image:url('/video/promo-ko-poster.jpg')" aria-label="오늘 앱 20초 소개 영상">
+          <button class="play" type="button" aria-label="소개 영상 재생"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10-6.5z"/></svg></span></button>
+          <noscript><video src="/video/promo-ko.mp4" poster="/video/promo-ko-poster.jpg" controls muted playsinline width="1920" height="1080"></video></noscript>
+        </div>
+        <p class="video-meta">HTML로 만든 영상(HyperFrames)이라 가볍게 재생돼요 · <a href="/video/promo-ko.mp4">MP4로 보기</a></p>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section class="block" aria-labelledby="how-title">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">HOW IT WORKS</p>
+          <h2 id="how-title">하루 1분이면 충분해요</h2>
+        </header>
+        <ol class="steps reveal">
+          <li><h3>한 줄 쓰기</h3><p>오늘 있었던 일, 기분, 떠오른 생각을 편하게 적어요. 저녁 알림에서 기분만 체크해도 좋아요.</p></li>
+          <li><h3>AI 답장 받기</h3><p>AI가 감정 태그를 달고 따뜻한 코멘트와 질문을 남겨요. 일기를 쓰는 이유가 생겨요.</p></li>
+          <li><h3>매주 패턴 발견</h3><p>수면·걸음·습관과 감정을 연결한 '나 리포트'가 매주 도착해요.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section class="block" aria-labelledby="who-title" style="padding-top:0">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">FOR YOU</p>
+          <h2 id="who-title">이런 분께 추천해요</h2>
+        </header>
+        <div class="cards reveal">
+          <div class="card"><div class="emoji" aria-hidden="true">📔</div><h3>감정일기·감사일기를 꾸준히 쓰고 싶은 분</h3><p>매일 답장이 오니 다시 펼쳐 보고 싶어져요.</p></div>
+          <div class="card"><div class="emoji" aria-hidden="true">💬</div><h3>일기를 써도 읽어주는 사람이 없어 그만뒀던 분</h3><p>AI가 공감하고, 한 번 더 생각해 볼 질문을 건네요.</p></div>
+          <div class="card"><div class="emoji" aria-hidden="true">😴</div><h3>수면·운동·기분의 관계가 궁금한 분</h3><p>건강 데이터와 감정 기록을 연결해 패턴을 보여줘요.</p></div>
+          <div class="card"><div class="emoji" aria-hidden="true">🌅</div><h3>미라클모닝·갓생 루틴을 만들고 싶은 분</h3><p>작은 습관 체크와 스트릭으로 가볍게 이어가요.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIVACY -->
+    <section class="block privacy" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">PRIVACY</p>
+          <h2 id="privacy-title">안심하고 털어놓으세요</h2>
+          <p>일기는 가장 사적인 기록이니까요. 오늘은 처음부터 개인정보 보호를 기준으로 설계했어요.</p>
+        </header>
+        <div class="privacy-grid reveal">
+          <div><h3>🔒 암호화 저장</h3><p>모든 데이터는 암호화되어 안전하게 저장돼요.</p></div>
+          <div><h3>🙆 동의 기반 AI</h3><p>AI 분석은 동의한 경우에만, 개인 식별 정보 없이 진행돼요.</p></div>
+          <div><h3>🧠 학습 미사용</h3><p>내 일기는 AI 모델 학습에 사용되지 않아요.</p></div>
+          <div><h3>🗑️ 언제든 삭제</h3><p>설정에서 계정과 모든 데이터를 바로 삭제할 수 있어요.</p></div>
+        </div>
+        <p class="fine" style="text-align:center;margin-top:28px"><a href="/privacy">개인정보처리방침 자세히 보기</a></p>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="block" id="faq" aria-labelledby="faq-title">
+      <div class="wrap">
+        <header class="sec-head reveal">
+          <p class="kicker">FAQ</p>
+          <h2 id="faq-title">자주 묻는 질문</h2>
+        </header>
+        <div class="faq">
+          <details><summary>오늘 앱은 무료인가요?</summary><p>네, App Store에서 무료로 다운로드할 수 있어요. 일기·기분·습관·건강 기록과 AI 답장 모두 무료로 사용할 수 있습니다.</p></details>
+          <details><summary>한 줄만 써도 AI가 답장해 주나요?</summary><p>한 줄 일기도 기록돼요. AI 답장은 일기가 30자 이상일 때 도착하고, 저장하면 AI가 감정 태그와 따뜻한 코멘트, 생각해 볼 질문을 남겨요.</p></details>
+          <details><summary>내 일기가 AI 학습에 사용되나요?</summary><p>아니요. 일기는 AI 학습에 사용되지 않아요. AI 분석은 동의한 경우에만 개인 식별 정보 없이 진행되고, 모든 데이터는 암호화되어 저장됩니다.</p></details>
+          <details><summary>안드로이드에서도 쓸 수 있나요?</summary><p>현재 iPhone은 App Store에 출시되어 있고, 안드로이드는 Google Play 비공개 베타 테스트 중이에요. <a href="https://groups.google.com/g/today-app-testers" data-store="android" data-placement="faq" rel="noopener">테스터 그룹</a>에 가입한 뒤 <a href="https://play.google.com/apps/testing/app.dailylab.today" data-store="android" data-placement="faq" rel="noopener">테스트 참여 페이지</a>에서 설치할 수 있습니다.</p></details>
+          <details><summary>어떤 건강 데이터를 가져오나요?</summary><p>Apple 건강(안드로이드는 Health Connect)과 연결하면 걸음 수, 수면, 심박수, 운동 기록을 자동으로 불러와요. 물 마시기는 탭 한 번으로 직접 기록합니다.</p></details>
+          <details><summary>AI 인사이트 리포트는 무엇인가요?</summary><p>일기·기분·수면·걸음·습관을 연결해 매주 '나 리포트'를 만들어 줘요. '잠을 잘 잔 날엔 기분이 좋았어요'처럼 스스로 알아채기 어려운 패턴을 알려줍니다.</p></details>
+          <details><summary>기록을 삭제하거나 탈퇴할 수 있나요?</summary><p>네. 앱 설정에서 언제든 계정과 모든 데이터를 삭제할 수 있어요.</p></details>
+          <details><summary>AI가 응답하지 않으면 일기는 저장되지 않나요?</summary><p>일기는 AI와 관계없이 항상 먼저 저장돼요. AI 답장은 부가 기능이라 네트워크 문제 등으로 늦어지더라도 기록은 안전합니다.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="block final" aria-labelledby="final-title" style="padding-top:0">
+      <div class="wrap">
+        <div class="final-box reveal">
+          <img src="/img/icons/icon-192.png" width="88" height="88" alt="오늘 앱 아이콘" loading="lazy" />
+          <h2 id="final-title">오늘 하루, 어땠나요?</h2>
+          <p>지금 한 줄로 시작해 보세요. AI가 답장을 기다리고 있어요.</p>
+          <div class="cta-row">
+            <a class="btn btn-dark btn-store" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="final">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.64c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.47.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.28-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.66zM14.1 5.9c.63-.77 1.06-1.83.94-2.9-.91.04-2.02.61-2.67 1.37-.58.67-1.1 1.76-.96 2.8 1.02.08 2.06-.52 2.69-1.27z"/></svg>
+              <span><span class="btn-sub">무료 다운로드</span>App Store</span>
+            </a>
+            <a class="btn btn-line btn-store" href="https://groups.google.com/g/today-app-testers" data-store="android" data-placement="final" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 3.2v17.6c0 .5.5.8.9.6L20.3 12.6c.4-.2.4-.9 0-1.1L4.9 2.6c-.4-.2-.9.1-.9.6z"/></svg>
+              <span><span class="btn-sub">안드로이드 베타</span>Google Play</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>© 2026 Daily Lab · 오늘 (Today)</p>
+      <nav aria-label="하단 메뉴">
+        <a href="/terms">이용약관</a>
+        <a href="/privacy">개인정보처리방침</a>
+        <a href="mailto:dailylab.apps@gmail.com">문의 dailylab.apps@gmail.com</a>
+        <a href="/en" hreflang="en" lang="en">English</a>
+      </nav>
+    </div>
+  </footer>
+
+  <div class="sticky-cta">
+    <a class="btn btn-dark" href="https://apps.apple.com/kr/app/id6760692551" data-store="ios" data-placement="sticky" data-auto-store data-android-label="안드로이드 베타 참여하기">
+      <span data-label>App Store에서 무료로 시작하기</span>
+    </a>
   </div>
+
+  <script src="/assets/site.js" defer></script>
 </body>
 </html>

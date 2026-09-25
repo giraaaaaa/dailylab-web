@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko" data-composition-variables='[
+  {"id":"lang","type":"string","label":"Language (ko | en)","default":"ko"}
+]'>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1920, height=1080" />
+  <meta name="robots" content="noindex" />
+  <title>오늘 — 프로모 영상 (HyperFrames)</title>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Pretendard HF";
+      src: url("assets/pretendard-hf.woff2") format("woff2");
+      font-weight: 45 920;
+      font-display: block;
+    }
+    :root {
+      --bg: #FAF6F1; --bg2: #F5EDE3; --card: #FFFFFF; --ink: #2C2420; --ink2: #6B5E54;
+      --muted: #9B8E83; --brand: #D4A574; --brand-dk: #B8864F; --line: #EBE0D0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); }
+    #root {
+      position: relative; width: 1920px; height: 1080px; overflow: hidden;
+      background: radial-gradient(1200px 800px at 80% 10%, #F8E7D3 0%, var(--bg) 60%);
+      font-family: "Pretendard HF", -apple-system, sans-serif; color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .scene { position: absolute; inset: 0; opacity: 0; }
+    h2 { margin: 0; font-size: 92px; line-height: 1.12; font-weight: 800; white-space: pre-line; }
+    html[lang="en"] h2 { font-size: 72px; }
+    .kicker { font-size: 30px; font-weight: 600; color: var(--brand-dk); margin-bottom: 28px; }
+
+    /* phone mockup */
+    .phone {
+      position: absolute; width: 400px; height: 866px; border-radius: 64px; padding: 14px;
+      background: #1d1714; box-shadow: 0 50px 120px rgba(80, 50, 20, .28), 0 0 0 2px #3a2f29 inset;
+    }
+    .phone img { width: 100%; height: 100%; border-radius: 52px; object-fit: cover; object-position: top; display: block; }
+
+    /* S1 hook */
+    #s1 { display: grid; place-items: center; }
+    .s1-wrap { text-align: center; }
+    .diary-line {
+      display: inline-flex; align-items: center; gap: 6px; padding: 44px 64px; border-radius: 36px;
+      background: var(--card); box-shadow: 0 30px 80px rgba(120, 80, 40, .12); border: 2px solid var(--line);
+      font-size: 110px; font-weight: 700; min-height: 220px;
+    }
+    .diary-line .ch { opacity: 0; }
+    .caret { width: 6px; height: 110px; background: var(--brand); border-radius: 3px; }
+    .s1-sub { margin-top: 56px; font-size: 48px; font-weight: 600; color: var(--ink2); opacity: 0; }
+    .s1-date { font-size: 32px; color: var(--muted); margin-bottom: 32px; font-weight: 600; opacity: 0; }
+
+    /* S2 AI reply */
+    #s2 .copy { position: absolute; left: 160px; top: 250px; width: 900px; }
+    #s2 .phone { right: 250px; top: 110px; }
+    .bubble {
+      position: absolute; right: 520px; top: 610px; width: 640px; padding: 36px 40px; border-radius: 36px 36px 8px 36px;
+      background: var(--card); border: 3px solid var(--brand); box-shadow: 0 30px 80px rgba(120, 80, 40, .18);
+      font-size: 34px; line-height: 1.5; font-weight: 500; opacity: 0;
+    }
+    .bubble b { display: block; font-size: 28px; color: var(--brand-dk); margin-bottom: 10px; }
+
+    /* S3 all-in-one */
+    #s3 .copy { position: absolute; left: 160px; top: 110px; }
+    #s3 .phone { top: 330px; }
+    #p3a { left: 700px; } #p3b { left: 1060px; } #p3c { left: 1420px; }
+    .chips { position: absolute; left: 160px; top: 460px; display: flex; flex-direction: column; gap: 26px; }
+    .chip {
+      display: inline-flex; align-self: flex-start; padding: 22px 34px; border-radius: 999px; background: var(--card);
+      border: 2px solid var(--line); font-size: 38px; font-weight: 700; box-shadow: 0 16px 40px rgba(120, 80, 40, .10); opacity: 0;
+    }
+
+    /* S4 weekly report */
+    #s4 .copy { position: absolute; left: 160px; top: 250px; width: 800px; }
+    #s4 .phone { left: 900px; top: 110px; }
+    .report {
+      position: absolute; left: 1260px; top: 380px; width: 520px; padding: 40px; border-radius: 36px;
+      background: var(--card); box-shadow: 0 30px 80px rgba(120, 80, 40, .18); opacity: 0;
+    }
+    .report .k { font-size: 24px; font-weight: 600; color: var(--muted); }
+    .report .t { font-size: 40px; font-weight: 800; line-height: 1.3; margin: 12px 0 30px; white-space: pre-line; }
+    .bars { display: flex; align-items: flex-end; gap: 18px; height: 180px; }
+    .bar { flex: 1; border-radius: 12px 12px 4px 4px; background: var(--brand); transform-origin: bottom; }
+    .bar.lo { background: #E8C9A8; }
+    .days { display: flex; gap: 18px; margin-top: 12px; }
+    .days span { flex: 1; text-align: center; font-size: 26px; }
+
+    /* S5 end card */
+    #s5 { display: grid; place-items: center; text-align: center; }
+    #s5 img.icon { width: 220px; height: 220px; border-radius: 52px; box-shadow: 0 30px 70px rgba(120, 70, 20, .3); opacity: 0; }
+    .end-title { font-size: 120px; font-weight: 800; margin-top: 36px; opacity: 0; }
+    .end-tag { font-size: 48px; color: var(--ink2); font-weight: 600; margin-top: 8px; opacity: 0; }
+    .end-cta {
+      display: inline-block; margin-top: 56px; padding: 28px 56px; border-radius: 999px; background: var(--ink); color: #fff;
+      font-size: 40px; font-weight: 700; opacity: 0;
+    }
+    .end-url { margin-top: 28px; font-size: 32px; color: var(--muted); font-weight: 600; opacity: 0; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1920" data-height="1080">
+
+    <section id="s1" class="scene clip" data-start="0" data-duration="4" data-track-index="1">
+      <div class="s1-wrap">
+        <div class="s1-date" id="s1-date"></div>
+        <div class="diary-line"><span id="typed"></span><span class="caret" id="caret"></span></div>
+        <div class="s1-sub" id="s1-sub"></div>
+      </div>
+    </section>
+
+    <section id="s2" class="scene clip" data-start="3.6" data-duration="4.8" data-track-index="2">
+      <div class="copy"><div class="kicker" id="s2-k"></div><h2 id="s2-h"></h2></div>
+      <div class="phone" id="p2"><img src="assets/diary.webp" alt="" /></div>
+      <div class="bubble" id="bubble"><b id="bubble-label"></b><span id="bubble-text"></span></div>
+    </section>
+
+    <section id="s3" class="scene clip" data-start="8" data-duration="4.8" data-track-index="1">
+      <div class="copy"><div class="kicker" id="s3-k"></div><h2 id="s3-h"></h2></div>
+      <div class="chips" id="chips"></div>
+      <div class="phone" id="p3a"><img src="assets/health.webp" alt="" /></div>
+      <div class="phone" id="p3b"><img src="assets/habits.webp" alt="" /></div>
+      <div class="phone" id="p3c"><img src="assets/home.webp" alt="" /></div>
+    </section>
+
+    <section id="s4" class="scene clip" data-start="12.4" data-duration="4.4" data-track-index="2">
+      <div class="copy"><div class="kicker" id="s4-k"></div><h2 id="s4-h"></h2></div>
+      <div class="phone" id="p4"><img src="assets/insights.webp" alt="" /></div>
+      <div class="report" id="report">
+        <div class="k" id="rep-k"></div>
+        <div class="t" id="rep-t"></div>
+        <div class="bars" id="bars"></div>
+        <div class="days" id="days"></div>
+      </div>
+    </section>
+
+    <section id="s5" class="scene clip" data-start="16.4" data-duration="3.6" data-track-index="1">
+      <div>
+        <img class="icon" id="end-icon" src="assets/icon.png" alt="" />
+        <div class="end-title" id="end-title"></div>
+        <div class="end-tag" id="end-tag"></div>
+        <div class="end-cta" id="end-cta"></div>
+        <div class="end-url" id="end-url">dailylab.app</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // --- copy (ko / en) -------------------------------------------------------
+    const COPY = {
+      ko: {
+        date: "9월 25일 목요일", typed: "오늘 좀 지쳤어", s1sub: "한 줄만 적어도 괜찮아요",
+        s2k: "AI 답장 일기", s2h: "일기를 쓰면,\nAI가 답장을 보내요", label: "✨ AI 답장",
+        reply: "고생 많았어요. 지친 날엔 일찍 쉬어도 괜찮아요. 오늘 가장 힘들었던 순간은 언제였나요?",
+        s3k: "건강 · 습관 자동 기록", s3h: "기분·수면·걸음·습관,\n한 곳에",
+        chips: ["😴 수면 7.2시간", "🚶 걸음 9,174보", "✅ 습관 80% 달성", "😊 오늘 기분 행복"],
+        s4k: "주간 AI 인사이트", s4h: "매주 도착하는\n‘나 리포트’", repK: "지난 7일 · 수면과 기분",
+        repT: "잠을 잘 잔 날엔\n기분도 좋았어요", days: ["월", "화", "수", "목", "금", "토", "일"],
+        endTitle: "오늘", endTag: "AI가 답장하는 일기", endCta: "App Store 무료 다운로드",
+      },
+      en: {
+        date: "Thursday, Sep 25", typed: "Rough day today", s1sub: "One line is enough.",
+        s2k: "A diary that writes back", s2h: "Write in your journal.\nGet a reply from AI.", label: "✨ AI reply",
+        reply: "That sounds exhausting. It's okay to rest early tonight. What was the hardest moment today?",
+        s3k: "Health & habits, synced", s3h: "Mood, sleep, steps\n& habits in one place",
+        chips: ["😴 Sleep 7.2h", "🚶 9,174 steps", "✅ Habits 80% done", "😊 Mood: happy"],
+        s4k: "Weekly AI insights", s4h: "Your weekly\n“Me report”", repK: "Last 7 days · sleep & mood",
+        repT: "You felt better on\ndays you slept well", days: ["M", "T", "W", "T", "F", "S", "S"],
+        endTitle: "Today", endTag: "The journal that writes back", endCta: "Free on the App Store",
+      },
+    };
+    const vars = (window.__hyperframes && window.__hyperframes.getVariables && window.__hyperframes.getVariables()) || {};
+    const urlLang = new URLSearchParams(location.search).get("lang");
+    const lang = (urlLang || vars.lang) === "en" ? "en" : "ko";
+    const C = COPY[lang];
+    document.documentElement.lang = lang;
+    const $ = (id) => document.getElementById(id);
+    const text = (id, v) => { $(id).textContent = v; };
+
+    text("s1-date", C.date); text("s1-sub", C.s1sub);
+    $("typed").innerHTML = [...C.typed].map((c) => `<span class="ch">${c === " " ? "&nbsp;" : c}</span>`).join("");
+    text("s2-k", C.s2k); text("s2-h", C.s2h); text("bubble-label", C.label); text("bubble-text", C.reply);
+    text("s3-k", C.s3k); text("s3-h", C.s3h);
+    $("chips").innerHTML = C.chips.map((c) => `<div class="chip">${c}</div>`).join("");
+    text("s4-k", C.s4k); text("s4-h", C.s4h); text("rep-k", C.repK); text("rep-t", C.repT);
+    const SLEEP = [0.55, 0.62, 0.9, 0.82, 0.48, 0.95, 0.88]; // fixed data — deterministic
+    const MOOD = ["😐", "😐", "😊", "😊", "😴", "😄", "😊"];
+    $("bars").innerHTML = SLEEP.map((h) => `<div class="bar ${h < 0.7 ? "lo" : ""}" style="height:${h * 100}%"></div>`).join("");
+    $("days").innerHTML = MOOD.map((m) => `<span>${m}</span>`).join("");
+    text("end-title", C.endTitle); text("end-tag", C.endTag); text("end-cta", C.endCta);
+
+    // --- initial poses (outside the timeline, per HyperFrames cold-seek rules) --
+    gsap.set(["#s2 .copy", "#s3 .copy", "#s4 .copy"], { opacity: 0, y: 40 });
+    gsap.set("#p2", { y: 120, rotation: 4 });
+    gsap.set("#bubble", { y: 30, scale: 0.92, transformOrigin: "100% 100%" });
+    gsap.set(["#p3a", "#p3b", "#p3c"], { y: 700 });
+    gsap.set("#p4", { y: 120 });
+    gsap.set("#report", { x: 60 });
+    gsap.set("#end-icon", { scale: 0.6 });
+
+    // --- timeline (absolute seconds on the root timeline) ---------------------
+    const tl = gsap.timeline({ paused: true, defaults: { ease: "power3.out" } });
+
+    // S1 hook: typewriter + caret blink (finite repeat)
+    tl.to("#s1", { opacity: 1, duration: 0.4 }, 0);
+    tl.to("#s1-date", { opacity: 1, duration: 0.5 }, 0.2);
+    tl.to("#typed .ch", { opacity: 1, duration: 0.01, stagger: 0.11, ease: "none" }, 0.5);
+    tl.to("#caret", { opacity: 0, duration: 0.01, repeat: 7, yoyo: true, repeatDelay: 0.34, ease: "none" }, 0.3);
+    tl.fromTo("#s1-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.7 }, 2.1);
+    tl.to("#s1", { opacity: 0, y: -40, duration: 0.5, ease: "power2.in" }, 3.5);
+
+    // S2 AI reply
+    tl.to("#s2", { opacity: 1, duration: 0.5 }, 3.6);
+    tl.to("#s2 .copy", { opacity: 1, y: 0, duration: 0.8 }, 3.7);
+    tl.to("#p2", { y: 0, rotation: 0, duration: 1.1 }, 3.7);
+    tl.to("#bubble", { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "back.out(1.6)" }, 5.0);
+    tl.to("#s2", { opacity: 0, duration: 0.45, ease: "power2.in" }, 7.95);
+
+    // S3 all-in-one
+    tl.to("#s3", { opacity: 1, duration: 0.5 }, 8.0);
+    tl.to("#s3 .copy", { opacity: 1, y: 0, duration: 0.8 }, 8.1);
+    tl.to(["#p3a", "#p3b", "#p3c"], { y: 0, duration: 1.1, stagger: 0.14 }, 8.2);
+    tl.fromTo("#chips .chip", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.55, stagger: 0.28 }, 9.0);
+    tl.to("#s3", { opacity: 0, duration: 0.45, ease: "power2.in" }, 12.35);
+
+    // S4 weekly report
+    tl.to("#s4", { opacity: 1, duration: 0.5 }, 12.4);
+    tl.to("#s4 .copy", { opacity: 1, y: 0, duration: 0.8 }, 12.5);
+    tl.to("#p4", { y: 0, duration: 1.0 }, 12.5);
+    tl.to("#report", { opacity: 1, x: 0, duration: 0.8 }, 13.2);
+    tl.fromTo("#bars .bar", { scaleY: 0 }, { scaleY: 1, duration: 0.6, stagger: 0.08, ease: "back.out(1.4)" }, 13.6);
+    tl.to("#s4", { opacity: 0, duration: 0.4, ease: "power2.in" }, 16.35);
+
+    // S5 end card
+    tl.to("#s5", { opacity: 1, duration: 0.4 }, 16.4);
+    tl.to("#end-icon", { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.7)" }, 16.5);
+    tl.fromTo(["#end-title", "#end-tag", "#end-cta", "#end-url"], { opacity: 0, y: 24 },
+      { opacity: 1, y: 0, duration: 0.6, stagger: 0.15 }, 16.9);
+
+    tl.set({}, {}, 20); // hold the end card until the declared duration
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines.main = tl;
+  </script>
+</body>
+</html>
