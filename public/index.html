@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Daily Lab — 오늘, 그리고 실험실</title>
-  <meta name="description" content="Daily Lab이 만드는 것들. AI가 답장하는 일기 앱 '오늘'과, 재미로 만드는 작은 웹 실험실." />
+  <title>Daily Lab</title>
+  <meta name="description" content="Daily Lab은 손끝에 반응하는 웹 실험과 일기 앱 '오늘'을 만듭니다." />
   <link rel="canonical" href="https://www.dailylab.app/" />
   <meta name="robots" content="index, follow, max-image-preview:large" />
   <meta name="author" content="Daily Lab" />
-  <meta name="theme-color" content="#FAF6F1" />
+  <meta name="theme-color" content="#F1F1EF" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0B0B0D" media="(prefers-color-scheme: dark)" />
   <meta name="format-detection" content="telephone=no" />
   <!-- 검색 엔진 소유 확인: 발급받은 코드로 교체 후 주석 해제 (홈에 있어야 인증됨)
   <meta name="google-site-verification" content="GOOGLE_CODE" />
@@ -19,20 +20,26 @@
   <meta property="og:site_name" content="Daily Lab" />
   <meta property="og:locale" content="ko_KR" />
   <meta property="og:url" content="https://www.dailylab.app/" />
-  <meta property="og:title" content="Daily Lab — 오늘, 그리고 실험실" />
-  <meta property="og:description" content="AI가 답장하는 일기 앱 '오늘'과, 재미로 만드는 작은 웹 실험실." />
-  <meta property="og:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+  <meta property="og:title" content="Daily Lab" />
+  <meta property="og:description" content="손끝에 반응하는 웹 실험과 일기 앱 '오늘'을 만듭니다." />
+  <meta property="og:image" content="https://www.dailylab.app/img/og-home.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="젤리처럼 부푼 Daily Lab 워드마크" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://www.dailylab.app/img/og-ko.jpg" />
+  <meta name="twitter:image" content="https://www.dailylab.app/img/og-home.jpg" />
 
   <link rel="icon" href="/favicon.ico" sizes="32x32" />
-  <link rel="icon" type="image/png" href="/img/icons/icon-192.png" sizes="192x192" />
   <link rel="apple-touch-icon" href="/img/icons/icon-180.png" />
 
+  <link rel="preload" href="/assets/fonts/geist-black-dl.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" crossorigin />
+  <link rel="stylesheet" href="/assets/home.css?v=1" />
+
+  <script type="speculationrules">
+  { "prerender": [{ "where": { "or": [{ "href_matches": "/lab" }, { "href_matches": "/today" }] }, "eagerness": "moderate" }] }
+  </script>
 
   <script type="application/ld+json">
   {
@@ -59,200 +66,40 @@
     ]
   }
   </script>
-
-  <style>
-    /* 임시 홈 — 오늘(/today)·실험실(/lab)로 가는 두 개의 문. 나중에 통째로 다시 디자인할 예정이라 자체 완결로 둔다. */
-    :root {
-      --bg: #FAF6F1;
-      --ink: #2C2420;
-      --ink-2: #6B5E54;
-      --brand: #D4A574;
-      --brand-dk: #A8763F;
-      --line: #EBE0D0;
-      --night: #120E0C;
-      --night-ink: #F4ECE3;
-      --night-ink-2: #B3A597;
-      --ease: cubic-bezier(.2, .8, .2, 1);
-      --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
-    body {
-      margin: 0; min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
-      background: var(--bg); color: var(--ink); font-family: var(--font);
-      font-size: 17px; line-height: 1.6; letter-spacing: -0.012em; word-break: keep-all;
-      -webkit-font-smoothing: antialiased;
-    }
-    body::before {
-      content: ""; position: fixed; inset: -30vh -20vw auto auto; width: 90vw; height: 90vh; z-index: -1; pointer-events: none;
-      background: radial-gradient(closest-side, #F3DCC2, transparent); opacity: .8;
-    }
-    a { color: inherit; }
-    :focus-visible { outline: 3px solid var(--brand-dk); outline-offset: 4px; border-radius: 8px; }
-    .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
-
-    .top { padding: 28px 0 0; }
-    .mark { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.02em; }
-    .mark i { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); box-shadow: 16px 0 0 var(--brand); margin-right: 16px; }
-
-    main { flex: 1; display: flex; align-items: center; padding: 56px 0 64px; }
-    .intro { max-width: 640px; margin-bottom: 44px; }
-    h1 { margin: 0; font-size: clamp(34px, 5.4vw, 60px); line-height: 1.16; font-weight: 800; letter-spacing: -0.045em; }
-    h1 em { font-style: normal; color: var(--brand-dk); }
-    .intro p { margin: 18px 0 0; color: var(--ink-2); font-size: 18px; }
-
-    .doors { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .door {
-      position: relative; overflow: hidden; isolation: isolate; min-height: 440px; padding: 32px;
-      border-radius: 32px; display: flex; flex-direction: column;
-      transition: transform .5s var(--ease), box-shadow .5s var(--ease);
-      animation: rise .9s var(--ease) both;
-    }
-    .door + .door { animation-delay: .12s; }
-    .door:hover { transform: translateY(-6px); }
-    .door .go::after { content: ""; position: absolute; inset: 0; z-index: 1; border-radius: inherit; }
-    .door .go { text-decoration: none; }
-    .door .go:focus-visible { outline: none; }
-    .door:has(.go:focus-visible) { outline: 3px solid var(--brand-dk); outline-offset: 4px; }
-    .door small { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
-    .door h2 { margin: 10px 0 0; font-size: clamp(36px, 4.2vw, 48px); line-height: 1.1; font-weight: 800; letter-spacing: -0.04em; }
-    .door h2 span { font-weight: 600; font-size: .5em; letter-spacing: -0.01em; opacity: .5; margin-left: 8px; }
-    .door p { margin: 12px 0 0; max-width: 18em; font-size: 17px; }
-    .door .cta {
-      margin-top: auto; display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
-      font-weight: 700; font-size: 16px; padding: 12px 20px; border-radius: 999px;
-      transition: gap .4s var(--ease);
-    }
-    .door:hover .cta { gap: 16px; }
-    .door .cta svg { width: 18px; height: 18px; }
-    .door .sub { position: relative; z-index: 2; font-size: 14px; font-weight: 600; margin-top: 14px; opacity: .65; }
-    .door .sub:hover { opacity: 1; }
-
-    /* 오늘 — 따뜻한 종이색, 휴대폰이 아래에서 살짝 올라온다 */
-    .today { background: #fff; border: 1px solid var(--line); box-shadow: 0 24px 60px rgba(110, 72, 34, .10); }
-    .today:hover { box-shadow: 0 36px 80px rgba(110, 72, 34, .18); }
-    .today h2 { display: flex; align-items: center; gap: 14px; }
-    .today h2 img { width: 52px; height: 52px; border-radius: 13px; box-shadow: 0 6px 16px rgba(110, 72, 34, .18); }
-    .today p { color: var(--ink-2); }
-    .today .cta { background: var(--ink); color: #fff; }
-    .phone {
-      position: absolute; z-index: -1; right: -18px; top: 200px; width: 220px;
-      border-radius: 34px; border: 7px solid #1f1916; background: #1f1916;
-      box-shadow: 0 30px 60px rgba(44, 36, 32, .28); transform: rotate(-8deg);
-      transition: transform .7s var(--ease);
-    }
-    .phone img { display: block; width: 100%; height: auto; border-radius: 27px; }
-    .today:hover .phone { transform: rotate(-5deg) translateY(-18px); }
-
-    /* 실험실 — 밤하늘, 천천히 도는 블랙홀 */
-    .lab { background: var(--night); color: var(--night-ink); }
-    .lab::before {
-      content: ""; position: absolute; inset: 0; z-index: -2; opacity: .7;
-      background:
-        radial-gradient(1.5px 1.5px at 12% 22%, #fff, transparent),
-        radial-gradient(1px 1px at 28% 68%, #fff, transparent),
-        radial-gradient(1.5px 1.5px at 44% 38%, #f8e1c4, transparent),
-        radial-gradient(1px 1px at 63% 12%, #fff, transparent),
-        radial-gradient(1px 1px at 82% 58%, #fff, transparent),
-        radial-gradient(1.5px 1.5px at 91% 86%, #f8e1c4, transparent),
-        radial-gradient(1px 1px at 18% 90%, #fff, transparent),
-        radial-gradient(1px 1px at 55% 80%, #fff, transparent);
-    }
-    .lab p { color: var(--night-ink-2); }
-    .lab .cta { background: var(--night-ink); color: var(--night); }
-    .hole { position: absolute; z-index: -1; right: -60px; bottom: -40px; width: 340px; aspect-ratio: 1; transition: transform .9s var(--ease); }
-    .hole > * { position: absolute; inset: 0; border-radius: 50%; }
-    .hole .glow { inset: -10%; background: radial-gradient(closest-side, rgba(212, 165, 116, .45), transparent 70%); filter: blur(10px); }
-    .hole .disk {
-      inset: 30% -18%; border-radius: 50%; filter: blur(3px); transform: rotate(-14deg);
-      background: conic-gradient(from var(--swirl), #2a1a0f, #ffd9a8, #d4a574, #3a2414, #ffe8c9, #a8763f, #2a1a0f);
-      animation: swirl 16s linear infinite;
-      -webkit-mask: radial-gradient(closest-side, transparent 52%, #000 56%, #000 80%, transparent 100%);
-              mask: radial-gradient(closest-side, transparent 52%, #000 56%, #000 80%, transparent 100%);
-    }
-    .hole .ring { inset: 26%; background: radial-gradient(closest-side, transparent 80%, #fff1dc 86%, #d4a574 91%, transparent 100%); filter: blur(1px); }
-    .hole .core { inset: 30%; background: #000; box-shadow: 0 0 40px 6px rgba(0, 0, 0, .9); }
-    .lab:hover .hole { transform: scale(1.08) rotate(-4deg); }
-    .lab:hover .disk { animation-duration: 6s; }
-
-    footer { padding: 0 0 32px; font-size: 14px; color: var(--ink-2); }
-    footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
-    footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-left: auto; }
-    footer a { text-decoration: none; }
-    footer a:hover { color: var(--ink); text-decoration: underline; }
-
-    @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
-    @property --swirl { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-    @keyframes swirl { to { --swirl: 360deg; } }
-
-    @media (max-width: 760px) {
-      main { padding: 36px 0 48px; }
-      .intro { margin-bottom: 28px; }
-      .intro p { font-size: 16px; }
-      .doors { grid-template-columns: 1fr; gap: 16px; }
-      .door { min-height: 360px; padding: 26px; border-radius: 28px; }
-      .phone { width: 150px; top: 200px; right: -24px; }
-      .hole { width: 250px; right: -90px; bottom: -40px; }
-      footer nav { margin-left: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .door, .hole .disk { animation: none; }
-      .door, .phone, .hole, .door .cta { transition: none; }
-    }
-  </style>
 </head>
 <body>
-  <header class="top">
-    <div class="wrap">
-      <span class="mark"><i aria-hidden="true"></i>Daily Lab</span>
-    </div>
-  </header>
+  <div class="frame">
+    <canvas class="stage" aria-hidden="true"></canvas>
 
-  <main>
-    <div class="wrap">
-      <div class="intro">
-        <h1>하루를 기록하는 앱,<br />그리고 <em>재미로</em> 만드는 실험들.</h1>
-        <p>Daily Lab에서 만드는 것들이에요. 어디로 가 볼까요?</p>
-      </div>
+    <header class="top">
+      <p class="hint" aria-hidden="true">글자를 잡아당겨 보세요</p>
+      <a class="contact reveal" style="--i: 3" href="mailto:dailylab.apps@gmail.com">문의</a>
+    </header>
 
-      <div class="doors">
-        <article class="door today">
-          <small>App · iPhone</small>
-          <h2><img src="/img/icons/icon-192.png" width="52" height="52" alt="" />오늘<span>Today</span></h2>
-          <p>일기를 쓰면 AI가 답장해요. 기분·습관·수면을 한 곳에.</p>
-          <a class="go cta" href="/today">
-            앱 둘러보기
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </a>
-          <a class="sub" href="/today/en" hreflang="en" lang="en">In English →</a>
-          <div class="phone" aria-hidden="true"><img src="/img/shots/diary.webp" width="860" height="1864" alt="" decoding="async" /></div>
-        </article>
+    <main class="center">
+      <h1 class="mark"><span class="line"><i class="bl"></i>Daily</span> <span class="line"><i class="bl"></i>Lab</span></h1>
+    </main>
 
-        <article class="door lab">
-          <small>Lab</small>
-          <h2>실험실<span>Lab</span></h2>
-          <p>만지고, 깨고, 빨려 들어가 보는 작은 웹 실험들.</p>
-          <a class="go cta" href="/lab">
-            들어가 보기
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
-          </a>
-          <div class="hole" aria-hidden="true"><div class="glow"></div><div class="disk"></div><div class="ring"></div><div class="core"></div></div>
-        </article>
-      </div>
-    </div>
-  </main>
-
-  <footer>
-    <div class="wrap">
-      <span>© 2026 Daily Lab</span>
-      <nav aria-label="하단 메뉴">
-        <a href="mailto:dailylab.apps@gmail.com">문의 dailylab.apps@gmail.com</a>
+    <div class="bottom">
+      <nav class="exits" aria-label="Daily Lab이 만드는 것">
+        <a class="exit reveal" style="--i: 0" href="/lab" data-exit>
+          <span class="exit-name">실험실<span class="arrow" aria-hidden="true">→</span></span>
+          <span class="exit-desc">손끝으로 만지는 웹 실험</span>
+        </a>
+        <a class="exit reveal" style="--i: 1" href="/today" data-exit>
+          <span class="exit-name">오늘<span class="arrow" aria-hidden="true">→</span></span>
+          <span class="exit-desc">AI가 답장하는 일기 앱</span>
+        </a>
+      </nav>
+      <footer class="legal reveal" style="--i: 2">
+        <span>© 2026 Daily Lab</span>
         <a href="/privacy">개인정보처리방침</a>
         <a href="/terms">이용약관</a>
-      </nav>
+      </footer>
     </div>
-  </footer>
+  </div>
 
   <script src="/assets/site.js" defer></script>
+  <script type="module" src="/assets/home.js?v=1"></script>
 </body>
 </html>

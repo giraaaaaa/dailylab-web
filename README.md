@@ -4,12 +4,24 @@ Daily Lab 사이트 — 오늘(Today) 앱 소개와 실험실. Vercel 정적 배
 
 | 경로 | 파일 | 용도 | 색인 |
 |------|------|------|------|
-| `/` | `public/index.html` | Daily Lab 홈 — 오늘(`/today`)·실험실(`/lab`)로 가는 입구 | O |
+| `/` | `public/index.html` | Daily Lab 홈. 잡아당기는 젤리 워드마크 + 오늘(`/today`)·실험실(`/lab`) 입구 | O |
 | `/today` | `public/today/index.html` | 오늘 앱 한국어 랜딩 | O |
 | `/today/en` | `public/today/en/index.html` | 오늘 앱 영어 랜딩 (옛 `/en`은 308로 이동) | O |
 | `/ad` | `public/ad/index.html` | 광고 유입 전용 랜딩 (`?v=` 소재 매칭) | X (`noindex, follow`) |
 | `/privacy`, `/terms` | `public/*.html` | 법적 고지 | O |
 | `/hf/*` | HyperFrames 컴포지션 | 영상 원본(플레이어가 iframe으로 재생) | X |
+
+## 홈 워드마크 (`/`)
+
+`public/assets/home.js`가 WebGL2 셰이더 한 장으로 "Daily Lab"을 탄성 막처럼 그린다. 잡아당기면 늘어나고(늘어난 곳만 포인트 색), 놓으면 출렁이며 돌아오고, 링크를 누르면 그쪽으로 빨려 들어간 뒤 이동한다.
+
+- 글자 모양은 `<h1>`이 놓인 자리 그대로 캔버스에 래스터화해 거리장(SDF)으로 만든다. 레이아웃·크기는 전부 `home.css`가 정한다.
+- 변위장은 CPU 스프링 격자(파동 방정식)로 풀고, 화면 메시의 꼭짓점을 그만큼 밀어 그린다. 움직일 게 없으면 루프가 멈춘다.
+- WebGL2가 없거나 준비 전이면 `<h1>`이 그대로 보인다. '동작 줄이기'면 부풀기·출렁임 없이 바로 정지 상태.
+- 색은 `home.css`의 변수와 `home.js`의 `THEMES`가 같아야 한다(평면 글자 → 젤리로 바뀌는 첫 프레임이 겹쳐야 함).
+- 워드마크 폰트는 Geist Black을 "Daily Lab" 글자만 남겨 서브셋한 것(`assets/fonts/geist-black-dl.woff2`, OFL). 글자를 바꾸면 다시 서브셋한다.
+- `/assets/*`는 7일 캐시라 `home.css`·`home.js`를 고치면 `index.html`의 `?v=` 숫자를 올린다.
+- 공유 이미지 `img/og-home.jpg`는 이 화면을 캡처한 것.
 
 ## 영상 (HyperFrames)
 
