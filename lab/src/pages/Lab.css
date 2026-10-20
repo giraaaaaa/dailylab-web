@@ -1,0 +1,96 @@
+/* A separate, light studio surface for the two tactile studies. */
+.touch-lab { max-width: 1240px; margin: 0 auto; padding: 38px 28px 52px; }
+.touch-eyebrow { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 10px; letter-spacing: .12em; font-weight: 600; }
+.touch-lab-mark { color: var(--ink); border: 1px solid var(--line-strong); padding: 7px 10px; border-radius: 5px; letter-spacing: .08em; }
+.touch-intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 32px 0 30px; }
+.touch-kicker { margin: 0 0 8px; color: var(--teal); font-size: 12px; font-weight: 700; }
+.touch-intro h1 { font-size: clamp(28px, 3.2vw, 40px); letter-spacing: -.055em; line-height: 1.28; margin: 0; color: var(--ink); font-weight: 800; }
+.touch-intro > p { margin: 0 0 2px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.touch-mobile-break { display: none; }
+.touch-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.touch-experiment { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--card); box-shadow: var(--shadow); min-width: 0; }
+.touch-card-heading { display: flex; gap: 13px; align-items: center; padding: 23px 24px 0; }
+.touch-number { font-size: 12px; font-weight: 500; align-self: flex-start; margin-top: 2px; color: var(--faint); font-variant-numeric: tabular-nums; }
+.touch-english { font-size: 9px; font-weight: 600; letter-spacing: .13em; color: var(--muted); }
+.touch-card-heading h2 { margin: 5px 0 0; color: var(--ink); font-size: 20px; letter-spacing: -.04em; line-height: 1.3; }
+.touch-feel { margin-left: auto; color: var(--muted); font-size: 13px; letter-spacing: -.03em; }
+.touch-stage { height: clamp(320px, 33vw, 425px); position: relative; background: #f1f6f3; margin-top: 20px; cursor: grab; isolation: isolate; }
+.touch-stage canvas { touch-action: none; }
+.touch-stage.is-grabbed { cursor: grabbing; }
+.touch-stage-note { position: absolute; pointer-events: none; bottom: 15px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 7px; color: #536e62; font-size: 10px; white-space: nowrap; letter-spacing: -.01em; }
+.touch-stage-note > span { width: 4px; height: 4px; background: #7c9d90; border-radius: 50%; }
+.touch-stage.is-grabbed .touch-stage-note { color: #0f6660; }
+.touch-card-bottom { padding: 20px 24px 22px; }
+.touch-card-bottom > p { margin: 0 0 18px; font-size: 13px; letter-spacing: -.03em; color: var(--fg); }
+.touch-card-controls, .touch-actions, .touch-material-tags { display: flex; align-items: center; }
+.touch-card-controls { justify-content: space-between; gap: 12px; }
+.touch-material-tags { gap: 6px; flex-wrap: wrap; }
+.touch-material-tags > span { border: 1px solid var(--line); color: var(--muted); font-size: 10px; padding: 4px 8px; border-radius: 999px; }
+.touch-actions { gap: 5px; flex-shrink: 0; }
+.touch-actions button { border: 0; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--teal-soft); color: var(--ink); min-height: 36px; padding: 7px 11px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; }
+.touch-actions button:hover { filter: brightness(.96); }
+.touch-actions button:disabled { opacity: .4; cursor: default; }
+.touch-actions .touch-reset { background: transparent; color: var(--muted); padding: 7px; min-width: 34px; }
+.touch-lab button:focus-visible, .touch-build-notes summary:focus-visible, .touch-colophon a:focus-visible { outline: 2px solid var(--teal); outline-offset: 4px; }
+.touch-colophon { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 19px 2px; }
+.touch-colophon p { display: flex; align-items: center; gap: 7px; margin: 0; color: var(--muted); font-size: 11px; }
+.touch-status-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--teal); }
+.touch-colophon a { font-size: 11px; color: var(--muted); text-decoration: none; white-space: nowrap; }
+.touch-colophon a span { margin-left: 4px; }
+.touch-build-notes { border-top: 1px solid var(--line); padding: 17px 2px 0; font-size: 12px; color: var(--muted); }
+.touch-build-notes summary { cursor: pointer; width: fit-content; }
+.touch-build-notes > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px; padding: 8px 0; }
+.touch-build-notes p { font-size: 12px; line-height: 1.8; }
+.touch-build-notes b { display: block; color: var(--fg); font-size: 12px; margin-bottom: 4px; }
+.touch-fallback { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: #536e62; font-size: 13px; line-height: 1.8; padding: 24px; }
+.touch-fallback a { color: #0f6660; margin-top: 8px; }
+:root[data-theme="dark"] .touch-stage { background: #e3ede7; }
+/* 03 사건의 지평선 — 썸네일 카드(전체 폭) */
+.touch-horizon, .touch-glass { grid-column: 1 / -1; }
+.touch-stage.touch-stage-link, :root[data-theme="dark"] .touch-stage.touch-stage-link { display: block; background: #020304; cursor: pointer; overflow: hidden; }
+.touch-stage-link img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s ease; }
+.touch-stage-link:hover img { transform: scale(1.025); }
+.touch-stage-link .touch-stage-note { color: rgb(255 255 255 / .72); }
+.touch-stage-link .touch-stage-note > span { background: #ffb070; }
+.touch-portal .touch-stage-note > span, .touch-city .touch-stage-note > span { background: #a1cdb6; }
+.touch-city .touch-stage-link .touch-stage-note { color: #214c38; }
+.touch-actions a { border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--teal-soft); color: var(--ink); min-height: 36px; padding: 7px 11px; font-size: 11px; font-weight: 600; text-decoration: none; }
+.touch-actions a:hover { filter: brightness(.96); }
+.touch-actions a:focus-visible { outline: 2px solid var(--teal); outline-offset: 4px; }
+@media (max-width: 1000px) and (min-width: 761px) {
+  .touch-lab { padding-inline: 20px; }
+  .touch-grid { gap: 14px; }
+  .touch-card-heading, .touch-card-bottom { padding-left: 18px; padding-right: 18px; }
+  .touch-material-tags { gap: 3px; }
+  .touch-material-tags > span { padding-inline: 6px; font-size: 9px; }
+}
+@media (max-width: 760px) {
+  .touch-lab { padding: 24px 16px 32px; }
+  .touch-eyebrow { font-size: 8px; letter-spacing: .08em; }
+  .touch-lab-mark { font-size: 9px; padding: 6px 8px; }
+  .touch-intro { display: block; margin: 27px 0 23px; }
+  .touch-intro h1 { font-size: 33px; }
+  .touch-mobile-break { display: block; }
+  .touch-intro > p { margin: 12px 0 0; font-size: 12px; line-height: 1.7; }
+  .touch-tabs { display: flex; overflow-x: auto; gap: 5px; padding: 4px; border: 1px solid var(--line); background: var(--surface2); border-radius: 10px; margin-bottom: 14px; scrollbar-width: thin; }
+  .touch-tabs button { flex: 1 0 auto; border: 0; padding: 12px 13px; white-space: nowrap; background: transparent; color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 600; border-radius: 7px; cursor: pointer; }
+  .touch-tabs button span { font-size: 10px; margin-right: 5px; opacity: .65; }
+  .touch-tabs button[aria-pressed="true"] { background: var(--card); color: var(--ink); box-shadow: var(--shadow); }
+  .touch-grid { grid-template-columns: 1fr; }
+  .touch-card-heading { padding: 19px 19px 0; }
+  .touch-card-heading h2 { font-size: 19px; }
+  .touch-stage { height: min(100vw, 390px); min-height: 310px; margin-top: 17px; }
+  .touch-card-bottom { padding: 18px; }
+  .touch-card-bottom > p { font-size: 12px; margin-bottom: 16px; }
+  .touch-actions button, .touch-actions a { min-height: 42px; }
+  .touch-card-controls { gap: 6px; }
+  .touch-material-tags > span { font-size: 9px; padding: 4px 6px; }
+  .touch-colophon { align-items: flex-start; padding-top: 17px; }
+  .touch-colophon p { font-size: 10px; max-width: 70%; line-height: 1.7; }
+  .touch-status-dot { flex-shrink: 0; }
+  .touch-colophon a { font-size: 10px; padding-top: 2px; }
+  .touch-build-notes > div { grid-template-columns: 1fr; gap: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .touch-lab *, .touch-lab *::before, .touch-lab *::after { animation: none !important; transition: none !important; }
+}

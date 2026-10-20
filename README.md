@@ -10,6 +10,21 @@
 | `/privacy`, `/terms` | `public/*.html` | 법적 고지 | O |
 | `/hf/*` | HyperFrames 컴포지션 | 영상 원본(플레이어가 iframe으로 재생) | X |
 
+## 실험실 (`/lab`)
+
+웹 기술 실험 모음(블랙홀 레이트레이서, 유리 깨기, 불가능한 방, 접히는 도시 등). 앱 설치 흐름과 분리하려고 랜딩 하단 링크로만 연결한다.
+소스는 `lab/`(Vite + React)에 있고, 빌드 결과를 `public/lab/`에 커밋한다 — 사이트 배포에는 여전히 빌드 단계가 없다.
+
+```bash
+cd lab
+npm install
+npm run dev      # http://localhost:5173/lab/
+npm test         # 물리·기하 단위 테스트
+npm run build    # → ../public/lab (커밋)
+```
+
+`vercel.json`의 `/lab/:path*` 리라이트가 하위 경로(`/lab/horizon` 등)를 `public/lab/index.html`로 보낸다.
+
 ## 영상 (HyperFrames)
 
 영상은 [HyperFrames](https://hyperframes.heygen.com)로 만든 HTML 컴포지션이다. 사이트에서는 `<hyperframes-player>`로 HTML을 그대로 재생하고, 광고 매체 업로드·구조화 데이터용으로 MP4도 렌더해 `public/video/`에 둔다.
