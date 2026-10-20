@@ -36,6 +36,8 @@ export const ROOMS = [
     summary: '닦으면 보입니다. 다시 서리면, 저쪽에서 쓴 글씨가 보입니다.', tags: ['김 격자', '물방울 렌즈', '흐린 반사'] },
   { id: 'radio', title: '주파수', feel: '지직, 딸깍.',
     summary: '다이얼을 돌려 방송을 찾아보세요. 눈금이 끝난 곳에도 무언가 나옵니다.', tags: ['원통 다이얼', '합성 잡음', '음성 합성'] },
+  { id: 'wallpaper', title: '벽지 한 겹', feel: '찌익, 바스락.',
+    summary: '한 겹 뜯으면 그 아래 또 한 겹. 맨 아래에는 누가 무언가를 적어 두었습니다.', tags: ['종이 말림', '겹 마스크', '절차적 무늬'] },
 ].map((room) => ({ ...room, path: `/${room.id}`, still: room.still ?? room.poster }))
 
 export function neighbors(id) {

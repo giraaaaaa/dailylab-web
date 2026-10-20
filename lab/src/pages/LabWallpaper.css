@@ -1,0 +1,27 @@
+/* Lab — 벽지 한 겹. 낮의 방 벽이라 늘 밝다. 틀(제목·버튼 자리)은 components/Room. */
+.wp { background: #D9D4C9; }
+.wp .room-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.wp .room-stage canvas:active { cursor: grabbing; }
+.wp .room-stage .wp-overlay { pointer-events: none; }
+
+.wp-hud { margin: 0; display: flex; gap: 26px; font-variant-numeric: tabular-nums; }
+.wp-hud > div { display: grid; justify-items: end; gap: 3px; }
+.wp-hud dt { font-size: 11px; font-weight: 600; color: rgb(14 14 16 / .55); }
+.wp-hud dd { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.03em; color: #0E0E10; }
+.wp-hud .wp-depth { font-size: 17px; letter-spacing: -.02em; line-height: 31px; }
+
+.wp-controls { display: flex; justify-content: center; gap: 8px; }
+.wp-controls button { font: inherit; font-size: 13px; font-weight: 600; color: #0E0E10; background: rgb(255 255 255 / .62); border: 1px solid rgb(14 14 16 / .14); border-radius: 999px; min-height: 40px; padding: 8px 18px; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: background .2s; }
+.wp-controls button:hover:not(:disabled) { background: rgb(255 255 255 / .85); }
+.wp-controls button:focus-visible { outline: 2px solid #0E0E10; outline-offset: 2px; }
+.wp-controls button:disabled { opacity: .45; cursor: default; }
+
+.wp-veil { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 14px; background: #D9D4C9; color: rgb(14 14 16 / .8); font-size: 14px; }
+.wp-veil a { color: #0E0E10; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .wp-hud { justify-content: flex-end; gap: 18px; }
+  .wp-hud dd { font-size: 20px; }
+  .wp-hud .wp-depth { font-size: 15px; line-height: 24px; }
+  .wp-controls button { flex: 1; min-height: 46px; }
+}
