@@ -10,13 +10,24 @@
     },
     {
       "source": "/ko",
-      "destination": "/",
+      "destination": "/today",
+      "permanent": true
+    },
+    {
+      "source": "/en",
+      "destination": "/today/en",
       "permanent": true
     },
     {
       "source": "/download",
       "destination": "https://apps.apple.com/kr/app/id6760692551",
       "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/lab/:path*",
+      "destination": "/lab/index.html"
     }
   ],
   "headers": [
@@ -79,6 +90,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/lab/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     }

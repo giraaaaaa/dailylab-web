@@ -1,0 +1,11 @@
+/* Lab — 자석 타일 · 탄성 막. 밝은 작업대 위의 물건이라 틀은 room-light. */
+.tactile-room .room-stage { cursor: grab; }
+.tactile-room .room-stage.is-grabbed { cursor: grabbing; }
+.tactile-room .room-stage canvas { touch-action: none; }
+.tactile-room .touch-fallback { height: 100%; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--r-muted); font-size: 13px; padding: 24px; }
+.tactile-controls { display: flex; gap: 8px; justify-content: center; }
+.tactile-controls button { font: inherit; font-size: 13px; font-weight: 600; color: var(--r-ink); background: rgb(255 255 255 / .72); border: 1px solid var(--r-line); border-radius: 999px; min-height: 40px; padding: 8px 17px; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: background .2s; }
+.tactile-controls button:hover:not(:disabled) { background: #fff; }
+.tactile-controls button:focus-visible { outline: 2px solid var(--r-accent); outline-offset: 2px; }
+.tactile-controls button:disabled { opacity: .45; cursor: default; }
+@media (max-width: 760px) { .tactile-controls button { flex: 1; min-height: 44px; } }

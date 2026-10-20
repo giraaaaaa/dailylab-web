@@ -1,4 +1,5 @@
 /* 오늘 (Today) — dailylab.app shared styles */
+@view-transition { navigation: auto; } /* 홈에서 넘어올 때 부드럽게 이어지도록(지원 브라우저만) */
 :root {
   --bg: #FAF6F1;
   --bg-2: #F5EDE3;

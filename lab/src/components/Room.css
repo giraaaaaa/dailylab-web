@@ -1,0 +1,124 @@
+/* 실험 방 공통 틀. 무대가 화면 전체를 쓰고, 틀은 그 위에 떠 있다.
+   room-dark: 어두운 장면 위 흰 글자(그림자로 대비 확보) / room-light: 밝은 장면 위 잉크색 글자.
+   장면은 작품이라 시스템 다크 모드와 상관없이 늘 같은 색이다. 그래서 여기선 테마 토큰(--dl-*) 대신 고정값을 쓴다. */
+.room {
+  --r-ink: #fff;
+  --r-muted: rgb(255 255 255 / .64);
+  --r-line: rgb(255 255 255 / .2);
+  --r-panel: rgb(255 255 255 / .08);
+  --r-panel-hover: rgb(255 255 255 / .16);
+  --r-shadow: 0 1px 14px rgb(0 0 0 / .6);
+  --r-sheet: #121315;
+  --r-sheet-ink: #ECECEA;
+  --r-sheet-muted: rgb(236 236 234 / .62);
+  --r-sheet-line: rgb(255 255 255 / .1);
+  --r-accent: #6680FF; /* 어두운 장면 위에선 밝은 코발트 */
+  --r-gap: clamp(16px, 2.6vw, 36px);
+  position: relative; height: 100svh; min-height: 520px; overflow: hidden; isolation: isolate;
+  color: var(--r-ink); background: #050506;
+}
+.room-light {
+  --r-ink: #0E0E10;
+  --r-muted: #66666B;
+  --r-line: rgb(14 14 16 / .18);
+  --r-panel: rgb(255 255 255 / .72);
+  --r-panel-hover: #fff;
+  --r-shadow: none;
+  --r-sheet: #FFFFFF;
+  --r-sheet-ink: #0E0E10;
+  --r-sheet-muted: #66666B;
+  --r-sheet-line: rgb(14 14 16 / .1);
+  --r-accent: #2A4BFF;
+  background: #F1F1EF;
+}
+
+.room-stage { position: absolute; inset: 0; z-index: 0; view-transition-name: room-media; }
+/* 장면이 그려지기 전까지 깔아 두는 첫 장면. 목록 칸의 영상이 이 그림으로 커져 들어온다 */
+.room-still { position: absolute; inset: 0; z-index: 5; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: opacity .7s var(--dl-ease); }
+.room-still.is-gone { opacity: 0; }
+
+/* 칸 ↔ 방, 방 ↔ 방 전환(nav.jsx). 무대는 크기·위치가 이어지고, 나머지는 살짝 겹쳐 바뀐다 */
+::view-transition-group(room-media) { animation-duration: .62s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+::view-transition-old(room-media), ::view-transition-new(room-media) { height: 100%; object-fit: cover; animation-duration: .5s; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; }
+.room-top, .room-hud, .room-bottom { position: absolute; z-index: 2; pointer-events: none; transition: opacity .6s var(--dl-ease); }
+
+.room-pill {
+  pointer-events: auto; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px; padding: 8px 15px; border-radius: 999px; border: 1px solid var(--r-line);
+  background: var(--r-panel); color: var(--r-ink); font: inherit; font-size: 13px; font-weight: 600; letter-spacing: -.01em;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  transition: background .25s var(--dl-ease), border-color .25s var(--dl-ease), color .25s;
+}
+.room-pill:hover { background: var(--r-panel-hover); }
+.room-pill:focus-visible { outline: 2px solid var(--r-ink); outline-offset: 3px; }
+.room-pill:active { transform: scale(.97); }
+
+.room-top { top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: max(var(--r-gap), env(safe-area-inset-top)) var(--r-gap) 0; }
+.room-actions { display: flex; gap: 8px; }
+.room-sound[aria-checked='false'] { color: var(--r-muted); }
+
+.room-hud { top: calc(max(var(--r-gap), env(safe-area-inset-top)) + 58px); right: var(--r-gap); text-shadow: var(--r-shadow); }
+
+.room-bottom {
+  left: 0; right: 0; bottom: 0; padding: 0 var(--r-gap) max(var(--r-gap), env(safe-area-inset-bottom));
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); grid-template-areas: 'caption controls nav';
+  align-items: end; gap: 16px 24px;
+}
+.room-caption { grid-area: caption; max-width: 440px; text-shadow: var(--r-shadow); }
+.room-caption h1 { margin: 0; font-size: clamp(28px, 3.4vw, 46px); font-weight: 800; line-height: 1.08; letter-spacing: -.05em; }
+.room-caption p { margin: 8px 0 0; font-size: 13px; line-height: 1.7; color: var(--r-muted); transition: opacity .9s var(--dl-ease); }
+.room-caption p.is-quiet { opacity: .5; }
+.room-controls { grid-area: controls; pointer-events: auto; }
+.room-nav { grid-area: nav; justify-self: end; display: flex; gap: 8px; }
+.room-step { width: 44px; padding: 0; font-size: 16px; font-weight: 500; }
+
+/* 등장: 장면이 먼저, 틀은 반 박자 늦게 */
+.room-top, .room-hud, .room-bottom { animation: room-in .9s var(--dl-ease) .15s backwards; }
+@keyframes room-in { from { opacity: 0; transform: translateY(8px); } }
+
+/* 원리 시트 */
+.room-sheet {
+  width: min(880px, calc(100vw - 32px)); max-width: none; max-height: min(82svh, 760px); padding: 0;
+  border: 1px solid var(--r-sheet-line); border-radius: 22px; background: var(--r-sheet); color: var(--r-sheet-ink);
+  box-shadow: 0 30px 90px rgb(0 0 0 / .35);
+}
+.room-sheet::backdrop { background: rgb(6 6 8 / .48); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.room-sheet[open] { animation: room-sheet .55s var(--dl-ease); }
+@keyframes room-sheet { from { opacity: 0; transform: translateY(18px) scale(.985); } }
+.room-sheet-body { padding: 26px 28px 28px; }
+.room-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.room-sheet-head h2 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+.room-sheet-close { font: inherit; font-size: 13px; font-weight: 600; color: var(--r-sheet-muted); background: none; border: 1px solid var(--r-sheet-line); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+.room-sheet-close:hover { color: var(--r-sheet-ink); }
+.room-sheet-close:focus-visible { outline: 2px solid var(--r-sheet-ink); outline-offset: 2px; }
+.room-sheet-intro { margin: 14px 0 0; font-size: 14px; line-height: 1.75; color: var(--r-sheet-muted); white-space: pre-line; }
+.room-sheet-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px 28px; margin-top: 22px; }
+.room-sheet-grid h3 { margin: 0; font-size: 14px; letter-spacing: -.02em; }
+.room-sheet-grid p { margin: 7px 0 0; font-size: 13px; line-height: 1.8; color: var(--r-sheet-muted); }
+.room-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 24px 0 0; padding: 18px 0 0; list-style: none; border-top: 1px solid var(--r-sheet-line); }
+.room-tags li { font-size: 11px; color: var(--r-sheet-muted); border: 1px solid var(--r-sheet-line); border-radius: 999px; padding: 4px 10px; }
+
+/* 조작이 넓은 방은 중간 폭에서 조작을 한 줄 위로 올린다 */
+@media (max-width: 1100px) {
+  .room-bottom { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'controls controls' 'caption nav'; }
+  .room-controls { justify-self: center; }
+}
+@media (max-width: 760px) {
+  .room-controls { justify-self: stretch; }
+  .room-pill { min-height: 40px; padding: 8px 13px; font-size: 12px; }
+  .room-hud { top: calc(max(var(--r-gap), env(safe-area-inset-top)) + 52px); left: var(--r-gap); right: var(--r-gap); }
+  .room-bottom { gap: 14px 12px; }
+  .room-caption h1 { font-size: 26px; }
+  .room-caption p { font-size: 12px; margin-top: 5px; }
+  .room-step { width: 42px; }
+  /* 휴대폰에선 아래에서 올라오는 시트 */
+  .room-sheet { width: 100vw; max-height: 86svh; margin: auto 0 0; border-radius: 22px 22px 0 0; border-bottom: 0; }
+  .room-sheet-body { padding: 22px 20px max(26px, env(safe-area-inset-bottom)); }
+  .room-sheet-grid { grid-template-columns: 1fr; gap: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-top, .room-hud, .room-bottom, .room-sheet[open] { animation: none; }
+  .room-caption p, .room-pill { transition: none; }
+}

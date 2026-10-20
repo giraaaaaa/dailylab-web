@@ -1,0 +1,53 @@
+/* 실험실 목록: 작품이 하나씩 놓인 선반. 칸 수 = 실험 수(빈 칸 없음), 줄마다 넓이를 달리해 리듬을 만든다.
+   넓은 화면 12칸 기준: 지평선 8 + 타일 4 / 탄성 막 4 + 유리 8 / 방 6 + 도시 6 */
+.shelf-page { max-width: 1240px; margin: 0 auto; padding: 44px 24px 56px; }
+.shelf-intro { max-width: 640px; margin: 0 0 36px; }
+.shelf-intro h1 { margin: 0; font-size: clamp(32px, 4.2vw, 52px); font-weight: 800; line-height: 1.12; letter-spacing: -.055em; color: var(--ink); }
+.shelf-intro p { margin: 14px 0 0; font-size: 15px; line-height: 1.7; color: var(--muted); }
+
+.shelf { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 28px 20px; }
+.shelf-cell { grid-column: span 6; min-width: 0; }
+.shelf-horizon, .shelf-glass { grid-column: span 8; }
+.shelf-tiles, .shelf-surface { grid-column: span 4; }
+
+.shelf-cell a { display: block; color: inherit; text-decoration: none; border-radius: 20px; outline: none; }
+.shelf-media {
+  position: relative; overflow: hidden; height: clamp(260px, 29vw, 400px); border-radius: 20px;
+  background: var(--surface2); isolation: isolate; contain: paint;
+}
+.shelf-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s var(--dl-ease); }
+.shelf-cell a:hover .shelf-media video, .shelf-cell a:focus-visible .shelf-media video { transform: scale(1.025); }
+.shelf-cell a:focus-visible .shelf-media { outline: 2px solid var(--accent); outline-offset: 4px; }
+.shelf-cell a:active .shelf-media { transform: scale(.995); }
+
+.shelf-caption { display: flex; align-items: baseline; gap: 12px; padding: 14px 4px 0; }
+.shelf-title { font-size: 19px; font-weight: 700; letter-spacing: -.035em; color: var(--ink); }
+.shelf-feel { font-size: 14px; color: var(--muted); }
+.shelf-go { margin-left: auto; color: var(--muted); transition: transform .6s var(--dl-ease), color .3s; }
+.shelf-cell a:hover .shelf-go, .shelf-cell a:focus-visible .shelf-go { transform: translateX(4px); color: var(--ink); }
+
+/* 등장: 칸이 차례로 떠오른다 */
+.shelf-cell { animation: shelf-in .9s var(--dl-ease) backwards; }
+.shelf-cell:nth-child(2) { animation-delay: .06s; } .shelf-cell:nth-child(3) { animation-delay: .12s; }
+.shelf-cell:nth-child(4) { animation-delay: .18s; } .shelf-cell:nth-child(5) { animation-delay: .24s; } .shelf-cell:nth-child(6) { animation-delay: .3s; }
+@keyframes shelf-in { from { opacity: 0; transform: translateY(16px); } }
+
+@media (max-width: 1024px) {
+  .shelf { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+  .shelf-cell, .shelf-tiles, .shelf-surface, .shelf-glass { grid-column: span 1; }
+  .shelf-horizon, .shelf-city { grid-column: 1 / -1; } /* 2칸 줄 사이에 넓은 칸을 끼워 빈 칸이 생기지 않게 */
+  .shelf-media { height: clamp(220px, 34vw, 320px); }
+}
+@media (max-width: 640px) {
+  .shelf-page { padding: 28px 16px 40px; }
+  .shelf-intro { margin-bottom: 26px; }
+  .shelf-intro p { font-size: 14px; }
+  .shelf { grid-template-columns: 1fr; gap: 22px; }
+  .shelf-horizon, .shelf-city { grid-column: auto; }
+  .shelf-media { height: auto; aspect-ratio: 4 / 3; border-radius: 18px; }
+  .shelf-title { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shelf-cell { animation: none; }
+  .shelf-media video, .shelf-go { transition: none; }
+}

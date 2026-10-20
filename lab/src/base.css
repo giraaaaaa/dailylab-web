@@ -1,0 +1,48 @@
+/* Daily Lab 실험실. 색·글꼴은 홈과 같은 tokens.css(--dl-*)에서 온다.
+   실험 페이지들이 쓰는 짧은 변수 이름(--ink, --muted …)은 그 값을 가리키는 별칭이다.
+   목록은 시스템 다크 모드를 따르고, 실험 방은 장면 색에 맞춘 고정 틀(components/Room)을 쓴다. */
+:root {
+  --bg: var(--dl-bg);
+  --card: var(--dl-surface);
+  --fg: var(--dl-ink);
+  --ink: var(--dl-ink);
+  --muted: var(--dl-muted);
+  --faint: var(--dl-faint);
+  --line: var(--dl-line);
+  --line-strong: var(--dl-line-strong);
+  --accent: var(--dl-accent);
+  --accent-soft: var(--dl-accent-soft);
+  --shadow: 0 2px 10px rgb(14 14 16 / .05);
+  --surface2: color-mix(in srgb, var(--dl-ink) 4%, transparent);
+  --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--dl-sans);
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent-soft); }
+@view-transition { navigation: auto; } /* 홈에서 넘어올 때 부드럽게(지원 브라우저만) */
+
+.lab-header { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); border-bottom: 1px solid var(--line); }
+.lab-header-inner { max-width: 1240px; height: 56px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 14px; }
+.lab-mark { color: var(--ink); font-family: var(--dl-mark); font-weight: 900; font-size: 19px; letter-spacing: -0.03em; text-decoration: none; }
+.lab-section { color: var(--muted); font-size: 13px; font-weight: 600; text-decoration: none; padding: 5px 11px; border-radius: 999px; border: 1px solid var(--line-strong); }
+.lab-section.active { color: var(--ink); background: var(--card); }
+.lab-header a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+.lab-loading { min-height: calc(100svh - 56px); }
+.lab-footer { max-width: 1240px; margin: 0 auto; padding: 28px 24px 44px; display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; }
+.lab-footer p { margin: 0; }
+.lab-footer nav { display: flex; gap: 18px; }
+.lab-footer a { color: var(--muted); text-decoration: none; }
+.lab-footer a:hover { color: var(--ink); text-decoration: underline; }
+
+@media (max-width: 760px) {
+  .lab-header-inner { height: 52px; padding: 0 16px; gap: 10px; }
+  .lab-mark { font-size: 17px; }
+}

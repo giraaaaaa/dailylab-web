@@ -2,7 +2,7 @@
   "name": "오늘 - AI가 답장하는 일기",
   "short_name": "오늘",
   "description": "일기를 쓰면 AI가 답장을 보내요. 감정일기·습관·수면 기록 앱.",
-  "start_url": "/",
+  "start_url": "/today",
   "display": "browser",
   "background_color": "#FAF6F1",
   "theme_color": "#FAF6F1",

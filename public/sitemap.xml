@@ -5,12 +5,18 @@
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://www.dailylab.app/</loc>
-    <lastmod>2026-09-25</lastmod>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.dailylab.app/today</loc>
+    <lastmod>2026-10-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/today" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/today/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/today" />
     <image:image><image:loc>https://www.dailylab.app/img/og-ko.jpg</image:loc></image:image>
     <image:image><image:loc>https://www.dailylab.app/img/shots/diary.webp</image:loc></image:image>
     <image:image><image:loc>https://www.dailylab.app/img/shots/insights.webp</image:loc></image:image>
@@ -27,13 +33,13 @@
     </video:video>
   </url>
   <url>
-    <loc>https://www.dailylab.app/en</loc>
-    <lastmod>2026-09-25</lastmod>
+    <loc>https://www.dailylab.app/today/en</loc>
+    <lastmod>2026-10-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/en" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://www.dailylab.app/today" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.dailylab.app/today/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.dailylab.app/today" />
     <image:image><image:loc>https://www.dailylab.app/img/og-en.jpg</image:loc></image:image>
     <video:video>
       <video:thumbnail_loc>https://www.dailylab.app/video/promo-en-poster.jpg</video:thumbnail_loc>
@@ -54,6 +60,12 @@
     <loc>https://www.dailylab.app/terms</loc>
     <lastmod>2026-03-15</lastmod>
     <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://www.dailylab.app/lab</loc>
+    <lastmod>2026-10-20</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 </urlset>

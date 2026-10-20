@@ -1,0 +1,41 @@
+/* Daily Lab 공통 색·글꼴. 홈(/)과 실험실(/lab)이 같이 쓴다(오늘 앱 페이지는 site.css).
+   실험실은 빌드할 때 이 파일을 묶어 넣으므로 값을 바꾸면 lab도 다시 빌드한다.
+   home.js의 THEMES(셰이더 색)도 이 값과 맞춘다. */
+@font-face {
+  font-family: "Geist DL"; /* "Daily Lab" 글자만 들어 있는 서브셋 */
+  src: url("/assets/fonts/geist-black-dl.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
+
+:root {
+  --dl-bg: #F1F1EF;
+  --dl-surface: #FFFFFF;
+  --dl-ink: #0E0E10;
+  --dl-muted: #66666B;
+  --dl-faint: #9A9AA0;
+  --dl-line: rgb(14 14 16 / .1);
+  --dl-line-strong: rgb(14 14 16 / .18);
+  --dl-accent: #2A4BFF;
+  --dl-accent-soft: rgb(42 75 255 / .1);
+  --dl-ease: cubic-bezier(.22, 1, .36, 1);
+  --dl-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+  --dl-mark: "Geist DL", var(--dl-sans);
+  color-scheme: light;
+}
+
+/* 다크는 시스템 설정을 따른다. 아직 밝은 장면만 있는 페이지는 <html data-theme="light">로 빠진다 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --dl-bg: #0B0B0D;
+    --dl-surface: #151518;
+    --dl-ink: #E4E4E1;
+    --dl-muted: #8C8C92;
+    --dl-faint: #5E5E64;
+    --dl-line: rgb(228 228 225 / .1);
+    --dl-line-strong: rgb(228 228 225 / .18);
+    --dl-accent: #6680FF;
+    --dl-accent-soft: rgb(102 128 255 / .14);
+    color-scheme: dark;
+  }
+}
