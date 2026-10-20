@@ -36,7 +36,7 @@ npm test         # 물리·기하 단위 테스트
 npm run build    # → ../public/lab (커밋)
 ```
 
-`vercel.json`의 `/lab/:path*` 리라이트가 하위 경로(`/lab/horizon` 등)를 `public/lab/index.html`로 보낸다.
+`vercel.json`의 `/lab/:path*` 리라이트가 하위 경로(`/lab/horizon` 등)를 `/lab`(= `public/lab/index.html`)으로 보낸다. `cleanUrls`가 켜져 있어서 목적지를 `/lab/index.html`로 쓰면 운영에서 404가 난다.
 
 실험마다 방이 하나씩 있다(`/lab/tiles`, `/surface`, `/horizon`, `/portal`, `/city`, `/glass`). 방은 `lab/src/components/Room.jsx` 공통 틀을 쓴다. 실험이 화면 전체를 쓰고, 그 위 같은 자리에 실험실로·소리·원리(위), 제목·안내·조작·이전/다음(아래)이 뜬다. 원리 설명은 '원리' 시트 안에 있다. 목록 순서와 이전/다음 순서는 `lab/src/rooms.js` 하나로 정한다.
 
