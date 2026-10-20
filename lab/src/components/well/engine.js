@@ -15,7 +15,7 @@ const MEMORY = 'dl-well'
 const rand = (a, b) => a + Math.random() * (b - a)
 
 function readMemory() {
-  try { return { returned: 0, visits: 0, ...JSON.parse(localStorage.getItem(MEMORY) || '{}') } } catch { return { returned: 0, visits: 0 } }
+  try { return { returned: 0, visits: 0, thrown: 0, ...JSON.parse(localStorage.getItem(MEMORY) || '{}') } } catch { return { returned: 0, visits: 0, thrown: 0 } }
 }
 function writeMemory(m) {
   try { localStorage.setItem(MEMORY, JSON.stringify(m)) } catch { /* 저장 불가 */ }
@@ -234,6 +234,8 @@ export function createWell(canvas, { sfx, onStats }) {
     sfx.unlock()
     sfx.reverb(3.4, 2.4, 0.3) // 우물 울림(처음 한 번만 만든다)
     stats.thrown += 1
+    memory.thrown += 1 // 지금까지 던진 돌 전부(다른 방에서 읽을 수도 있다)
+    writeMemory(memory)
     const n = stats.thrown
     const mesh = new THREE.Mesh(pebbleGeo, pebbleMat)
     mesh.scale.setScalar(rand(0.8, 1.25))

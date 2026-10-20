@@ -49,7 +49,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
     return wet
   }
 
-  function route(node, { pan = 0, send = 0 }) {
+  function route(node, { pan = 0, send = 0, dest = null }) {
     let out = node
     if (ctx.createStereoPanner && pan) {
       const p = ctx.createStereoPanner()
@@ -57,7 +57,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
       out.connect(p)
       out = p
     }
-    out.connect(master)
+    out.connect(dest || master) // dest: 방이 따로 만든 소리 사슬(예: 라디오 필터)로 보낼 때
     if (send && wet) {
       const s = ctx.createGain()
       s.gain.value = send
@@ -67,7 +67,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
   }
 
   /* 한 번 재생. at: 몇 초 뒤, offset/duration: 파일의 일부만(질감 조각) */
-  function play(name, { gain = 1, rate = 1, pan = 0, send = 0, at = 0, offset = 0, duration, fade = 0.012 } = {}) {
+  function play(name, { gain = 1, rate = 1, pan = 0, send = 0, at = 0, offset = 0, duration, fade = 0.012, dest = null } = {}) {
     if (!ctx || muted) return
     const buf = buffers[name]
     if (!buf) return
@@ -83,12 +83,12 @@ export function createSfx(sources, { level = 0.9 } = {}) {
       g.gain.linearRampToValueAtTime(0, t0 + duration / rate)
     } else g.gain.value = gain
     src.connect(g)
-    route(g, { pan, send })
+    route(g, { pan, send, dest })
     src.start(t0, offset, duration)
   }
 
   /* 계속 도는 소리(배경음·라디오 방송). 겹친 루프라 처음과 끝이 이어진다. 세기·높낮이를 부드럽게 바꿀 수 있다 */
-  function loop(name, { gain = 0.5, rate = 1, send = 0 } = {}) {
+  function loop(name, { gain = 0.5, rate = 1, send = 0, dest = null } = {}) {
     let src = null
     let g = null
     const start = () => {
@@ -101,7 +101,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
       g.gain.value = 0
       g.gain.linearRampToValueAtTime(gain, ctx.currentTime + 1.2)
       src.connect(g)
-      route(g, { send })
+      route(g, { send, dest })
       src.start(0, Math.random() * buffers[name].duration)
     }
     loading?.then(start)
@@ -122,6 +122,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
     loop,
     reverb,
     get ctx() { return ctx },
+    get out() { return master }, // 방이 직접 만든 노드를 잇는 마지막 자리(끄기·세기가 같이 적용된다)
     get ready() { return loading },
     setMuted(value) {
       muted = value

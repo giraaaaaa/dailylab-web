@@ -34,6 +34,8 @@ export const ROOMS = [
     summary: '돌을 떨어뜨리면 한참 뒤에 물소리가 납니다.', tags: ['자유낙하', '소리 지연', '물결'] },
   { id: 'mirror', title: '김 서린 거울', feel: '뽀득, 주르륵.',
     summary: '닦으면 보입니다. 다시 서리면, 저쪽에서 쓴 글씨가 보입니다.', tags: ['김 격자', '물방울 렌즈', '흐린 반사'] },
+  { id: 'radio', title: '주파수', feel: '지직, 딸깍.',
+    summary: '다이얼을 돌려 방송을 찾아보세요. 눈금이 끝난 곳에도 무언가 나옵니다.', tags: ['원통 다이얼', '합성 잡음', '음성 합성'] },
 ].map((room) => ({ ...room, path: `/${room.id}`, still: room.still ?? room.poster }))
 
 export function neighbors(id) {
