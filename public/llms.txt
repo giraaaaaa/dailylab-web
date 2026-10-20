@@ -22,7 +22,8 @@
 - 일기는 AI 학습에 사용되지 않음, 설정에서 언제든 계정·데이터 삭제 가능
 
 ## 페이지
-- [한국어 소개](https://www.dailylab.app/)
-- [English](https://www.dailylab.app/en)
+- [Daily Lab 홈](https://www.dailylab.app/)
+- [오늘 소개 (한국어)](https://www.dailylab.app/today)
+- [Today (English)](https://www.dailylab.app/today/en)
 - [개인정보처리방침](https://www.dailylab.app/privacy)
 - [이용약관](https://www.dailylab.app/terms)

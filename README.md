@@ -1,11 +1,12 @@
 # dailylab.app
 
-오늘(Today) 앱 소개 사이트. Vercel 정적 배포(`public/`이 루트, 빌드 없음).
+Daily Lab 사이트 — 오늘(Today) 앱 소개와 실험실. Vercel 정적 배포(`public/`이 루트, 빌드 없음).
 
 | 경로 | 파일 | 용도 | 색인 |
 |------|------|------|------|
-| `/` | `public/index.html` | 한국어 랜딩 | O |
-| `/en` | `public/en/index.html` | 영어 랜딩 | O |
+| `/` | `public/index.html` | Daily Lab 홈 — 오늘(`/today`)·실험실(`/lab`)로 가는 입구 | O |
+| `/today` | `public/today/index.html` | 오늘 앱 한국어 랜딩 | O |
+| `/today/en` | `public/today/en/index.html` | 오늘 앱 영어 랜딩 (옛 `/en`은 308로 이동) | O |
 | `/ad` | `public/ad/index.html` | 광고 유입 전용 랜딩 (`?v=` 소재 매칭) | X (`noindex, follow`) |
 | `/privacy`, `/terms` | `public/*.html` | 법적 고지 | O |
 | `/hf/*` | HyperFrames 컴포지션 | 영상 원본(플레이어가 iframe으로 재생) | X |
