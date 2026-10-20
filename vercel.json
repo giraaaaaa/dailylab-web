@@ -10,7 +10,12 @@
     },
     {
       "source": "/ko",
-      "destination": "/",
+      "destination": "/today",
+      "permanent": true
+    },
+    {
+      "source": "/en",
+      "destination": "/today/en",
       "permanent": true
     },
     {
