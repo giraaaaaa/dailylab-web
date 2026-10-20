@@ -32,6 +32,28 @@ const PLANS = {
   glass: { settle: 2500, length: 5600, poster: 900, crf: 32, run: async (b) => {
     await sleep(300); await b.evaluate(click('톡 치기')); await sleep(700); await b.evaluate(click('톡 치기')); await sleep(800); await b.evaluate(click('와장창'))
   } },
+  // 돌 두 개: 떨어지는 동안 작아지고, 수면에 닿으면 물결
+  well: { settle: 3000, length: 6200, poster: 3600, run: async (b) => {
+    await sleep(200); await b.evaluate(click('돌 떨어뜨리기')); await sleep(2600); await b.evaluate(click('돌 떨어뜨리기'))
+  } },
+  // 김을 지그재그로 닦아 욕실이 비치게
+  mirror: { settle: 2500, length: 6000, poster: 4600, run: async (b, mouse) => {
+    const x0 = W * 0.24, x1 = W * 0.76, y0 = H * 0.26
+    await mouse('mouseMoved', x0, y0, 0); await mouse('mousePressed', x0, y0)
+    for (let r = 0; r < 8; r++) {
+      const from = r % 2 ? x1 : x0, to = r % 2 ? x0 : x1, y = y0 + r * 34
+      for (let i = 0; i <= 16; i++) { await mouse('mouseMoved', from + (to - from) * (i / 16), y + Math.sin(i) * 3); await sleep(18) }
+    }
+    await mouse('mouseReleased', x0, y0 + 272, 0)
+  } },
+  // 잡음에서 방송 두 곳으로 훑어 간다
+  radio: { settle: 2500, length: 6400, poster: 2600, run: async (b) => {
+    await sleep(300); await b.evaluate(click('다음 방송')); await sleep(3200); await b.evaluate(click('다음 방송'))
+  } },
+  // 한 줄씩 세 번 뜯는다(말려 올라가는 모습과 떨어지는 조각)
+  wallpaper: { settle: 2500, length: 6400, poster: 900, run: async (b) => {
+    await sleep(250); await b.evaluate(click('한 줄 뜯기')); await sleep(2000); await b.evaluate(click('한 줄 뜯기')); await sleep(2000); await b.evaluate(click('한 줄 뜯기'))
+  } },
 }
 
 async function launch(profile) {
@@ -68,7 +90,7 @@ async function record(room) {
   const mouse = (type, x, y, buttons = 1) => b.send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons, clickCount: type === 'mouseMoved' ? 0 : 1 })
   await b.send('Page.navigate', { url: `${BASE}/lab/${room}` })
   await sleep(plan.settle)
-  await b.evaluate(`(() => { const s = document.createElement('style'); s.textContent = '.room-top,.room-hud,.room-bottom,.room-still,.gx-hint,.gx-ring,.hz-stats,.hz-gauge,.hz-veil{display:none!important}'; document.head.append(s); return true })()`)
+  await b.evaluate(`(() => { const s = document.createElement('style'); s.textContent = '.room-top,.room-hud,.room-bottom,.room-still,.gx-hint,.gx-ring,.hz-stats,.hz-gauge,.hz-veil,.wl-note{display:none!important}'; document.head.append(s); return true })()`)
   await sleep(300)
 
   const shots = []

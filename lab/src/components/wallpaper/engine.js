@@ -434,12 +434,15 @@ export function createWallpaper(canvas, overlay, { sfx, onStats }) {
   function peelOnce() {
     if (!built || tear || auto) return
     sfx.unlock()
-    for (let tries = 0; tries < 12; tries++) {
-      const x = rand(W * 0.25, W * 0.75), y = rand(H * 0.22, H * 0.62)
+    for (let tries = 0; tries < 40; tries++) {
+      const x = rand(W * 0.3, W * 0.7), y = rand(H * 0.24, H * 0.6)
       if (layerAt(x, y) >= 4) continue
-      const a = rand(0.15, 0.85) * Math.PI
+      // 손이 끝나는 자리가 화면 안에 남는 방향만(좁은 화면에서 띠가 밖으로 나가지 않게)
+      const a = rand(0, Math.PI * 2), len = Math.min(rand(300, 520) * scaleF(), Math.min(W, H) * 0.8)
+      const ex = x + Math.cos(a) * len, ey = y + Math.sin(a) * len
+      if (ex < W * 0.08 || ex > W * 0.92 || ey < H * 0.12 || ey > H * 0.78) continue
       startTear(x, y)
-      auto = { from: [x, y], dir: [Math.cos(a), Math.sin(a)], len: rand(300, 520) * scaleF(), t: 0 }
+      auto = { from: [x, y], dir: [Math.cos(a), Math.sin(a)], len, t: 0 }
       return
     }
   }
