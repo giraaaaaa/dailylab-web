@@ -6,4 +6,6 @@ export default defineConfig({
   base: '/lab/',
   plugins: [react()],
   build: { outDir: '../public/lab', emptyOutDir: true },
+  // 홈과 같이 쓰는 ../public/assets/tokens.css를 개발 서버에서도 읽을 수 있게
+  server: { fs: { allow: ['..'] } },
 })

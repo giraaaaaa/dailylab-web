@@ -27,7 +27,7 @@ export default function LabGlass() {
 
   useEffect(() => {
     const previous = document.title
-    document.title = '유리 한 장 — Daily Lab'
+    document.title = '유리 한 장 · Daily Lab'
     return () => { document.title = previous }
   }, [])
 
@@ -132,7 +132,7 @@ export default function LabGlass() {
       </div>}
 
       <header className="gx-title">
-        <span className="gx-eyebrow">DAILY LAB · 06 — GLASS</span>
+        <span className="gx-eyebrow">보로노이 파괴와 굴절</span>
         <h1>유리 한 장</h1>
         <p>톡 치면 금이 가고, 꾹 눌렀다 놓을수록 세게 칩니다.</p>
       </header>
@@ -166,7 +166,7 @@ export default function LabGlass() {
         <article><b>소리와 손끝</b><p>금 가는 소리, 깨지는 소리, 조각 소리 세 개를 로컬 생성 모델로 만들어 다듬은 뒤 높낮이와 세기를 바꿔 매번 다르게 들리게 했습니다. 안드로이드 휴대폰에서는 진동도 함께 옵니다.</p></article>
         <article><b>단순화한 부분</b><p>실제 파괴역학을 푼 것이 아니라 손맛을 위한 모델입니다. 조각끼리는 부딪히지 않고, 굴절은 화면 공간에서 흉내 냅니다. 새 라이브러리 없이 WebGL2로 그리고, 움직임이 없으면 그리기를 멈춥니다.</p></article>
       </div>
-      <div className="gx-links"><Link to="/">실험실 목록</Link><Link to="/horizon">사건의 지평선</Link><a href="/">오늘 앱 보기 →</a></div>
+      <div className="gx-links"><Link to="/">실험실 목록</Link><Link to="/horizon">사건의 지평선</Link></div>
     </section>
   </main>
 }

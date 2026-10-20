@@ -13,12 +13,8 @@ export default function App() {
   return <>
     <header className="lab-header">
       <div className="lab-header-inner">
-        <a className="lab-logo" href="/" aria-label="Daily Lab 홈">
-          <img src="/img/icons/icon-192.png" width="30" height="30" alt="" />
-          <span>Daily Lab</span>
-        </a>
+        <a className="lab-mark" href="/" aria-label="Daily Lab 홈">Daily Lab</a>
         <NavLink to="/" end className="lab-section">실험실</NavLink>
-        <a className="lab-app-link" href="/">오늘 앱 보기</a>
       </div>
     </header>
     <Routes>
@@ -29,8 +25,8 @@ export default function App() {
       <Route path="*" element={page(<Lab />)} />
     </Routes>
     <footer className="lab-footer">
-      <p>© 2026 Daily Lab · 실험실의 작품들은 앱 ‘오늘’과 별개인 웹 기술 실험입니다.</p>
-      <nav aria-label="하단 메뉴"><a href="/">오늘 앱</a><a href="mailto:dailylab.apps@gmail.com">문의</a></nav>
+      <p>© 2026 Daily Lab</p>
+      <nav aria-label="하단 메뉴"><a href="/">홈</a><a href="mailto:dailylab.apps@gmail.com">문의</a></nav>
     </footer>
   </>
 }

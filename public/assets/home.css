@@ -1,30 +1,14 @@
-/* Daily Lab 홈. 색 값은 home.js의 THEMES와 같아야 한다(평면 <h1>이 부풀기 전 첫 프레임과 겹쳐 보이도록). */
-@font-face {
-  font-family: "Geist DL";
-  src: url("/assets/fonts/geist-black-dl.woff2") format("woff2");
-  font-weight: 900;
-  font-display: swap;
-}
+/* Daily Lab 홈. 색·글꼴은 tokens.css에서 온다(그 값은 home.js의 THEMES와 같아야 평면 <h1>이 첫 프레임과 겹친다). */
 @view-transition { navigation: auto; }
 
 :root {
-  --bg: #F1F1EF;
-  --ink: #0E0E10;
-  --muted: #66666B;
-  --accent: #2A4BFF;
+  --bg: var(--dl-bg);
+  --ink: var(--dl-ink);
+  --muted: var(--dl-muted);
+  --accent: var(--dl-accent);
   --gutter: clamp(20px, 3.2vw, 48px);
-  --ease: cubic-bezier(.22, 1, .36, 1);
-  --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
-  color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0B0B0D;
-    --ink: #E4E4E1;
-    --muted: #8C8C92;
-    --accent: #6680FF;
-    color-scheme: dark;
-  }
+  --ease: var(--dl-ease);
+  --sans: var(--dl-sans);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -62,7 +46,7 @@ a { color: inherit; text-decoration: none; }
 /* 워드마크. WebGL이 준비되면 같은 자리에 같은 모양으로 그려지고, <h1>은 보이지 않게 남는다(스크린리더·검색용). */
 .center { display: grid; place-items: center; padding: 0 var(--gutter); }
 .mark {
-  margin: 0; font-family: "Geist DL", var(--sans); font-weight: 900;
+  margin: 0; font-family: var(--dl-mark); font-weight: 900;
   font-size: min(19vw, 38vh); line-height: .92; letter-spacing: -0.03em; white-space: nowrap;
   color: var(--ink); user-select: none; -webkit-user-select: none;
 }

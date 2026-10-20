@@ -10,7 +10,7 @@ const hint = document.querySelector('.hint')
 const reduceMq = matchMedia('(prefers-reduced-motion: reduce)')
 const darkMq = matchMedia('(prefers-color-scheme: dark)')
 
-// home.css와 같은 색. ink는 부풀기 전 평면 글자색이라 <h1> 색과 정확히 같아야 바꿔치기가 보이지 않는다.
+// tokens.css와 같은 색. ink는 부풀기 전 평면 글자색이라 <h1> 색과 정확히 같아야 바꿔치기가 보이지 않는다.
 const THEMES = {
   light: { bg: '#F1F1EF', ink: '#0E0E10', accent: '#2A4BFF', metal: 0, dots: 0.12, shadow: 0.2 },
   dark: { bg: '#0B0B0D', ink: '#E4E4E1', accent: '#6680FF', metal: 1, dots: 0.14, shadow: 0.55 },

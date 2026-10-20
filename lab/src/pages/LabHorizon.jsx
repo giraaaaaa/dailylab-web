@@ -76,7 +76,7 @@ export default function LabHorizon() {
 
   useEffect(() => {
     const previous = document.title
-    document.title = '사건의 지평선 — Daily Lab'
+    document.title = '사건의 지평선 · Daily Lab'
     return () => { document.title = previous }
   }, [])
 
@@ -343,7 +343,7 @@ export default function LabHorizon() {
       </div>}
 
       <header className="hz-title">
-        <span className="hz-eyebrow">DAILY LAB · 03 — RELATIVISTIC RAY TRACER</span>
+        <span className="hz-eyebrow">상대론적 광선 추적</span>
         <h1>사건의 지평선</h1>
         <p>블랙홀 곁을 지나는 빛이 어떻게 휘는지,<br />화면의 모든 픽셀마다 실시간으로 계산합니다.</p>
       </header>
@@ -395,7 +395,7 @@ export default function LabHorizon() {
         <article><b>시간이 느려집니다</b><p>블랙홀 가까이 멈춰 선 사람의 시간은 √(1 − Rs/r)배로 느리게 흐릅니다. 오른쪽 위 숫자는 지금 거리에서 계산한 값입니다.</p></article>
         <article><b>단순화한 부분</b><p>회전하지 않는 블랙홀(슈바르츠실트)과 두께 없는 원반을 가정했습니다. 원반 밝기는 표준 원반 이론(Novikov–Thorne)의 온도 분포를 단순화했고, 지평선 바로 앞 시야는 근사입니다. 새 라이브러리 없이 WebGL2 셰이더로 그리고, 기기 성능에 맞춰 해상도를 스스로 조절하며, 화면 밖에서는 계산을 멈춥니다.</p></article>
       </div>
-      <div className="hz-links"><Link to="/">실험실 목록</Link><Link to="/glass">유리 한 장</Link><a href="/">오늘 앱 보기 →</a></div>
+      <div className="hz-links"><Link to="/">실험실 목록</Link><Link to="/glass">유리 한 장</Link></div>
     </section>
   </main>
 }
