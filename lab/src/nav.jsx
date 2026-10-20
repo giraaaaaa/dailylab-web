@@ -27,8 +27,9 @@ export const pages = {
   glass: loadable(() => import('./pages/LabGlass')),
   spatial: loadable(() => import('./pages/LabSpatial')),
   well: loadable(() => import('./pages/LabWell')),
+  mirror: loadable(() => import('./pages/LabMirror')),
 }
-const pageOf = { '/tiles': pages.tactile, '/surface': pages.tactile, '/horizon': pages.horizon, '/glass': pages.glass, '/portal': pages.spatial, '/city': pages.spatial, '/well': pages.well }
+const pageOf = { '/tiles': pages.tactile, '/surface': pages.tactile, '/horizon': pages.horizon, '/glass': pages.glass, '/portal': pages.spatial, '/city': pages.spatial, '/well': pages.well, '/mirror': pages.mirror }
 export const preloadPath = (to) => (pageOf[to] ?? pages.index).preload()
 
 export function useMorph() {

@@ -32,6 +32,8 @@ export const ROOMS = [
     summary: '64개의 건물이 순서대로 일어나고 다시 접힙니다.', tags: ['경첩 구조', '인스턴싱'] },
   { id: 'well', title: '우물', feel: '퐁, 그리고 한참.',
     summary: '돌을 떨어뜨리면 한참 뒤에 물소리가 납니다.', tags: ['자유낙하', '소리 지연', '물결'] },
+  { id: 'mirror', title: '김 서린 거울', feel: '뽀득, 주르륵.',
+    summary: '닦으면 보입니다. 다시 서리면, 저쪽에서 쓴 글씨가 보입니다.', tags: ['김 격자', '물방울 렌즈', '흐린 반사'] },
 ].map((room) => ({ ...room, path: `/${room.id}`, still: room.still ?? room.poster }))
 
 export function neighbors(id) {

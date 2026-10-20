@@ -3,7 +3,7 @@ import { NavLink, Route, Routes } from 'react-router-dom'
 import { pages } from './nav'
 
 /* 실험마다 three.js·셰이더 무게가 달라 페이지 단위로 나눠 받는다(nav.jsx의 loadable: 한 번 받으면 곧바로 그려짐) */
-const { index: Lab, tactile: LabTactile, horizon: LabHorizon, glass: LabGlass, spatial: LabSpatial, well: LabWell } = pages
+const { index: Lab, tactile: LabTactile, horizon: LabHorizon, glass: LabGlass, spatial: LabSpatial, well: LabWell, mirror: LabMirror } = pages
 
 const page = (el) => <Suspense fallback={<main className="lab-loading" aria-busy="true" />}>{el}</Suspense>
 
@@ -33,6 +33,7 @@ export default function App() {
     <Route path="/portal" element={page(<LabSpatial key="portal" mode="portal" />)} />
     <Route path="/city" element={page(<LabSpatial key="city" mode="city" />)} />
     <Route path="/well" element={page(<LabWell />)} />
+    <Route path="/mirror" element={page(<LabMirror />)} />
     <Route path="*" element={<IndexPage />} />
   </Routes>
 }
