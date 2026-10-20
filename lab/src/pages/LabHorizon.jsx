@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import Room from '../components/Room'
 import { createHorizon } from '../components/horizon/renderer'
 import './LabHorizon.css'
 
@@ -17,6 +18,14 @@ const MAX_DIST = 45
 const DIVE_SECONDS = 11
 const LOG_MAX = Math.log(MAX_DIST)
 const TICKS = [[1, '사건의 지평선'], [1.5, '광자구'], [3, '최내곽 안정 궤도'], [15, '원반 바깥 끝']]
+const NOTES = [
+  ['빛을 거꾸로 쏩니다', '픽셀마다 카메라에서 광선을 하나씩 쏘고, 블랙홀 곁 시공간에서 빛이 지나는 길(널 측지선)을 매 프레임 수백 단계로 적분합니다. 미리 그려 둔 이미지나 영상은 없습니다.'],
+  ['원반이 머리띠처럼 보이는 이유', '블랙홀 뒤쪽 원반에서 나온 빛이 중력에 휘어 위아래로 넘어옵니다. 그래서 평평한 원반이 블랙홀을 감싸는 고리처럼 보입니다. 그림자 바로 바깥의 가는 고리는 블랙홀을 한 바퀴 넘게 돌고 나온 빛입니다.'],
+  ['그림자는 지평선보다 큽니다', '지평선은 1 Rs지만, 광자구(1.5 Rs) 안쪽으로 들어온 빛은 모두 빨려 들어갑니다. 그래서 검은 그림자의 반지름은 약 2.6 Rs(3√3/2)로 보입니다.'],
+  ['한쪽만 밝은 이유', '원반 안쪽 끝은 광속의 절반 속도로 돕니다. 다가오는 쪽은 도플러 효과로 밝고 푸르게, 멀어지는 쪽은 어둡고 붉게 보입니다. 영화 〈인터스텔라〉 제작진은 관객이 헷갈리지 않도록 이 효과를 뺐습니다. 아래 스위치로 두 모습을 비교해 보세요.'],
+  ['시간이 느려집니다', '블랙홀 가까이 멈춰 선 사람의 시간은 √(1 − Rs/r)배로 느리게 흐릅니다. 오른쪽 위 숫자는 지금 거리에서 계산한 값입니다.'],
+  ['단순화한 부분', '회전하지 않는 블랙홀(슈바르츠실트)과 두께 없는 원반을 가정했습니다. 원반 밝기는 표준 원반 이론(Novikov–Thorne)의 온도 분포를 단순화했고, 지평선 바로 앞 시야는 근사입니다. 새 라이브러리 없이 WebGL2 셰이더로 그리고, 기기 성능에 맞춰 해상도를 스스로 조절하며, 화면 밖에서는 계산을 멈춥니다.'],
+]
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v))
 const lerp = (a, b, t) => a + (b - a) * t
@@ -73,12 +82,6 @@ export default function LabHorizon() {
   const [preset, setPreset] = useState('film')
   const [phase, setPhase] = useState('orbit')
   const [gone, setGone] = useState(null)
-
-  useEffect(() => {
-    const previous = document.title
-    document.title = '사건의 지평선 · Daily Lab'
-    return () => { document.title = previous }
-  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -330,72 +333,50 @@ export default function LabHorizon() {
   const setHud = (key) => (el) => { hud.current[key] = el }
   const usable = status === 'ready' || status === 'loading'
 
-  return <main className="hz">
-    <div ref={stageRef} className={`hz-stage is-${phase}`} tabIndex={0} onKeyDown={onKey}
-      aria-label="블랙홀 시뮬레이션. 드래그나 방향키로 돌고, 휠·핀치나 +/- 키로 다가갈 수 있습니다.">
-      <canvas key={reloadKey} ref={canvasRef} role="img" aria-label="강착원반이 빛나는 블랙홀. 원반 뒤쪽의 빛이 중력에 휘어 블랙홀 위아래로 고리처럼 보입니다." />
-
-      {status === 'loading' && <div className="hz-veil"><span className="hz-pulse" />시공간 계산 준비 중</div>}
-      {(status === 'unsupported' || status === 'error' || status === 'lost') && <div className="hz-veil hz-veil-solid">
-        <p>{status === 'unsupported' ? '이 브라우저는 WebGL2를 지원하지 않아 블랙홀을 그릴 수 없습니다.' : status === 'lost' ? '그래픽 장치가 초기화됐습니다.' : '그래픽 셰이더를 준비하지 못했습니다.'}</p>
-        {status === 'unsupported' ? <Link to="/">실험실 목록으로 →</Link>
-          : <button type="button" onClick={() => { setStatus('loading'); setReloadKey((n) => n + 1) }}>다시 그리기</button>}
-      </div>}
-
-      <header className="hz-title">
-        <span className="hz-eyebrow">상대론적 광선 추적</span>
-        <h1>사건의 지평선</h1>
-        <p>블랙홀 곁을 지나는 빛이 어떻게 휘는지,<br />화면의 모든 픽셀마다 실시간으로 계산합니다.</p>
-      </header>
-
-      <dl className="hz-hud" aria-live="off">
-        <div><dt>블랙홀까지 거리</dt><dd><b ref={setHud('dist')}>19.0</b><small>Rs</small></dd><span className="hz-zone" ref={setHud('zone')}>원반 바깥</span></div>
-        <div><dt>시간 지연</dt><dd><b ref={setHud('dil')}>×1.027</b></dd><span className="hz-zone">여기서 1시간 = 바깥 <i ref={setHud('hour')}>1시간 2분</i></span></div>
-        <div className="hz-clock"><dt>머문 시간 / 바깥 시간</dt><dd><b ref={setHud('here')}>0:00</b><small>/</small><b ref={setHud('far')}>0:00</b></dd></div>
-      </dl>
-
-      <div className="hz-gauge" aria-hidden="true">
-        <div className="hz-gauge-rail">
-          {TICKS.map(([r, label]) => <span key={r} className="hz-tick" style={{ bottom: `${(Math.log(r) / LOG_MAX) * 100}%` }}><em>{r} Rs</em>{label}</span>)}
-          <span className="hz-marker" ref={setHud('marker')} />
-        </div>
-      </div>
-
-      <div className="hz-controls">
-        <div className="hz-chips" role="group" aria-label="시점">
-          {PRESETS.map((p) => <button type="button" key={p.id} aria-pressed={preset === p.id} disabled={!usable || phase !== 'orbit'} onClick={() => choose(p)}>{p.label}</button>)}
-          <button type="button" role="switch" aria-checked={doppler} className="hz-switch" disabled={!usable || phase === 'gone'} onClick={toggleDoppler}>
-            <span className="hz-switch-track"><span /></span>도플러 효과 {doppler ? '켬' : '끔'}
-          </button>
-        </div>
-        <button type="button" className="hz-dive" disabled={!usable || phase !== 'orbit'} onClick={dive}>
-          {phase === 'dive' ? '떨어지는 중…' : '지평선으로 뛰어들기'}
+  return <Room id="horizon" tone="dark" className={`hz is-${phase}`} stageRef={stageRef} stageClass="hz-stage"
+    stageProps={{ tabIndex: 0, onKeyDown: onKey, 'aria-label': '블랙홀 시뮬레이션. 드래그나 방향키로 돌고, 휠·핀치나 +/- 키로 다가갈 수 있습니다.' }}
+    instruction={<><span className="hz-hint-fine">드래그로 돌고, 휠로 다가가 보세요.</span><span className="hz-hint-touch">밀어서 돌고, 두 손가락으로 다가가 보세요.</span></>}
+    notesTitle="어떻게 그리나요?" intro="블랙홀 곁을 지나는 빛이 어떻게 휘는지, 화면의 모든 픽셀마다 실시간으로 계산합니다." notes={NOTES}
+    hud={<dl className="hz-hud" aria-live="off">
+      <div><dt>블랙홀까지 거리</dt><dd><b ref={setHud('dist')}>19.0</b><small>Rs</small></dd><span className="hz-zone" ref={setHud('zone')}>원반 바깥</span></div>
+      <div><dt>시간 지연</dt><dd><b ref={setHud('dil')}>×1.027</b></dd><span className="hz-zone">여기서 1시간 = 바깥 <i ref={setHud('hour')}>1시간 2분</i></span></div>
+      <div className="hz-clock"><dt>머문 시간 / 바깥 시간</dt><dd><b ref={setHud('here')}>0:00</b><small>/</small><b ref={setHud('far')}>0:00</b></dd></div>
+    </dl>}
+    controls={<div className="hz-controls">
+      <div className="hz-chips" role="group" aria-label="시점">
+        {PRESETS.map((p) => <button type="button" key={p.id} aria-pressed={preset === p.id} disabled={!usable || phase !== 'orbit'} onClick={() => choose(p)}>{p.label}</button>)}
+        <button type="button" role="switch" aria-checked={doppler} className="hz-switch" disabled={!usable || phase === 'gone'} onClick={toggleDoppler}>
+          <span className="hz-switch-track"><span /></span>도플러 효과 {doppler ? '켬' : '끔'}
         </button>
       </div>
+      <button type="button" className="hz-dive" disabled={!usable || phase !== 'orbit'} onClick={dive}>
+        {phase === 'dive' ? '떨어지는 중…' : '지평선으로 뛰어들기'}
+      </button>
+    </div>}>
+    <canvas key={reloadKey} ref={canvasRef} role="img" aria-label="강착원반이 빛나는 블랙홀. 원반 뒤쪽의 빛이 중력에 휘어 블랙홀 위아래로 고리처럼 보입니다." />
 
-      <p className="hz-stats" aria-hidden="true">광선 <b ref={setHud('rays')}>0</b>개 / 프레임 · 최대 <b ref={setHud('steps')}>320</b>단계 적분 · <b ref={setHud('fps')}>60</b> fps</p>
-      <p className="hz-hint" aria-hidden="true"><span className="hz-hint-fine">드래그로 돌기 · 휠로 다가가기</span><span className="hz-hint-touch">밀어서 돌기 · 두 손가락으로 다가가기</span></p>
+    {status === 'loading' && <div className="hz-veil"><span className="hz-pulse" />시공간 계산 준비 중</div>}
+    {(status === 'unsupported' || status === 'error' || status === 'lost') && <div className="hz-veil hz-veil-solid">
+      <p>{status === 'unsupported' ? '이 브라우저는 WebGL2를 지원하지 않아 블랙홀을 그릴 수 없습니다.' : status === 'lost' ? '그래픽 장치가 초기화됐습니다.' : '그래픽 셰이더를 준비하지 못했습니다.'}</p>
+      {status === 'unsupported' ? <Link to="/">실험실 목록으로 →</Link>
+        : <button type="button" onClick={() => { setStatus('loading'); setReloadKey((n) => n + 1) }}>다시 그리기</button>}
+    </div>}
 
-      {phase === 'gone' && gone && <div className="hz-gone" role="dialog" aria-label="사건의 지평선 통과">
-        <span className="hz-eyebrow">r &lt; 1 Rs</span>
-        <h2>지평선을 넘었습니다.</h2>
-        <p>이제 여기서 나가는 빛은 없습니다. 바깥에서는 당신이 지평선 앞에서<br className="hz-wide" /> 점점 느려지다 멈춘 채 붉게 사라지는 모습만 보입니다.</p>
-        <p className="hz-gone-time">머문 시간 <b>{clock(gone.here)}</b> · 그동안 바깥에서 흐른 시간 <b>{clock(gone.far)}</b></p>
-        <button type="button" onClick={comeBack} autoFocus>다시 바깥에서 시작</button>
-      </div>}
+    <div className="hz-gauge" aria-hidden="true">
+      <div className="hz-gauge-rail">
+        {TICKS.map(([r, label]) => <span key={r} className="hz-tick" style={{ bottom: `${(Math.log(r) / LOG_MAX) * 100}%` }}><em>{r} Rs</em>{label}</span>)}
+        <span className="hz-marker" ref={setHud('marker')} />
+      </div>
     </div>
 
-    <section className="hz-notes" aria-labelledby="hz-notes-title">
-      <h2 id="hz-notes-title">어떻게 그리나요?</h2>
-      <div className="hz-note-grid">
-        <article><b>빛을 거꾸로 쏩니다</b><p>픽셀마다 카메라에서 광선을 하나씩 쏘고, 블랙홀 곁 시공간에서 빛이 지나는 길(널 측지선)을 매 프레임 수백 단계로 적분합니다. 미리 그려 둔 이미지나 영상은 없습니다.</p></article>
-        <article><b>원반이 머리띠처럼 보이는 이유</b><p>블랙홀 뒤쪽 원반에서 나온 빛이 중력에 휘어 위아래로 넘어옵니다. 그래서 평평한 원반이 블랙홀을 감싸는 고리처럼 보입니다. 그림자 바로 바깥의 가는 고리는 블랙홀을 한 바퀴 넘게 돌고 나온 빛입니다.</p></article>
-        <article><b>그림자는 지평선보다 큽니다</b><p>지평선은 1 Rs지만, 광자구(1.5 Rs) 안쪽으로 들어온 빛은 모두 빨려 들어갑니다. 그래서 검은 그림자의 반지름은 약 2.6 Rs(3√3/2)로 보입니다.</p></article>
-        <article><b>한쪽만 밝은 이유</b><p>원반 안쪽 끝은 광속의 절반 속도로 돕니다. 다가오는 쪽은 도플러 효과로 밝고 푸르게, 멀어지는 쪽은 어둡고 붉게 보입니다. 영화 〈인터스텔라〉 제작진은 관객이 헷갈리지 않도록 이 효과를 뺐습니다. 아래 스위치로 두 모습을 비교해 보세요.</p></article>
-        <article><b>시간이 느려집니다</b><p>블랙홀 가까이 멈춰 선 사람의 시간은 √(1 − Rs/r)배로 느리게 흐릅니다. 오른쪽 위 숫자는 지금 거리에서 계산한 값입니다.</p></article>
-        <article><b>단순화한 부분</b><p>회전하지 않는 블랙홀(슈바르츠실트)과 두께 없는 원반을 가정했습니다. 원반 밝기는 표준 원반 이론(Novikov–Thorne)의 온도 분포를 단순화했고, 지평선 바로 앞 시야는 근사입니다. 새 라이브러리 없이 WebGL2 셰이더로 그리고, 기기 성능에 맞춰 해상도를 스스로 조절하며, 화면 밖에서는 계산을 멈춥니다.</p></article>
-      </div>
-      <div className="hz-links"><Link to="/">실험실 목록</Link><Link to="/glass">유리 한 장</Link></div>
-    </section>
-  </main>
+    <p className="hz-stats" aria-hidden="true">광선 <b ref={setHud('rays')}>0</b>개 / 프레임 · 최대 <b ref={setHud('steps')}>320</b>단계 적분 · <b ref={setHud('fps')}>60</b> fps</p>
+
+    {phase === 'gone' && gone && <div className="hz-gone" role="dialog" aria-label="사건의 지평선 통과">
+      <span className="hz-eyebrow">r &lt; 1 Rs</span>
+      <h2>지평선을 넘었습니다.</h2>
+      <p>이제 여기서 나가는 빛은 없습니다. 바깥에서는 당신이 지평선 앞에서<br className="hz-wide" /> 점점 느려지다 멈춘 채 붉게 사라지는 모습만 보입니다.</p>
+      <p className="hz-gone-time">머문 시간 <b>{clock(gone.here)}</b> · 그동안 바깥에서 흐른 시간 <b>{clock(gone.far)}</b></p>
+      <button type="button" onClick={comeBack} autoFocus>다시 바깥에서 시작</button>
+    </div>}
+  </Room>
 }

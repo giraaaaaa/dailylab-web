@@ -38,6 +38,8 @@ npm run build    # → ../public/lab (커밋)
 
 `vercel.json`의 `/lab/:path*` 리라이트가 하위 경로(`/lab/horizon` 등)를 `public/lab/index.html`로 보낸다.
 
+실험마다 방이 하나씩 있다(`/lab/tiles`, `/surface`, `/horizon`, `/portal`, `/city`, `/glass`). 방은 `lab/src/components/Room.jsx` 공통 틀을 쓴다. 실험이 화면 전체를 쓰고, 그 위 같은 자리에 실험실로·소리·원리(위), 제목·안내·조작·이전/다음(아래)이 뜬다. 원리 설명은 '원리' 시트 안에 있다. 목록 순서와 이전/다음 순서는 `lab/src/rooms.js` 하나로 정한다. 소리 설정은 모든 방이 같이 쓰고(기본 꺼짐), 이 브라우저에 기억된다.
+
 색·글꼴은 `public/assets/tokens.css`를 빌드할 때 묶어 넣는다. 그 파일을 고치면 실험실도 다시 빌드해서 커밋한다. 실험 장면이 아직 밝은 색 위주라 `lab/index.html`에 `data-theme="light"`를 걸어 다크 모드는 꺼 두었다.
 
 ## 영상 (HyperFrames)

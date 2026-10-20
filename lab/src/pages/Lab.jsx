@@ -1,42 +1,10 @@
-import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Canvas } from '@react-three/fiber'
 import { Studio, TileScene, MembraneScene } from '../components/tactile/Scenes'
-import horizonThumb from '../assets/horizon-thumb.webp'
-import portalThumb from '../assets/portal-thumb.jpg'
-import cityThumb from '../assets/city-thumb.jpg'
-import glassThumb from '../assets/glass-thumb.webp'
+import { StageBoundary, supportsWebGL, useMedia } from '../components/support'
+import { ROOMS } from '../rooms'
 import './Lab.css'
-
-function useMedia(query) {
-  const [matches, setMatches] = useState(() => window.matchMedia(query).matches)
-  useEffect(() => {
-    const media = window.matchMedia(query)
-    const update = () => setMatches(media.matches)
-    update()
-    media.addEventListener('change', update)
-    return () => media.removeEventListener('change', update)
-  }, [query])
-  return matches
-}
-
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas')
-    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
-    if (!gl) return false
-    gl.getExtension('WEBGL_lose_context')?.loseContext()
-    return true
-  } catch { return false }
-}
-
-class StageBoundary extends Component {
-  state = { error: false }
-  static getDerivedStateFromError() { return { error: true } }
-  render() {
-    return this.state.error ? <div className="touch-fallback">3D 화면을 열지 못했습니다.<br />브라우저를 새로고침해 주세요.</div> : this.props.children
-  }
-}
 
 function Arrow({ play = false }) {
   return <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -44,20 +12,15 @@ function Arrow({ play = false }) {
   </svg>
 }
 
-const experiments = [
-  { id: 'tiles', title: '자석 타일', feel: '딸깍, 착.',
-    instruction: '쓸어 넘기거나, 한 칸을 잡아 당겨보세요.', action: '타일 물결 시연', tags: ['관성', '스프링 복원'], Scene: TileScene },
-  { id: 'surface', title: '탄성 막', feel: '쭉, 탱글.',
-    instruction: '표면을 잡고 위로 당겼다가 놓아보세요.', action: '탄성 막 당기기 시연', tags: ['탄성 격자', '고정된 가장자리'], Scene: MembraneScene },
-  { id: 'horizon', title: '사건의 지평선', feel: '휘고, 빨려들고.',
-    instruction: '블랙홀 곁을 지나는 빛이 어떻게 휘는지 픽셀마다 실시간으로 계산합니다. 돌고, 다가가고, 뛰어들어 보세요.', action: '사건의 지평선 열기', tags: ['광선 추적', '도플러 빔', '시간 지연'], to: '/horizon', thumb: horizonThumb },
-  { id: 'portal', title: '불가능한 방', feel: '옮기고, 건너고.',
-    instruction: '문 너머에는 다른 중력의 방이 있습니다. 문을 옮기고 돌린 뒤, 반대편으로 건너가 보세요.', action: '불가능한 방 열기', tags: ['포털 렌더링', '시점 변환'], to: '/portal', thumb: portalThumb },
-  { id: 'city', title: '접히는 도시', feel: '한 장에서, 도시로.',
-    instruction: '64개의 건물이 순서대로 일어나고 다시 접힙니다. 좌우로 밀어 중간에서 멈추거나 되돌려 보세요.', action: '접히는 도시 열기', tags: ['경첩 구조', '인스턴싱'], to: '/city', thumb: cityThumb },
-  { id: 'glass', title: '유리 한 장', feel: '쩍, 와장창.',
-    instruction: '톡 치면 금이 가고, 꾹 눌렀다 놓을수록 세게 칩니다. 소리를 켜고 해보세요.', action: '유리 한 장 열기', tags: ['보로노이 파괴', '굴절', '효과음'], to: '/glass', thumb: glassThumb },
-]
+/* 타일·탄성 막은 카드 안에서 바로 만지고, 나머지는 썸네일을 누르면 각자의 방으로 들어간다 */
+const inline = {
+  tiles: { Scene: TileScene, action: '타일 물결 시연' },
+  surface: { Scene: MembraneScene, action: '탄성 막 당기기 시연' },
+}
+const experiments = ROOMS.map((room) => ({
+  ...room, instruction: room.summary, ...inline[room.id],
+  to: inline[room.id] ? undefined : room.path, action: inline[room.id]?.action ?? `${room.title} 열기`,
+}))
 
 function Experiment({ experiment, small, reduced, glSupported }) {
   const { id, title, feel, instruction, action, tags, Scene } = experiment
@@ -108,6 +71,7 @@ function Experiment({ experiment, small, reduced, glSupported }) {
         <div className="touch-actions">
           <button type="button" disabled={!glSupported} onClick={() => { setGrabbed(false); setDemo((n) => n + 1) }} aria-label={action}><Arrow play />자동 시연</button>
           <button type="button" disabled={!glSupported} className="touch-reset" aria-label={`${title} 처음으로`} title="처음으로" onClick={() => { setGrabbed(false); setReset((n) => n + 1) }}><Arrow /></button>
+          <Link to={experiment.path} className="touch-open" aria-label={`${title} 크게 열기`}>크게</Link>
         </div>
       </div>
     </div>

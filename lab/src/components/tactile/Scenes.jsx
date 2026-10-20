@@ -9,7 +9,7 @@ const TEAL = '#064a43'
 const rayPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.12)
 
 // No HDR downloads: the reflections are generated once from local geometry.
-export function Studio({ wake, small }) {
+export function Studio({ wake, small, fit = 1 }) {
   const { gl, scene, camera, size, invalidate } = useThree()
   useEffect(() => {
     const room = new RoomEnvironment()
@@ -28,10 +28,10 @@ export function Studio({ wake, small }) {
     }
   }, [gl, scene, invalidate, wake])
   useEffect(() => {
-    camera.zoom = Math.min(size.width / 7.1, size.height / 6.1)
+    camera.zoom = Math.min(size.width / 7.1, size.height / 6.1) * fit // 방에서는 틀이 들어갈 자리를 남긴다
     camera.updateProjectionMatrix()
     invalidate()
-  }, [camera, size.width, size.height, invalidate])
+  }, [camera, size.width, size.height, fit, invalidate])
   return <>
     <ambientLight intensity={0.15} />
     <hemisphereLight args={['#ffffff', '#afc7bf', 0.5]} />

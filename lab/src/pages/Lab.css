@@ -50,6 +50,7 @@
 .touch-city .touch-stage-link .touch-stage-note { color: #214c38; }
 .touch-actions a { border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--accent-soft); color: var(--ink); min-height: 36px; padding: 7px 11px; font-size: 11px; font-weight: 600; text-decoration: none; }
 .touch-actions a:hover { filter: brightness(.96); }
+.touch-actions .touch-open { background: transparent; color: var(--muted); padding-inline: 8px; }
 .touch-actions a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 @media (max-width: 1000px) and (min-width: 761px) {
   .touch-lab { padding-inline: 20px; }
