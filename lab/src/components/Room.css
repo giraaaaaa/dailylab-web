@@ -1,5 +1,6 @@
 /* 실험 방 공통 틀. 무대가 화면 전체를 쓰고, 틀은 그 위에 떠 있다.
-   room-dark: 어두운 장면 위 흰 글자(그림자로 대비 확보) / room-light: 밝은 장면 위 잉크색 글자 */
+   room-dark: 어두운 장면 위 흰 글자(그림자로 대비 확보) / room-light: 밝은 장면 위 잉크색 글자.
+   장면은 작품이라 시스템 다크 모드와 상관없이 늘 같은 색이다. 그래서 여기선 테마 토큰(--dl-*) 대신 고정값을 쓴다. */
 .room {
   --r-ink: #fff;
   --r-muted: rgb(255 255 255 / .64);
@@ -11,22 +12,24 @@
   --r-sheet-ink: #ECECEA;
   --r-sheet-muted: rgb(236 236 234 / .62);
   --r-sheet-line: rgb(255 255 255 / .1);
+  --r-accent: #6680FF; /* 어두운 장면 위에선 밝은 코발트 */
   --r-gap: clamp(16px, 2.6vw, 36px);
   position: relative; height: 100svh; min-height: 520px; overflow: hidden; isolation: isolate;
   color: var(--r-ink); background: #050506;
 }
 .room-light {
-  --r-ink: var(--dl-ink);
-  --r-muted: var(--dl-muted);
-  --r-line: var(--dl-line-strong);
+  --r-ink: #0E0E10;
+  --r-muted: #66666B;
+  --r-line: rgb(14 14 16 / .18);
   --r-panel: rgb(255 255 255 / .72);
   --r-panel-hover: #fff;
   --r-shadow: none;
-  --r-sheet: var(--dl-surface);
-  --r-sheet-ink: var(--dl-ink);
-  --r-sheet-muted: var(--dl-muted);
-  --r-sheet-line: var(--dl-line);
-  background: var(--dl-bg);
+  --r-sheet: #FFFFFF;
+  --r-sheet-ink: #0E0E10;
+  --r-sheet-muted: #66666B;
+  --r-sheet-line: rgb(14 14 16 / .1);
+  --r-accent: #2A4BFF;
+  background: #F1F1EF;
 }
 
 .room-stage { position: absolute; inset: 0; z-index: 0; }

@@ -4,7 +4,7 @@ import { createStudio, box } from './studio'
 import { clamp, cityLots, foldPose, smooth } from './math'
 
 function facadeMaterial() {
-  const material = new THREE.MeshStandardMaterial({ color: '#e8eadb', roughness: .65, side: THREE.DoubleSide })
+  const material = new THREE.MeshStandardMaterial({ color: '#ecece9', roughness: .65, side: THREE.DoubleSide })
   material.onBeforeCompile = (shader) => {
     shader.vertexShader = 'attribute float floors; varying float vFloors; varying vec2 vFacadeUv;\n' + shader.vertexShader
     shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvFloors=floors; vFacadeUv=uv;')
@@ -13,7 +13,7 @@ function facadeMaterial() {
       vec2 cell=fract(vFacadeUv*vec2(3.0,vFloors));
       float windowMask=step(.24,cell.x)*step(cell.x,.76)*step(.32,cell.y)*step(cell.y,.68);
       float border=step(.1,vFacadeUv.y)*step(vFacadeUv.y,.94);
-      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.055,.16,.14),windowMask*border*.8);
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.11,.12,.15),windowMask*border*.8);
     `)
   }
   return material
@@ -22,21 +22,21 @@ function facadeMaterial() {
 export function createCityStudy(canvas, report, onError) {
   const studio = createStudio(canvas, onError)
   const { renderer, wake, listen, reduced } = studio
-  const scene = studio.scene('#e7ede5')
-  scene.fog = new THREE.Fog('#e7ede5', 45, 95)
+  const scene = studio.scene('#ecece9')
+  scene.fog = new THREE.Fog('#ecece9', 45, 95)
   const camera = new THREE.OrthographicCamera(-12, 12, 8, -8, .1, 120)
   camera.position.set(17, 16, 21); camera.lookAt(0, 1.5, 0)
   const controls = new OrbitControls(camera, canvas)
   controls.target.set(0, 1.1, 0); controls.enableDamping = true; controls.dampingFactor = .09
   controls.enablePan = false; controls.enableZoom = false; controls.minPolarAngle = .25; controls.maxPolarAngle = 1.35; controls.enabled = false
   controls.addEventListener('change', wake)
-  const dark = new THREE.MeshStandardMaterial({ color: '#244b40', roughness: .5, metalness: .2 })
-  const roadMat = new THREE.MeshStandardMaterial({ color: '#92b4a0', roughness: .75 })
-  const sideMat = new THREE.MeshStandardMaterial({ color: '#c0d0be', roughness: .7, side: THREE.DoubleSide })
-  const padMat = new THREE.MeshStandardMaterial({ color: '#cedaca', roughness: .8 })
-  const boardMat = new THREE.MeshStandardMaterial({ color: '#e1e7d8', roughness: .65 })
-  const roofMat = new THREE.MeshStandardMaterial({ color: '#386e5b', roughness: .48, metalness: .15 })
-  const groundMat = new THREE.MeshStandardMaterial({ color: '#e7ede5', roughness: 1 })
+  const dark = new THREE.MeshStandardMaterial({ color: '#1e1f24', roughness: .5, metalness: .2 })
+  const roadMat = new THREE.MeshStandardMaterial({ color: '#b7b7b4', roughness: .75 })
+  const sideMat = new THREE.MeshStandardMaterial({ color: '#cacac6', roughness: .7, side: THREE.DoubleSide })
+  const padMat = new THREE.MeshStandardMaterial({ color: '#d6d6d2', roughness: .8 })
+  const boardMat = new THREE.MeshStandardMaterial({ color: '#e3e3df', roughness: .65 })
+  const roofMat = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .48, metalness: .15 }) // 실제 색은 동마다 instanceColor
+  const groundMat = new THREE.MeshStandardMaterial({ color: '#ecece9', roughness: 1 })
   const root = new THREE.Group(); scene.add(root)
   box(root, dark, 0, -.29, 0, 14.1, .34, 14.1)
   box(root, boardMat, 0, -.08, 0, 13.9, .12, 13.9)
@@ -44,7 +44,7 @@ export function createCityStudy(canvas, report, onError) {
   // Broad crossing avenues remain visible while every building folds down.
   box(root, roadMat, 0, .001, 0, .8, .015, 13.7, { shadow: false })
   box(root, roadMat, 0, .004, 0, 13.7, .015, .8, { shadow: false })
-  const lineMat = new THREE.MeshBasicMaterial({ color: '#dce8d4' })
+  const lineMat = new THREE.MeshBasicMaterial({ color: '#dadad6' })
   for (let i = -6; i <= 6; i++) {
     box(root, lineMat, 0, .025, i, .035, .008, .35, { shadow: false })
     box(root, lineMat, i, .028, 0, .35, .008, .035, { shadow: false })
@@ -64,9 +64,11 @@ export function createCityStudy(canvas, report, onError) {
   root.add(roofs)
   const pads = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), padMat, count)
   const temp = new THREE.Object3D()
+  // 지붕은 흑연색 몇 톤, 한가운데 가장 가까운 한 동만 코발트
+  const hero = lots.reduce((best, lot, i) => (Math.hypot(lot.x, lot.z) < Math.hypot(lots[best].x, lots[best].z) ? i : best), 0)
   lots.forEach((lot, i) => {
     temp.position.set(lot.x, .007, lot.z); temp.rotation.set(0, 0, 0); temp.scale.set(1.27, .025, 1.27); temp.updateMatrix(); pads.setMatrixAt(i, temp.matrix)
-    roofs.setColorAt(i, new THREE.Color().setHSL(.40 + lot.seed * .025, .18, .21 + lot.seed * .13))
+    roofs.setColorAt(i, i === hero ? new THREE.Color('#2a4bff') : new THREE.Color().setHSL(.64, .05, .16 + lot.seed * .12))
   })
   pads.receiveShadow = true; root.add(pads)
   // The side closures share one dynamic buffer, rather than one draw call per building.
@@ -173,9 +175,11 @@ export function createCityStudy(canvas, report, onError) {
     if (rounded !== lastReport) { lastReport = rounded; reportState() }
     return auto || opening > 0 || Math.abs(target - current) > .0001 || Math.abs(velocity) > .001 || changed
   }, (size) => {
-    const width = size.aspect > 20.8 / 14 ? 14 * size.aspect : 20.8
+    // 방 틀(아래 조작·제목)이 들어갈 여유를 두고, 도시를 화면 높이의 6%만큼 위로 올린다
+    const width = size.aspect > 22 / 16.5 ? 16.5 * size.aspect : 22
     const height = width / size.aspect
-    camera.left = -width / 2; camera.right = width / 2; camera.top = height / 2; camera.bottom = -height / 2
+    const lift = height * 0.06
+    camera.left = -width / 2; camera.right = width / 2; camera.top = height / 2 - lift; camera.bottom = -height / 2 - lift
     camera.updateProjectionMatrix()
   })
   reportState()

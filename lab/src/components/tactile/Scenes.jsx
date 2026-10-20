@@ -5,7 +5,8 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js'
 import { clamp, createMembrane, resetMembrane, spring, stepMembrane } from './physics.mjs'
 
-const TEAL = '#064a43'
+const ACCENT = '#2A4BFF' // Daily Lab 포인트 색(코발트). 장면마다 한 군데만 쓴다
+const INK = '#17171B'
 const rayPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -0.12)
 
 // No HDR downloads: the reflections are generated once from local geometry.
@@ -34,13 +35,13 @@ export function Studio({ wake, small, fit = 1 }) {
   }, [camera, size.width, size.height, fit, invalidate])
   return <>
     <ambientLight intensity={0.15} />
-    <hemisphereLight args={['#ffffff', '#afc7bf', 0.5]} />
+    <hemisphereLight args={['#ffffff', '#bdbdba', 0.5]} />
     <directionalLight position={[-3, 8, 4]} intensity={2.1} castShadow
       shadow-mapSize-width={small ? 512 : 1024} shadow-mapSize-height={small ? 512 : 1024}
       shadow-camera-left={-5} shadow-camera-right={5} shadow-camera-top={5} shadow-camera-bottom={-5}
       shadow-camera-near={0.5} shadow-camera-far={25}
       shadow-normalBias={0.02} shadow-bias={0.0001} shadow-radius={4} />
-    <directionalLight position={[5, 3, -4]} intensity={0.65} color="#d7fff5" />
+    <directionalLight position={[5, 3, -4]} intensity={0.65} color="#e6ebff" />
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.32, 0]} receiveShadow>
       <planeGeometry args={[200, 200]} />
       <shadowMaterial transparent opacity={0.13} />
@@ -51,7 +52,7 @@ export function Studio({ wake, small, fit = 1 }) {
 function Tray({ membrane = false }) {
   const geometry = useMemo(() => new RoundedBoxGeometry(membrane ? 5.05 : 4.94, 0.3, membrane ? 5.05 : 4.94, 3, 0.14), [membrane])
   return <mesh geometry={geometry} position={[0, -0.15, 0]} receiveShadow castShadow>
-    <meshStandardMaterial color={membrane ? '#edf4f0' : '#dbece5'} roughness={0.35} metalness={0.04} />
+    <meshStandardMaterial color={membrane ? '#ededea' : '#e3e3e0'} roughness={0.35} metalness={0.04} />
   </mesh>
 }
 
@@ -172,11 +173,11 @@ export function TileScene({ demo, reset, reduced, onGrab }) {
     <Tray />
     {tileHomes.map((home, i) => <group key={i} ref={(node) => { groups.current[i] = node }} position={[home.x, 0.265, home.z]}>
       <mesh geometry={geometry} receiveShadow castShadow>
-        <meshPhysicalMaterial color={i === 6 ? TEAL : '#fafbf5'} roughness={0.27} metalness={i === 6 ? 0.25 : 0.02}
+        <meshPhysicalMaterial color={i === 6 ? ACCENT : '#fafaf8'} roughness={0.27} metalness={i === 6 ? 0.25 : 0.02}
           clearcoat={0.5} clearcoatRoughness={0.24} />
       </mesh>
       <mesh geometry={slotGeometry} position={[0, 0.168, 0.25]}>
-        <meshStandardMaterial color={i === 6 ? '#72b9ac' : '#c2d5cc'} roughness={0.4} />
+        <meshStandardMaterial color={i === 6 ? '#8fa2ff' : '#d5d5d2'} roughness={0.4} />
       </mesh>
     </group>)}
     <mesh position={[0, 0.12, 0]} rotation={[-Math.PI / 2, 0, 0]}
@@ -315,12 +316,12 @@ export function MembraneScene({ demo, reset, reduced, onGrab }) {
       }}
       onPointerUp={end} onPointerCancel={end}
       onLostPointerCapture={() => { grab.current = null; onGrab(false); invalidate() }}>
-      <meshPhysicalMaterial color={TEAL} roughness={0.34} metalness={0.26} clearcoat={0.32} clearcoatRoughness={0.3}
-        sheen={0.65} sheenColor="#71a99a" sheenRoughness={0.6} side={THREE.DoubleSide} />
+      <meshPhysicalMaterial color={INK} roughness={0.34} metalness={0.08} clearcoat={0.9} clearcoatRoughness={0.16}
+        sheen={0.28} sheenColor={ACCENT} sheenRoughness={0.4} side={THREE.DoubleSide} />
     </mesh>
     <group ref={mark} position={[0, 0.094, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <mesh><ringGeometry args={[0.09, 0.102, 48]} /><meshBasicMaterial color="#94c7ba" transparent opacity={0.8} depthWrite={false} /></mesh>
-      <mesh><circleGeometry args={[0.018, 16]} /><meshBasicMaterial color="#b9dfd4" /></mesh>
+      <mesh><ringGeometry args={[0.09, 0.102, 48]} /><meshBasicMaterial color="#8fa2ff" transparent opacity={0.85} depthWrite={false} /></mesh>
+      <mesh><circleGeometry args={[0.018, 16]} /><meshBasicMaterial color="#e8ebff" /></mesh>
     </group>
   </>
 }

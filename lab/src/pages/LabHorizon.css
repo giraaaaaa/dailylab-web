@@ -42,7 +42,7 @@
 .hz-switch { display: inline-flex; align-items: center; gap: 9px; }
 .hz-switch-track { width: 28px; height: 16px; border-radius: 999px; background: rgb(255 255 255 / .2); position: relative; transition: background .2s; }
 .hz-switch-track span { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .2s; }
-.hz-switch[aria-checked='true'] .hz-switch-track { background: var(--dl-accent); }
+.hz-switch[aria-checked='true'] .hz-switch-track { background: var(--r-accent); }
 .hz-switch[aria-checked='true'] .hz-switch-track span { transform: translateX(12px); }
 .hz-controls .hz-dive { color: #ffe1c2; background: rgb(255 130 50 / .14); border-color: rgb(255 180 120 / .45); padding: 10px 22px; font-size: 13px; }
 .hz-controls .hz-dive:hover:not(:disabled) { background: rgb(255 130 50 / .26); }

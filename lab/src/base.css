@@ -1,6 +1,6 @@
 /* Daily Lab 실험실. 색·글꼴은 홈과 같은 tokens.css(--dl-*)에서 온다.
    실험 페이지들이 쓰는 짧은 변수 이름(--ink, --muted …)은 그 값을 가리키는 별칭이다.
-   장면이 아직 밝은 색 위주라 <html data-theme="light">로 다크 모드는 꺼 두었다. */
+   목록은 시스템 다크 모드를 따르고, 실험 방은 장면 색에 맞춘 고정 틀(components/Room)을 쓴다. */
 :root {
   --bg: var(--dl-bg);
   --card: var(--dl-surface);
@@ -10,10 +10,10 @@
   --faint: var(--dl-faint);
   --line: var(--dl-line);
   --line-strong: var(--dl-line-strong);
-  --surface2: rgb(14 14 16 / .04);
   --accent: var(--dl-accent);
   --accent-soft: var(--dl-accent-soft);
   --shadow: 0 2px 10px rgb(14 14 16 / .05);
+  --surface2: color-mix(in srgb, var(--dl-ink) 4%, transparent);
   --ease-spring: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 * { box-sizing: border-box; }

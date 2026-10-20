@@ -18,15 +18,15 @@ export function createPortalStudy(canvas, report, onError) {
   const virtual = new THREE.PerspectiveCamera()
   const rt = new THREE.WebGLRenderTarget(512, 512, { depthBuffer: true, stencilBuffer: false })
   const textureMaterial = new THREE.ShaderMaterial({ uniforms: { uView: { value: rt.texture } }, vertexShader: screenVertex, fragmentShader: screenFragment, side: THREE.DoubleSide })
-  const scenes = [studio.scene('#081c1a'), studio.scene('#b8cdc1')]
+  const scenes = [studio.scene('#0e0f12'), studio.scene('#cfcfcb')]
   const portals = [], surfaces = [], textures = []
   const mats = {
-    dark: new THREE.MeshStandardMaterial({ color: '#153f39', roughness: 0.72 }),
-    stone: new THREE.MeshStandardMaterial({ color: '#dce5d7', roughness: 0.7 }),
-    pale: new THREE.MeshStandardMaterial({ color: '#b6cabe', roughness: 0.65 }),
-    frame: new THREE.MeshStandardMaterial({ color: '#e7ede1', roughness: 0.3, metalness: 0.28 }),
-    rim: new THREE.MeshBasicMaterial({ color: '#77dbc0' }),
-    ink: new THREE.MeshStandardMaterial({ color: '#1c5148', roughness: 0.4, metalness: 0.15 }),
+    dark: new THREE.MeshStandardMaterial({ color: '#1c1d21', roughness: 0.72 }),
+    stone: new THREE.MeshStandardMaterial({ color: '#e4e4e1', roughness: 0.7 }),
+    pale: new THREE.MeshStandardMaterial({ color: '#bebeba', roughness: 0.65 }),
+    frame: new THREE.MeshStandardMaterial({ color: '#ededea', roughness: 0.3, metalness: 0.28 }),
+    rim: new THREE.MeshBasicMaterial({ color: '#6f8cff' }), // 포인트 색은 기둥 끝 불빛에만
+    ink: new THREE.MeshStandardMaterial({ color: '#2b2e37', roughness: 0.4, metalness: 0.15 }),
   }
   scenes.forEach((scene, index) => {
     scene.fog = new THREE.Fog(scene.background, 18, 45)
@@ -35,7 +35,7 @@ export function createPortalStudy(canvas, report, onError) {
     box(scene, index === 0 ? mats.dark : mats.stone, -8.5, 5, -8, .3, 10, 46)
     box(scene, index === 0 ? mats.dark : mats.stone, 8.5, 5, -8, .3, 10, 46)
     box(scene, floor, 0, 5, -27, 17, 10, .3)
-    const lineMat = new THREE.LineBasicMaterial({ color: index ? '#7f9b8b' : '#315d51', transparent: true, opacity: .5 })
+    const lineMat = new THREE.LineBasicMaterial({ color: index ? '#9a9aa0' : '#3a3b40', transparent: true, opacity: .5 })
     const vertices = []
     for (let i = -12; i <= 12; i++) {
       vertices.push(-14, -.005, i * 1.5, 14, -.005, i * 1.5)
@@ -69,7 +69,7 @@ export function createPortalStudy(canvas, report, onError) {
     const sculpture = new THREE.Mesh(new THREE.IcosahedronGeometry(1.0, 0), index ? mats.stone : mats.ink)
     sculpture.position.set(-4.2, 1.7, -6.2); sculpture.rotation.set(.3, .4, .2); sculpture.castShadow = true
     scene.add(sculpture)
-    const sign = labelTexture(index ? 'CHAMBER / 02' : 'CHAMBER / 01', index ? '#33584a' : '#79ac98')
+    const sign = labelTexture(index ? 'CHAMBER / 02' : 'CHAMBER / 01', index ? '#4a4b52' : '#8e8f96')
     textures.push(sign)
     const signMesh = new THREE.Mesh(new THREE.PlaneGeometry(3.5, .875), new THREE.MeshBasicMaterial({ map: sign, transparent: true, depthWrite: false }))
     signMesh.position.set(-5.5, 4.7, -4.0)

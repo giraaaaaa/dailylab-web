@@ -9,12 +9,12 @@
 .touch-card-heading { display: flex; gap: 13px; align-items: center; padding: 23px 24px 0; }
 .touch-card-heading h2 { margin: 0; color: var(--ink); font-size: 20px; letter-spacing: -.04em; line-height: 1.3; }
 .touch-feel { margin-left: auto; color: var(--muted); font-size: 13px; letter-spacing: -.03em; }
-.touch-stage { height: clamp(320px, 33vw, 425px); position: relative; background: #f1f6f3; margin-top: 20px; cursor: grab; isolation: isolate; }
+.touch-stage { height: clamp(320px, 33vw, 425px); position: relative; background: var(--bg); margin-top: 20px; cursor: grab; isolation: isolate; }
 .touch-stage canvas { touch-action: none; }
 .touch-stage.is-grabbed { cursor: grabbing; }
-.touch-stage-note { position: absolute; pointer-events: none; bottom: 15px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 7px; color: #536e62; font-size: 10px; white-space: nowrap; letter-spacing: -.01em; }
-.touch-stage-note > span { width: 4px; height: 4px; background: #7c9d90; border-radius: 50%; }
-.touch-stage.is-grabbed .touch-stage-note { color: #0f6660; }
+.touch-stage-note { position: absolute; pointer-events: none; bottom: 15px; left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 10px; white-space: nowrap; letter-spacing: -.01em; }
+.touch-stage-note > span { width: 4px; height: 4px; background: var(--faint); border-radius: 50%; }
+.touch-stage.is-grabbed .touch-stage-note { color: var(--accent); }
 .touch-card-bottom { padding: 20px 24px 22px; }
 .touch-card-bottom > p { margin: 0 0 18px; font-size: 13px; letter-spacing: -.03em; color: var(--fg); }
 .touch-card-controls, .touch-actions, .touch-material-tags { display: flex; align-items: center; }
@@ -36,18 +36,17 @@
 .touch-build-notes > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 28px; padding: 8px 0; }
 .touch-build-notes p { font-size: 12px; line-height: 1.8; }
 .touch-build-notes b { display: block; color: var(--fg); font-size: 12px; margin-bottom: 4px; }
-.touch-fallback { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: #536e62; font-size: 13px; line-height: 1.8; padding: 24px; }
-.touch-fallback a { color: #0f6660; margin-top: 8px; }
-:root[data-theme="dark"] .touch-stage { background: #e3ede7; }
+.touch-fallback { height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.8; padding: 24px; }
+.touch-fallback a { color: var(--accent); margin-top: 8px; }
 /* 03 사건의 지평선 — 썸네일 카드(전체 폭) */
 .touch-horizon, .touch-glass { grid-column: 1 / -1; }
-.touch-stage.touch-stage-link, :root[data-theme="dark"] .touch-stage.touch-stage-link { display: block; background: #020304; cursor: pointer; overflow: hidden; }
+.touch-stage.touch-stage-link { display: block; background: #020304; cursor: pointer; overflow: hidden; }
 .touch-stage-link img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .8s ease; }
 .touch-stage-link:hover img { transform: scale(1.025); }
 .touch-stage-link .touch-stage-note { color: rgb(255 255 255 / .72); }
 .touch-stage-link .touch-stage-note > span { background: #ffb070; }
-.touch-portal .touch-stage-note > span, .touch-city .touch-stage-note > span { background: #a1cdb6; }
-.touch-city .touch-stage-link .touch-stage-note { color: #214c38; }
+.touch-portal .touch-stage-note > span, .touch-city .touch-stage-note > span { background: var(--accent); }
+.touch-city .touch-stage-link .touch-stage-note { color: var(--muted); }
 .touch-actions a { border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: var(--accent-soft); color: var(--ink); min-height: 36px; padding: 7px 11px; font-size: 11px; font-weight: 600; text-decoration: none; }
 .touch-actions a:hover { filter: brightness(.96); }
 .touch-actions .touch-open { background: transparent; color: var(--muted); padding-inline: 8px; }

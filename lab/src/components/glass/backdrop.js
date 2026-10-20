@@ -16,15 +16,15 @@ export function drawBackdrop(canvas, w, h, round) {
   const s = Math.min(w, h)
 
   const bg = g.createRadialGradient(w * 0.5, h * 0.45, s * 0.05, w * 0.5, h * 0.5, Math.max(w, h) * 0.75)
-  bg.addColorStop(0, '#0d2a2c')
-  bg.addColorStop(0.55, '#061416')
-  bg.addColorStop(1, '#020607')
+  bg.addColorStop(0, '#15171f')
+  bg.addColorStop(0.55, '#0a0b0f')
+  bg.addColorStop(1, '#050506')
   g.fillStyle = bg
   g.fillRect(0, 0, w, h)
 
   // 타일 벽 줄눈
   const tile = s * 0.085
-  g.strokeStyle = 'rgba(160, 220, 210, 0.07)'
+  g.strokeStyle = 'rgba(200, 206, 225, 0.06)'
   g.lineWidth = Math.max(1, s * 0.0016)
   g.beginPath()
   for (let y = (h / 2) % tile; y < h; y += tile) { g.moveTo(0, y); g.lineTo(w, y) }
@@ -40,7 +40,7 @@ export function drawBackdrop(canvas, w, h, round) {
     const x = rnd() * w, y = rnd() * h * 0.9, r = s * (0.015 + rnd() * 0.06)
     const warm = rnd() < 0.45
     const grad = g.createRadialGradient(x, y, 0, x, y, r)
-    grad.addColorStop(0, warm ? 'rgba(255, 190, 130, 0.22)' : 'rgba(94, 234, 212, 0.18)')
+    grad.addColorStop(0, warm ? 'rgba(255, 190, 130, 0.2)' : 'rgba(110, 140, 255, 0.2)')
     grad.addColorStop(1, 'rgba(0, 0, 0, 0)')
     g.fillStyle = grad
     g.fillRect(x - r, y - r, r * 2, r * 2)
@@ -65,7 +65,7 @@ export function drawBackdrop(canvas, w, h, round) {
     g.fillStyle = core
     g.fillText(text, w / 2, y)
   }
-  neon(title, size, 800, '#2dd4bf', '#e9fffb', h * 0.46)
-  neon(sub, size * 0.24, 600, '#ffb27a', '#fff3e6', h * 0.46 + size * 0.85)
+  neon(title, size, 800, '#4d6bff', '#eef1ff', h * 0.46)
+  neon(sub, size * 0.24, 600, '#c9cdd8', '#ffffff', h * 0.46 + size * 0.85)
   return canvas
 }

@@ -64,7 +64,7 @@ export function createStudio(canvas, onError) {
     s.background = new THREE.Color(background)
     s.environment = env.texture
     s.environmentIntensity = 0.45
-    const hemi = new THREE.HemisphereLight('#eaf7f0', '#324842', 1)
+    const hemi = new THREE.HemisphereLight('#f2f2f0', '#3a3a3e', 1)
     s.add(hemi)
     const light = new THREE.DirectionalLight('#fff8eb', 3)
     light.position.set(-5, 12, 8)
@@ -74,7 +74,7 @@ export function createStudio(canvas, onError) {
     light.shadow.normalBias = 0.025
     light.shadow.bias = 0.0001
     s.add(light)
-    const fill = new THREE.DirectionalLight('#9bdacb', 0.6)
+    const fill = new THREE.DirectionalLight('#c3cbff', 0.6)
     fill.position.set(8, 5, -6)
     s.add(fill)
     return s
@@ -111,7 +111,7 @@ export function box(parent, material, x, y, z, w, h, d, { shadow = true } = {}) 
   return m
 }
 
-export function labelTexture(text, color = '#a4cabe') {
+export function labelTexture(text, color = '#a8a8ae') {
   const c = document.createElement('canvas'); c.width = 512; c.height = 128
   const ctx = c.getContext('2d')
   ctx.fillStyle = color; ctx.font = '500 54px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
