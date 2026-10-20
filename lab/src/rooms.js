@@ -30,6 +30,8 @@ export const ROOMS = [
     summary: '문 너머에는 다른 중력의 방이 있습니다.', tags: ['포털 렌더링', '시점 변환'] },
   { id: 'city', title: '접히는 도시', feel: '한 장에서, 도시로.', loop: cityLoop, poster: cityPoster,
     summary: '64개의 건물이 순서대로 일어나고 다시 접힙니다.', tags: ['경첩 구조', '인스턴싱'] },
+  { id: 'well', title: '우물', feel: '퐁, 그리고 한참.',
+    summary: '돌을 떨어뜨리면 한참 뒤에 물소리가 납니다.', tags: ['자유낙하', '소리 지연', '물결'] },
 ].map((room) => ({ ...room, path: `/${room.id}`, still: room.still ?? room.poster }))
 
 export function neighbors(id) {

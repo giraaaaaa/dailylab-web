@@ -48,7 +48,7 @@ export default function Room({
   return <main className={`room room-${tone} ${className}`}>
     <div ref={stageRef} className={`room-stage ${stageClass}`} onPointerDownCapture={() => setTouched(true)} {...stageProps}>
       {children}
-      <img className={`room-still${veiled ? '' : ' is-gone'}`} src={room.still} alt="" aria-hidden="true" decoding="async" />
+      {room.still && <img className={`room-still${veiled ? '' : ' is-gone'}`} src={room.still} alt="" aria-hidden="true" decoding="async" />}
     </div>
 
     <header className="room-top">
