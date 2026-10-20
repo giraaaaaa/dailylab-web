@@ -1,12 +1,9 @@
-import { lazy, Suspense } from 'react'
+import { Suspense } from 'react'
 import { NavLink, Route, Routes } from 'react-router-dom'
+import { pages } from './nav'
 
-/* 실험마다 three.js·셰이더 무게가 달라 페이지 단위로 나눠 받는다 */
-const Lab = lazy(() => import('./pages/Lab'))
-const LabTactile = lazy(() => import('./pages/LabTactile'))
-const LabHorizon = lazy(() => import('./pages/LabHorizon'))
-const LabGlass = lazy(() => import('./pages/LabGlass'))
-const LabSpatial = lazy(() => import('./pages/LabSpatial'))
+/* 실험마다 three.js·셰이더 무게가 달라 페이지 단위로 나눠 받는다(nav.jsx의 loadable: 한 번 받으면 곧바로 그려짐) */
+const { index: Lab, tactile: LabTactile, horizon: LabHorizon, glass: LabGlass, spatial: LabSpatial } = pages
 
 const page = (el) => <Suspense fallback={<main className="lab-loading" aria-busy="true" />}>{el}</Suspense>
 

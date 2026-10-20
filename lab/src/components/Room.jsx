@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { MorphLink, useMorph } from '../nav'
 import { neighbors } from '../rooms'
 import './Room.css'
 
@@ -12,9 +12,10 @@ export default function Room({
   stageRef, stageClass = '', stageProps, children,
 }) {
   const { room, prev, next } = neighbors(id)
-  const navigate = useNavigate()
+  const morph = useMorph()
   const sheet = useRef(null)
   const [touched, setTouched] = useState(false)
+  const [veiled, setVeiled] = useState(true)
 
   useEffect(() => {
     const previous = document.title
@@ -23,7 +24,13 @@ export default function Room({
     return () => { document.title = previous }
   }, [room.title])
 
-  useEffect(() => { setTouched(false) }, [id])
+  // 장면이 첫 화면을 그릴 시간 동안 녹화해 둔 첫 장면을 덮어 둔다(목록 칸에서 커져 들어올 때 이어지는 그림)
+  useEffect(() => {
+    setTouched(false)
+    setVeiled(true)
+    const t = setTimeout(() => setVeiled(false), 650)
+    return () => clearTimeout(t)
+  }, [id])
 
   // 아무 데도 포커스가 없을 때만 ←/→로 이웃 방으로. 무대나 캔버스에 포커스가 있으면 그 실험의 조작이 먼저다
   useEffect(() => {
@@ -31,20 +38,21 @@ export default function Room({
       if (e.defaultPrevented || e.altKey || e.metaKey || e.ctrlKey || e.shiftKey || sheet.current?.open) return
       const el = document.activeElement
       if (el && el !== document.body) return
-      if (e.key === 'ArrowLeft') navigate(prev.path)
-      else if (e.key === 'ArrowRight') navigate(next.path)
+      if (e.key === 'ArrowLeft') morph(prev.path)
+      else if (e.key === 'ArrowRight') morph(next.path)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [navigate, prev.path, next.path])
+  }, [morph, prev.path, next.path])
 
   return <main className={`room room-${tone} ${className}`}>
     <div ref={stageRef} className={`room-stage ${stageClass}`} onPointerDownCapture={() => setTouched(true)} {...stageProps}>
       {children}
+      <img className={`room-still${veiled ? '' : ' is-gone'}`} src={room.still} alt="" aria-hidden="true" decoding="async" />
     </div>
 
     <header className="room-top">
-      <Link to="/" className="room-pill">← 실험실</Link>
+      <MorphLink to="/" state={{ from: id }} className="room-pill">← 실험실</MorphLink>
       <div className="room-actions">
         {sound && <button type="button" role="switch" aria-checked={sound.on} className="room-pill room-sound" onClick={sound.toggle}>
           소리 {sound.on ? '켬' : '끔'}
@@ -62,8 +70,8 @@ export default function Room({
       </div>
       {controls && <div className="room-controls">{controls}</div>}
       <nav className="room-nav" aria-label="다른 실험">
-        <Link to={prev.path} className="room-pill room-step" aria-label={`이전 실험: ${prev.title}`} title={prev.title}>←</Link>
-        <Link to={next.path} className="room-pill room-step" aria-label={`다음 실험: ${next.title}`} title={next.title}>→</Link>
+        <MorphLink to={prev.path} className="room-pill room-step" aria-label={`이전 실험: ${prev.title}`} title={prev.title}>←</MorphLink>
+        <MorphLink to={next.path} className="room-pill room-step" aria-label={`다음 실험: ${next.title}`} title={next.title}>→</MorphLink>
       </nav>
     </footer>
 

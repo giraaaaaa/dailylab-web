@@ -7,7 +7,8 @@ import './base.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter basename="/lab" future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    {/* v7_startTransition은 켜지 않는다: 이동이 transition으로 미뤄지면 View Transition 콜백 안에서 새 화면을 그릴 수 없다(nav.jsx) */}
+    <BrowserRouter basename="/lab" future={{ v7_relativeSplatPath: true }}>
       <App />
     </BrowserRouter>
   </React.StrictMode>,

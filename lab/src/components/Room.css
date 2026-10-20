@@ -32,7 +32,15 @@
   background: #F1F1EF;
 }
 
-.room-stage { position: absolute; inset: 0; z-index: 0; }
+.room-stage { position: absolute; inset: 0; z-index: 0; view-transition-name: room-media; }
+/* 장면이 그려지기 전까지 깔아 두는 첫 장면. 목록 칸의 영상이 이 그림으로 커져 들어온다 */
+.room-still { position: absolute; inset: 0; z-index: 5; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: opacity .7s var(--dl-ease); }
+.room-still.is-gone { opacity: 0; }
+
+/* 칸 ↔ 방, 방 ↔ 방 전환(nav.jsx). 무대는 크기·위치가 이어지고, 나머지는 살짝 겹쳐 바뀐다 */
+::view-transition-group(room-media) { animation-duration: .62s; animation-timing-function: cubic-bezier(.22, 1, .36, 1); }
+::view-transition-old(room-media), ::view-transition-new(room-media) { height: 100%; object-fit: cover; animation-duration: .5s; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .38s; }
 .room-top, .room-hud, .room-bottom { position: absolute; z-index: 2; pointer-events: none; transition: opacity .6s var(--dl-ease); }
 
 .room-pill {

@@ -38,7 +38,18 @@ npm run build    # → ../public/lab (커밋)
 
 `vercel.json`의 `/lab/:path*` 리라이트가 하위 경로(`/lab/horizon` 등)를 `public/lab/index.html`로 보낸다.
 
-실험마다 방이 하나씩 있다(`/lab/tiles`, `/surface`, `/horizon`, `/portal`, `/city`, `/glass`). 방은 `lab/src/components/Room.jsx` 공통 틀을 쓴다. 실험이 화면 전체를 쓰고, 그 위 같은 자리에 실험실로·소리·원리(위), 제목·안내·조작·이전/다음(아래)이 뜬다. 원리 설명은 '원리' 시트 안에 있다. 목록 순서와 이전/다음 순서는 `lab/src/rooms.js` 하나로 정한다. 소리 설정은 모든 방이 같이 쓰고(기본 꺼짐), 이 브라우저에 기억된다.
+실험마다 방이 하나씩 있다(`/lab/tiles`, `/surface`, `/horizon`, `/portal`, `/city`, `/glass`). 방은 `lab/src/components/Room.jsx` 공통 틀을 쓴다. 실험이 화면 전체를 쓰고, 그 위 같은 자리에 실험실로·소리·원리(위), 제목·안내·조작·이전/다음(아래)이 뜬다. 원리 설명은 '원리' 시트 안에 있다. 목록 순서와 이전/다음 순서는 `lab/src/rooms.js` 하나로 정한다.
+
+목록(`/lab`)은 실험마다 칸 하나인 선반이고, 칸에는 그 방을 녹화한 소리 없는 반복 영상이 돈다(화면에 보일 때만 재생, '동작 줄이기'면 첫 장면만). 목록에서는 3D를 돌리지 않는다. 칸을 누르면 그 영상이 화면 가득 커지며 방이 되고(View Transition, `lab/src/nav.jsx`), 방끼리·방에서 목록으로 돌아갈 때도 이어진다. 방을 고쳐 모습이 바뀌면 영상을 다시 뜬다.
+
+```bash
+cd lab
+npm run build && npm run preview   # 다른 터미널에 띄워 둔다(http://localhost:4173/lab)
+npm run loops                      # 전부, 또는 npm run loops glass city
+npm run build                      # 새 영상을 넣어 다시 빌드
+```
+
+녹화는 헤드리스 Chrome(`--remote-debugging-pipe`, 포트 방식은 WebGL이 꺼짐)과 ffmpeg를 쓴다. 방마다 무엇을 얼마나 뜰지는 `lab/scripts/record-loops.mjs`의 `PLANS`에 있다. 소리 설정은 모든 방이 같이 쓰고(기본 꺼짐), 이 브라우저에 기억된다.
 
 색·글꼴은 `public/assets/tokens.css`를 빌드할 때 묶어 넣는다. 그 파일을 고치면 실험실도 다시 빌드해서 커밋한다. 목록은 시스템 다크 모드를 따르고, 실험 방은 작품처럼 늘 같은 색이다(방 틀은 `--dl-*` 대신 고정값). 장면 색은 흑백에 코발트(#2A4BFF) 한 군데만 쓴다. 사건의 지평선은 원반 색이 물리 계산이라 예외.
 
