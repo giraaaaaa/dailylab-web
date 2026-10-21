@@ -1,1 +1,0 @@
-import{r as e}from"./index-CnG_rEwP.js";const o="dl-lab-sound";function c(){try{return localStorage.getItem(o)==="on"}catch{return!1}}function u(){const[t,r]=e.useState(c);e.useEffect(()=>{try{localStorage.setItem(o,t?"on":"off")}catch{}},[t]);const n=e.useCallback(()=>r(a=>!a),[]);return[t,n]}export{u};
