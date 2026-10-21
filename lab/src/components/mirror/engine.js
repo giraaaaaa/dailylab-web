@@ -4,7 +4,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { tileMaps, microBeads, clothMap, desilverMap, palmStamp, greaseText } from './textures'
 
 /* 김 서린 거울. 밤, 전구 하나뿐인 욕실. 세면대 위 거울에 김이 서려 있다.
-   - 거울에 비친 건 등 뒤의 진짜 욕실(문, 샤워 커튼, 수건, 문 너머 복도). 거울 평면에 대칭인 카메라로 따로 그려 둔다(바뀔 때만).
+   - 거울에 비친 건 등 뒤의 진짜 욕실(문과 문에 걸린 가운, 욕조와 커튼, 선반, 수건, 문 너머 복도). 거울 평면에 대칭인 카메라로 따로 그려 둔다(바뀔 때만).
      그 방에 서 있어야 할 사람은 비치지 않는다.
    - 김: GPU에서 칸마다 김 두께(R), 손가락 기름(G), 물기(B)를 계산한다. 아래쪽(세면대 김)부터, 자리마다 다른 빠르기로 다시 서리고,
      기름 묻은 자리는 잘 안 서린다(진짜 현상). 그래서 다시 서릴 때 손가락으로 쓴 글씨가 드러난다.
@@ -16,7 +16,7 @@ import { tileMaps, microBeads, clothMap, desilverMap, palmStamp, greaseText } fr
 const MEMORY = 'dl-mirror'
 const MW = 0.9, MH = 0.68 // 거울 크기(m)
 const MX = 0, MY = 1.5, MZ = 0.02 // 거울 가운데, 유리 면
-const RW = 1.15, RD = 2.9, RH = 2.35 // 방: 폭의 절반, 깊이, 높이
+const RW = 0.9, RD = 2.9, RH = 2.28 // 방: 폭의 절반, 깊이, 높이
 const BULB = new THREE.Vector3(0, 1.97, 0.16)
 const FW = 512, FH = Math.round((512 * MH) / MW)
 const ASPECT = MW / MH
@@ -25,6 +25,8 @@ const REPLIES = ['뭐라고 썼어요?', '나도 보여요', '거기 추워요?'
 const RUB = [[0.36, 0.56], [2.24, 2.6], [2.8, 3.0], [3.44, 3.56], [3.88, 4.04]]
 const COBALT = '#2a4bff'
 const SEGS = 24
+const DROP_PAD = 1.4 // 물방울 판 / 방울 지름(둘레 빛 번짐 자리)
+const BANDS = [0.62, 0.42, 0.8, 0.24, 0.52, 0.9, 0.1, 0.33, 0.71] // 닦기 버튼이 차례로 훔치는 높이
 
 const rand = (a, b) => a + Math.random() * (b - a)
 const clamp = (x, a, b) => Math.min(b, Math.max(a, x))
@@ -41,9 +43,12 @@ float noise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * 
   return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y); }`
 
 // 김 격자 한 단계: 다시 서림, 물기 마름, 손가락·물방울 길, 도장(기름 글씨, 손자국)
+// 김 두께는 한 프레임에 아주 조금씩(1/255보다 작게) 자란다. 8비트 칸에 그냥 쓰면 반올림에 먹혀 영영 안 서리니,
+// 두께를 두 칸에 나눠 담는다: R = 눈금(uQ) 단위로 내린 값, A = 눈금 아래 나머지(0~1). 반정밀도 칸도 같은 방식(눈금 1/1024).
+// 물기(B)는 줄어드는 양을 확률적으로 반올림해 평균이 맞게 한다(8비트일 때만).
 const SIM_FRAG = `
 uniform sampler2D uPrev, uStamp;
-uniform float uDt, uSteam, uInit, uAspect, uStampAmt, uStampClear, uStampGrease, uStampProg;
+uniform float uDt, uSteam, uInit, uAspect, uStampAmt, uStampClear, uStampGrease, uStampProg, uQ, uQB, uSeed;
 uniform vec4 uStampRect;
 uniform vec4 uSeg[${SEGS}];
 uniform vec4 uSegP[${SEGS}];
@@ -51,17 +56,20 @@ uniform int uSegN;
 varying vec2 vUv;
 ${NOISE}
 float segDist(vec2 p, vec2 a, vec2 b) { vec2 pa = p - a, ba = b - a; float h = clamp(dot(pa, ba) / max(dot(ba, ba), 1e-9), 0.0, 1.0); return length(pa - ba * h); }
+vec4 pack(float F, float Gr, float B) { float k = F / uQ; float hi = floor(k + 1e-4); return vec4(hi * uQ, Gr, B, clamp(k - hi, 0.0, 1.0)); }
 void main() {
   vec2 asp = vec2(uAspect, 1.0);
-  if (uInit > 0.5) { gl_FragColor = vec4(0.93 + 0.07 * noise(vUv * 9.0), 0.0, 0.0, 1.0); return; }
+  if (uInit > 0.5) { gl_FragColor = pack(0.8 + 0.17 * noise(vUv * asp * 2.6 + 1.7) + 0.05 * noise(vUv * 9.0), 0.0, 0.0); return; } // 군데군데 엷어 방이 흐릿하게 비친다
   vec4 s = texture2D(uPrev, vUv);
-  float F = s.r, Gr = s.g, B = s.b;
+  float F = s.r + s.a * uQ, Gr = s.g, B = s.b;
   float patchy = 0.5 + 0.95 * noise(vUv * asp * 6.0) + 0.3 * noise(vUv * asp * 29.0);
   float fromBelow = mix(1.6, 0.62, vUv.y); // 세면대 김이 아래부터
   float grow = uSteam * patchy * fromBelow * (1.0 - 0.92 * Gr) * (1.0 - 0.85 * B);
   F += (1.0 - F) * grow * 0.085 * uDt;
   F -= F * max(0.0, 0.25 - uSteam) * 0.02 * uDt;
-  B = max(0.0, B - uDt * 0.2);
+  float dry = uDt * 0.2;
+  if (uQB > 0.0) dry = floor(dry / uQB + hash(gl_FragCoord.xy * 0.731 + uSeed)) * uQB;
+  B = max(0.0, B - dry);
   vec2 p = vUv * asp;
   for (int i = 0; i < ${SEGS}; i++) {
     if (i >= uSegN) break;
@@ -82,7 +90,7 @@ void main() {
       F *= 1.0 - m * uStampClear * uStampAmt;
     }
   }
-  gl_FragColor = vec4(clamp(F, 0.0, 1.0), clamp(Gr, 0.0, 1.0), clamp(B, 0.0, 1.0), 1.0);
+  gl_FragColor = pack(clamp(F, 0.0, 1.0), clamp(Gr, 0.0, 1.0), clamp(B, 0.0, 1.0));
 }`
 
 // 읽어 오기용 축소(통계·문 둘레 김·물방울)
@@ -96,32 +104,47 @@ void main() { vUv = uv; vec4 wp = modelMatrix * vec4(position, 1.0); vRefl = uTe
 const MIRROR_FRAG = `
 uniform sampler2D uRefl, uField, uMicro, uDesilver;
 uniform vec2 uFieldTexel;
-uniform float uAspect, uBulb, uTime;
+uniform float uAspect, uBulb, uTime, uQ;
 varying vec2 vUv; varying vec4 vRefl;
 ${NOISE}
+float fog(vec2 uv) { vec4 f = texture2D(uField, uv); return f.r + f.a * uQ; }
 void main() {
   vec4 f = texture2D(uField, vUv);
-  float F = smoothstep(0.03, 0.95, f.r);
-  float gx = texture2D(uField, vUv + vec2(uFieldTexel.x * 2.0, 0.0)).r - texture2D(uField, vUv - vec2(uFieldTexel.x * 2.0, 0.0)).r;
-  float gy = texture2D(uField, vUv + vec2(0.0, uFieldTexel.y * 2.0)).r - texture2D(uField, vUv - vec2(0.0, uFieldTexel.y * 2.0)).r;
-  float edge = clamp(length(vec2(gx, gy)) * 2.6, 0.0, 1.0);
+  float raw = f.r + f.a * uQ;
+  float F = smoothstep(0.03, 0.95, raw);
+  vec2 t2 = uFieldTexel * 2.0, t6 = uFieldTexel * 6.0;
+  float edge = clamp(length(vec2(fog(vUv + vec2(t2.x, 0.0)) - fog(vUv - vec2(t2.x, 0.0)), fog(vUv + vec2(0.0, t2.y)) - fog(vUv - vec2(0.0, t2.y)))) * 2.6, 0.0, 1.0);
+  // 김 층의 두께를 높이로 보고 기울기를 낸다: 닦은 자리 아래 둔덕은 전구 쪽(위)을 향해 빛나고, 위 둔덕은 그늘진다
+  vec2 hg = vec2(fog(vUv + vec2(t6.x, 0.0)) - fog(vUv - vec2(t6.x, 0.0)), fog(vUv + vec2(0.0, t6.y)) - fog(vUv - vec2(0.0, t6.y)));
+  vec3 n = normalize(vec3(-hg * 1.6, 1.0));
+  float relief = dot(n, normalize(vec3(0.0, 0.8, 0.6))) - 0.6;
+  float lip = fog(vUv + vec2(0.0, uFieldTexel.y * 9.0)) - raw; // 바로 위에 김이 있으면 그 둔덕 그늘이 드리운다
   vec2 ruv = vRefl.xy / vRefl.w;
   ruv += (vec2(noise(vUv * 40.0 + uTime * 0.2), noise(vUv * 40.0 + 7.0)) - 0.5) * f.b * 0.003; // 물기에 일렁임
   vec3 sharp = textureLod(uRefl, ruv, 0.0).rgb;
   float lod = 1.5 + F * 4.0;
   vec2 o = vec2(0.006, 0.004) * F;
   vec3 blur = (textureLod(uRefl, ruv, lod) + textureLod(uRefl, ruv + o, lod) + textureLod(uRefl, ruv - o, lod) + textureLod(uRefl, ruv + vec2(-o.y, o.x), lod) + textureLod(uRefl, ruv - vec2(-o.y, o.x), lod)).rgb * 0.2;
-  // 김: 전구에 비쳐 위쪽 가운데가 밝은 우윳빛, 아주 작은 물방울 결
-  float lit = (0.22 + 0.78 * exp(-distance(vUv * vec2(uAspect, 1.0), vec2(0.5 * uAspect, 1.18)) * 1.35)) * uBulb;
-  vec4 mb = texture2D(uMicro, vUv * vec2(uAspect, 1.0) * 7.0);
-  vec4 mb2 = texture2D(uMicro, vUv * vec2(uAspect, 1.0) * 3.1 + 0.37);
-  float thick = 0.9 + 0.2 * noise(vUv * vec2(uAspect, 1.0) * 3.0) + 0.08 * noise(vUv * 17.0); // 김 두께가 자리마다 조금씩
-  vec3 milk = vec3(0.5, 0.5, 0.52) * lit * thick;
-  vec3 fogCol = blur * 0.45 + milk * (0.82 + 0.25 * mb.r) + vec3(1.0) * mb.g * lit * 0.12;
-  vec3 col = mix(sharp, fogCol, F);
-  // 닦은 가장자리에 맺힌 물방울들
-  col += vec3(1.0) * edge * (mb2.g * 0.9 + mb.g * 0.4) * lit * 0.6;
-  col = mix(col, col * 0.7, edge * mb2.r * 0.4);
+  vec3 haze = textureLod(uRefl, ruv + vec2(0.0, 0.02), 6.5).rgb; // 김 속으로 넓게 번진 등 뒤 빛
+  haze = mix(vec3(dot(haze, vec3(0.3, 0.55, 0.15))), haze, 0.5);
+  // 김: 전구에 비쳐 위쪽 가운데가 환하게 피어오르는 우윳빛. 아주 작은 물방울이 두 겹(겹마다 크기·밝기가 달라 두께가 보인다)
+  vec2 a = vUv * vec2(uAspect, 1.0);
+  float glow = exp(-distance(a, vec2(0.5 * uAspect, 1.14)) * 1.4);
+  float lit = (0.26 + 1.2 * glow) * uBulb;
+  vec4 mb = texture2D(uMicro, a * 7.0);
+  vec4 mb2 = texture2D(uMicro, a * 3.1 + 0.37);
+  vec4 mb3 = texture2D(uMicro, a * 13.0 + 0.71);
+  float thick = 0.84 + 0.3 * noise(a * 2.4 + 3.1) + 0.1 * noise(a * 9.0); // 김 두께가 자리마다 다르다(구름처럼 엷고 짙은 데)
+  vec3 milk = vec3(0.6, 0.6, 0.62) * lit * thick;
+  vec3 fogCol = blur * 0.3 + haze * 0.4 + milk * (0.78 + 0.22 * mb.r + 0.12 * mb3.r) + vec3(1.0) * (mb.g * 0.14 + mb3.g * 0.1) * lit;
+  fogCol *= 1.0 + relief * 0.9;
+  // 얇은 김은 반사가 흐리게 비치는 반투명 막, 두꺼운 김은 빛을 머금은 막
+  vec3 col = mix(mix(sharp, blur, smoothstep(0.0, 0.5, F)), fogCol, F);
+  col *= 1.0 - clamp(lip * 1.6, 0.0, 1.0) * 0.32 * (1.0 - F);
+  col += vec3(1.0) * max(relief, 0.0) * lit * 0.35 * smoothstep(0.1, 0.5, raw);
+  // 닦은 가장자리에 맺힌 물방울들: 빛을 받아 반짝이는 알갱이
+  col = mix(col, col * 0.85 + vec3(0.1) * lit, edge * mb2.r * 0.5);
+  col += vec3(1.0) * edge * (mb2.g * 1.1 + mb.g * 0.4) * lit * 0.75;
   // 기름 자국: 맑은 곳에서 아주 옅은 번짐
   col = mix(col, col * 0.93 + vec3(0.02) * lit, f.g * (1.0 - F) * 0.25);
   // 오래된 거울: 가장자리부터 은박이 삭았다
@@ -141,29 +164,31 @@ void main() {
   vec4 wp = modelMatrix * instanceMatrix * vec4(position, 1.0);
   vec4 c = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
   vRefl = uTexMat * c;
-  vSize = length(instanceMatrix[0].xyz);
+  vSize = length(instanceMatrix[0].xyz) / ${DROP_PAD.toFixed(2)};
   gl_Position = projectionMatrix * viewMatrix * wp;
 }`
+// 물방울 하나 = 작은 볼록 렌즈. 등 뒤 방을 뒤집어 모아 비추고(그래서 둘레보다 밝다), 전구가 또렷한 점으로 맺히고,
+// 아래쪽에 모인 빛이 초승달처럼 빛난다. 테두리만 얇게 어둡다. 판은 방울보다 조금 커서 둘레에 옅은 빛 번짐을 둔다
 const DROP_FRAG = `
 uniform sampler2D uRefl;
 uniform float uBulb;
 varying vec2 vUv; varying vec4 vRefl; varying float vSize;
 void main() {
-  vec2 q = vUv * 2.0 - 1.0;
+  vec2 q = (vUv * 2.0 - 1.0) * ${DROP_PAD.toFixed(2)};
   float d = length(q);
-  if (d > 1.0) discard;
+  if (d > ${DROP_PAD.toFixed(2)}) discard;
+  if (d > 1.0) { gl_FragColor = vec4(vec3(1.0), exp(-(d - 1.0) * 10.0) * 0.16 * uBulb); return; }
   float h = sqrt(1.0 - d * d);
   vec3 n = normalize(vec3(q * 0.95, h));
-  // 작은 렌즈: 뒤집혀 비친다(가운데를 지나는 빛이 엇갈려서)
-  vec2 ruv = vRefl.xy / vRefl.w - q * vSize * 4.5;
-  vec3 c = textureLod(uRefl, ruv, 0.0).rgb * 1.05;
-  vec3 L = normalize(vec3(0.0, 0.75, 0.65));
-  float spec = pow(max(dot(reflect(-L, n), vec3(0.0, 0.0, 1.0)), 0.0), 18.0);
-  c += vec3(1.0) * spec * 1.6 * uBulb;
-  c += vec3(0.95) * smoothstep(0.16, 0.04, length(q - vec2(-0.3, 0.36))) * uBulb; // 전구가 맺힌 작은 점
-  c += vec3(0.95) * smoothstep(0.62, 0.92, d) * smoothstep(0.1, 0.8, -q.y) * 0.55 * uBulb; // 빛이 모이는 아래쪽 초승달
-  c *= mix(0.45, 1.0, smoothstep(1.0, 0.6, d));
-  gl_FragColor = vec4(c, smoothstep(1.0, 0.82, d));
+  vec2 ruv = vRefl.xy / vRefl.w - q * vSize * 6.0;
+  vec3 c = textureLod(uRefl, ruv, 1.0).rgb * 1.7 + vec3(0.06) * uBulb;
+  vec3 L = normalize(vec3(-0.3, 0.75, 0.6));
+  float spec = pow(max(dot(reflect(-L, n), vec3(0.0, 0.0, 1.0)), 0.0), 22.0);
+  c += vec3(1.0) * spec * 3.2 * uBulb;
+  c += vec3(1.0) * smoothstep(0.24, 0.06, length(q - vec2(-0.26, 0.34))) * 2.4 * uBulb; // 전구가 맺힌 점
+  c += vec3(1.0) * smoothstep(0.5, 0.88, d) * smoothstep(0.05, 0.75, -q.y) * 1.2 * uBulb; // 아래쪽 초승달
+  c *= mix(0.4, 1.0, smoothstep(1.0, 0.86, d));
+  gl_FragColor = vec4(c, smoothstep(1.0, 0.9, d));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
 }`
@@ -205,9 +230,9 @@ export function createMirror(canvas, { sfx, onStats }) {
   camera.layers.enable(1)
   const reflCam = new THREE.PerspectiveCamera(36, 1, 0.03, 30)
   reflCam.layers.set(0)
-  const pmrem = new THREE.PMREMGenerator(renderer)
-  const env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-  pmrem.dispose()
+  // 주변 반사 지도는 반정밀도 칸에 굽는다. 그걸 못 그리는 기기에선 빼고(크롬·도기는 조금 덜 반짝인다) 오류 없이 간다
+  let env = null
+  if (floatOK) { const pmrem = new THREE.PMREMGenerator(renderer); env = pmrem.fromScene(new RoomEnvironment(), 0.04).texture; pmrem.dispose() }
 
   /* ---------- 빛 ---------- */
   const hemi = new THREE.HemisphereLight('#a0a4ad', '#070708', 0.08)
@@ -217,12 +242,15 @@ export function createMirror(canvas, { sfx, onStats }) {
   bulbLight.shadow.mapSize.set(512, 512)
   bulbLight.shadow.bias = -0.002
   bulbLight.shadow.radius = 3
-  const hall = new THREE.PointLight(COBALT, 0, 6, 1.4) // 문 너머 복도 끝
-  hall.position.set(0.45, 1.5, RD + 2.2)
+  // 복도 빛은 그림자 없이 벽을 뚫지 않도록 닿는 거리를 복도 안으로만 짧게 끊는다
+  const hall = new THREE.PointLight(COBALT, 0, 1.6, 1.2) // 문 너머 복도
+  hall.position.set(0.38, 1.85, RD + 1.6)
+  const hallSpill = new THREE.PointLight(COBALT, 0, 0.62, 1.6) // 문 틈 바로 밖(문이 쓸고 지나가는 자리 밖): 문설주와 복도 벽에 푸른 빛
+  hallSpill.position.set(-0.15, 1.3, RD + 0.35)
   // 천장·벽에서 되튄 빛(그림자 없이 아주 약하게): 등 뒤 방이 거울에 알아볼 만큼은 보이게
   const bounce = new THREE.PointLight('#d9d6d0', 1.1, 0, 1.2)
-  bounce.position.set(0, 2.35, 1.5)
-  scene.add(hemi, bulbLight, hall, bounce)
+  bounce.position.set(0, RH - 0.08, 2.1) // 등 뒤 천장 가까이: 문과 선반이 위에서 비스듬히 빛을 받는다
+  scene.add(hemi, bulbLight, hall, hallSpill, bounce)
 
   /* ---------- 재질 ---------- */
   const wall = tileMaps({ base: 62, spread: 9, n: 4 })
@@ -237,11 +265,19 @@ export function createMirror(canvas, { sfx, onStats }) {
   const plasterMat = new THREE.MeshStandardMaterial({ color: '#3b3b3e', roughness: 0.95 })
   const ceramic = new THREE.MeshStandardMaterial({ color: '#b9b8b5', roughness: 0.2, envMap: env, envMapIntensity: 0.45 })
   const chrome = new THREE.MeshStandardMaterial({ color: '#cfd0d3', metalness: 1, roughness: 0.16, envMap: env, envMapIntensity: 0.9 })
-  const doorMat = new THREE.MeshStandardMaterial({ color: '#5e5d5b', roughness: 0.62 })
+  const backT = tileMaps({ base: 60, spread: 9, n: 4 }) // 뒷벽: UV를 미터로 깔아 조각끼리 줄눈이 이어진다
+  const backMat = new THREE.MeshStandardMaterial({ map: backT.map, normalMap: backT.normalMap, roughnessMap: backT.roughnessMap, roughness: 1, envMap: env, envMapIntensity: 0.2 })
+  const doorMat = new THREE.MeshStandardMaterial({ color: '#6c6b68', roughness: 0.48, envMap: env, envMapIntensity: 0.25 }) // 반광 페인트: 전구 빛이 판 몰딩에 걸린다
+  const trimMat = new THREE.MeshStandardMaterial({ color: '#82817d', roughness: 0.42, envMap: env, envMapIntensity: 0.3 })
+  const plastic = new THREE.MeshStandardMaterial({ color: '#d6d6d3', roughness: 0.32, envMap: env, envMapIntensity: 0.4 })
+  const darkGlass = new THREE.MeshStandardMaterial({ color: '#2c2d30', roughness: 0.1, envMap: env, envMapIntensity: 0.9 })
   const counterMat = new THREE.MeshStandardMaterial({ color: '#232325', roughness: 0.45, envMap: env, envMapIntensity: 0.3 })
   const cloth = clothMap()
   const curtainMat = new THREE.MeshStandardMaterial({ map: cloth, color: '#e4e4e6', roughness: 0.85, side: THREE.DoubleSide })
   const towelMat = new THREE.MeshStandardMaterial({ map: cloth, color: '#e6e5e1', roughness: 1, side: THREE.DoubleSide })
+  const robeMat = new THREE.MeshStandardMaterial({ map: cloth, color: '#d2d2d5', roughness: 1, side: THREE.DoubleSide, vertexColors: true })
+  const recessMat = new THREE.MeshStandardMaterial({ color: '#4c4b49', roughness: 0.6 })
+  const aoH = shadeTexture(false), aoV = shadeTexture(true)
 
   const add = (mesh, layer = 0, { cast = true, receive = true } = {}) => { mesh.layers.set(layer); mesh.castShadow = cast; mesh.receiveShadow = receive; scene.add(mesh); return mesh }
   const plane = (w, h, mat) => new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat)
@@ -256,54 +292,129 @@ export function createMirror(canvas, { sfx, onStats }) {
     b.position.set(MX + x, MY + y, MZ - 0.004)
     add(b, 1)
   }
+  if (!env) for (const m of [chrome, frameMat]) { m.metalness = 0.35; m.roughness = 0.32 } // 주변 반사 지도가 없으면 금속이 새까매지니 반쯤만 금속으로
 
   /* ---------- 등 뒤의 방(거울에만 비친다) ---------- */
+  // 좁은 욕실이라 거울 가장자리로 옆벽이 깊이 쪽으로 물러나는 게 보인다. 천장 몰딩, 욕조와 반쯤 걷힌 커튼, 선반, 문에 걸린 가운.
   const back = new THREE.Group()
   const fl = plane(RW * 2, RD + 0.2, floorMat); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0, RD / 2); back.add(fl)
   const ce = plane(RW * 2, RD, plasterMat); ce.rotation.x = Math.PI / 2; ce.position.set(0, RH, RD / 2); back.add(ce)
   const lw = plane(RD, RH, sideMat); lw.rotation.y = Math.PI / 2; lw.position.set(-RW, RH / 2, RD / 2); back.add(lw)
   const rw = plane(RD, RH, sideMat); rw.rotation.y = -Math.PI / 2; rw.position.set(RW, RH / 2, RD / 2); back.add(rw)
-  // 뒷벽과 문 구멍(문 폭 0.8, 높이 2.05, 가운데에서 조금 오른쪽)
-  const DX0 = 0.05, DX1 = 0.85, DH = 2.05
-  for (const [w, h, x, y] of [[DX0 + RW, RH, (-RW + DX0) / 2, RH / 2], [RW - DX1, RH, (DX1 + RW) / 2, RH / 2], [DX1 - DX0, RH - DH, (DX0 + DX1) / 2, (DH + RH) / 2]]) {
-    const p = plane(w, h, plasterMat); p.rotation.y = Math.PI; p.position.set(x, y, RD); back.add(p)
+  // 뒷벽(타일)과 문 구멍(문 폭 0.72, 높이 2.02, 가운데에서 조금 오른쪽). 타일 눈금이 조각마다 이어지게 UV를 미터로 깐다
+  const DX0 = 0.02, DX1 = 0.74, DH = 2.02
+  const tiled = (w, h, x0, y0) => {
+    const g = new THREE.PlaneGeometry(w, h), uv = g.attributes.uv
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (RW - x0 - (1 - uv.getX(i)) * w) / 0.6, (y0 + uv.getY(i) * h) / 0.6)
+    return new THREE.Mesh(g, backMat)
   }
-  for (const [w, h, x, y] of [[0.06, DH, DX0 - 0.03, DH / 2], [0.06, DH, DX1 + 0.03, DH / 2], [DX1 - DX0 + 0.12, 0.06, (DX0 + DX1) / 2, DH + 0.03]]) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.12), doorMat); b.position.set(x, y, RD - 0.02); back.add(b)
+  for (const [x0, x1, y0, y1] of [[-RW, DX0, 0, RH], [DX1, RW, 0, RH], [DX0, DX1, DH, RH]]) {
+    const p = tiled(x1 - x0, y1 - y0, x0, y0); p.rotation.y = Math.PI; p.position.set((x0 + x1) / 2, (y0 + y1) / 2, RD); back.add(p)
   }
+  // 문틀: 벽에서 도드라진 몰딩(빛을 받는 모서리)
+  for (const [w, h, x, y] of [[0.07, DH + 0.07, DX0 - 0.035, (DH + 0.07) / 2], [0.07, DH + 0.07, DX1 + 0.035, (DH + 0.07) / 2], [DX1 - DX0 + 0.14, 0.07, (DX0 + DX1) / 2, DH + 0.035]]) {
+    const b = new THREE.Mesh(new RoundedBoxGeometry(w, h, 0.05, 2, 0.012), trimMat); b.position.set(x, y, RD - 0.022); back.add(b)
+  }
+  for (const x of [DX0 - 0.005, DX1 + 0.005]) { const j = new THREE.Mesh(new THREE.BoxGeometry(0.01, DH, 0.12), trimMat); j.position.set(x, DH / 2, RD + 0.06); back.add(j) } // 문설주 안쪽 면
   const hinge = new THREE.Group(); hinge.position.set(DX1, 0, RD)
-  const door = new THREE.Mesh(new RoundedBoxGeometry(DX1 - DX0 - 0.01, DH - 0.01, 0.04, 2, 0.006), doorMat)
-  door.position.set(-(DX1 - DX0) / 2, DH / 2, 0.02)
-  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), chrome); knob.position.set(-(DX1 - DX0) + 0.08, 1.0, -0.03)
-  for (const y of [0.5, 1.45]) { const panel = new THREE.Mesh(new RoundedBoxGeometry(0.56, 0.62, 0.012, 2, 0.004), doorMat); panel.position.set(-(DX1 - DX0) / 2, y, -0.004); hinge.add(panel) }
-  hinge.add(door, knob)
+  const DW = DX1 - DX0
+  const door = new THREE.Mesh(new RoundedBoxGeometry(DW - 0.01, DH - 0.01, 0.04, 2, 0.006), doorMat)
+  door.position.set(-DW / 2, DH / 2, 0.02)
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.028, 16, 12), chrome); knob.position.set(-DW + 0.07, 1.0, -0.035)
+  const rose = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.01, 18), chrome); rose.rotation.x = Math.PI / 2; rose.position.set(-DW + 0.07, 1.0, -0.004)
+  // 오목한 판 두 장: 안쪽은 그늘진 듯 어둡고, 테두리 몰딩은 도드라져 빛을 받는다
+  for (const [y, h] of [[0.52, 0.66], [1.43, 0.86]]) {
+    const pw = DW - 0.2
+    const inset = new THREE.Mesh(new THREE.PlaneGeometry(pw, h), recessMat); inset.rotation.y = Math.PI; inset.position.set(-DW / 2, y, -0.001); hinge.add(inset)
+    for (const [w2, h2, x, yy] of [[pw + 0.04, 0.04, 0, h / 2], [pw + 0.04, 0.04, 0, -h / 2], [0.04, h + 0.04, -pw / 2, 0], [0.04, h + 0.04, pw / 2, 0]]) {
+      const m = new THREE.Mesh(new RoundedBoxGeometry(w2, h2, 0.018, 2, 0.007), trimMat); m.position.set(-DW / 2 + x, y + yy, -0.006); hinge.add(m)
+    }
+  }
+  hinge.add(door, knob, rose)
+  // 문 안쪽 고리에 걸린 가운(문과 같이 움직인다). 정면에서 빛이 와도 주름이 읽히게 골짜기를 꼭짓점 색으로 어둡게
+  const robeG = new THREE.PlaneGeometry(0.4, 0.94, 40, 36)
+  const rp = robeG.attributes.position
+  const robeC = []
+  for (let i = 0; i < rp.count; i++) {
+    const x = rp.getX(i), t = (0.47 - rp.getY(i)) / 0.94 // 위 0 → 아래 1
+    const shoulder = 0.22 + 0.78 * smooth(0, 0.22, t) + 0.08 * t // 고리에 걸린 위쪽은 모이고, 어깨에서 퍼져 아래로 조금 벌어진다
+    const fold = Math.sin(x * 34 + t * 2.4 + Math.sin(x * 9) * 1.5) * (0.4 + 0.6 * smooth(0.05, 0.4, t))
+    const z = fold * 0.022 + 0.06 * Math.sin(smooth(0, 0.35, t) * Math.PI * 0.5) * (1 - (x / 0.2) ** 2) * (1 - 0.4 * t)
+    rp.setX(i, x * shoulder); rp.setZ(i, z)
+    const lapel = t > 0.07 && t < 0.46 ? smooth(0.012, 0, Math.abs(Math.abs(x) - (0.46 - t) * 0.26)) : 0 // V자 깃
+    const belt = smooth(0.02, 0, Math.abs(t - 0.5)) * 0.18
+    const k = 0.5 + 0.5 * (fold * 0.5 + 0.5) - 0.25 * (Math.abs(x) / 0.2) ** 3 - 0.2 * (1 - smooth(0, 0.15, t)) - 0.35 * lapel - belt
+    robeC.push(k, k, k)
+  }
+  robeG.setAttribute('color', new THREE.Float32BufferAttribute(robeC, 3))
+  robeG.computeVertexNormals()
+  const robe = new THREE.Mesh(robeG, robeMat); robe.rotation.y = Math.PI; robe.position.set(-DW / 2 + 0.04, 1.35, -0.045)
+  const hook = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.05, 8), chrome); hook.rotation.x = Math.PI / 2; hook.position.set(-DW / 2 + 0.04, 1.82, -0.03)
+  hinge.add(robe, hook)
   back.add(hinge)
-  // 문 너머 복도: 어둡고, 끝에 코발트빛
-  const hallMat = new THREE.MeshStandardMaterial({ color: '#1a1a1c', roughness: 1 })
-  const hf = plane(1.4, 3, hallMat); hf.rotation.x = -Math.PI / 2; hf.position.set(0.45, 0, RD + 1.5); back.add(hf)
-  for (const x of [-0.25, 1.15]) { const hw = plane(3, 2.4, hallMat); hw.rotation.y = x < 0.45 ? Math.PI / 2 : -Math.PI / 2; hw.position.set(x, 1.2, RD + 1.5); back.add(hw) }
-  const glowEnd = plane(0.5, 1.6, new THREE.MeshBasicMaterial({ color: COBALT, transparent: true, opacity: 0.0 }))
-  glowEnd.rotation.y = Math.PI; glowEnd.position.set(0.45, 1.1, RD + 2.95); back.add(glowEnd)
-  // 샤워 커튼(왼쪽), 수건(오른쪽 벽)
-  const cg = new THREE.PlaneGeometry(1.3, 1.95, 60, 1)
+  // 문 너머 복도: 어둡고, 끝에 코발트빛. 문 틈으로 복도 벽이 그 빛을 받아 깊이가 보인다
+  const hallMat = new THREE.MeshStandardMaterial({ color: '#2a2a2d', roughness: 0.9 })
+  const hf = plane(1.5, 3, hallMat); hf.rotation.x = -Math.PI / 2; hf.position.set((DX0 + DX1) / 2, 0, RD + 1.5); back.add(hf)
+  const hc = plane(1.5, 3, hallMat); hc.rotation.x = Math.PI / 2; hc.position.set((DX0 + DX1) / 2, 2.3, RD + 1.5); back.add(hc)
+  for (const x of [DX0 - 0.36, DX1 + 0.36]) { const hw = plane(3, 2.3, hallMat); hw.rotation.y = x < DX0 ? Math.PI / 2 : -Math.PI / 2; hw.position.set(x, 1.15, RD + 1.5); back.add(hw) }
+  const glowEnd = plane(0.62, 1.7, new THREE.MeshBasicMaterial({ color: COBALT, transparent: true, opacity: 0.0 }))
+  glowEnd.rotation.y = Math.PI; glowEnd.position.set((DX0 + DX1) / 2, 1.05, RD + 2.95); back.add(glowEnd)
+  // 욕조(왼쪽 안쪽)와 반쯤 걷힌 샤워 커튼: 커튼은 뒷벽과 나란히 걸려 왼쪽으로 모여 있다
+  const TX1 = -0.12, TZ0 = 2.16
+  const tub = new THREE.Mesh(new RoundedBoxGeometry(TX1 + RW, 0.56, RD - TZ0, 3, 0.03), ceramic); tub.position.set((TX1 - RW) / 2, 0.28, (TZ0 + RD) / 2); back.add(tub)
+  const cg = new THREE.PlaneGeometry(0.5, 1.52, 70, 1)
   const cp = cg.attributes.position
-  for (let i = 0; i < cp.count; i++) { const x = cp.getX(i); cp.setZ(i, Math.sin(x * 22) * 0.06 + Math.sin(x * 7 + 1) * 0.03) }
+  for (let i = 0; i < cp.count; i++) { const x = cp.getX(i); cp.setZ(i, Math.sin(x * 58) * 0.035 + Math.sin(x * 19 + 1) * 0.02 + (x + 0.25) * 0.08) }
   cg.computeVertexNormals()
-  const curtain = new THREE.Mesh(cg, curtainMat); curtain.rotation.y = Math.PI / 2; curtain.position.set(-0.5, 1.08, 2.15); back.add(curtain)
-  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 1.5, 8), chrome); rod.rotation.x = Math.PI / 2; rod.position.set(-0.5, 2.08, 2.15); back.add(rod)
-  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.6, 8), chrome); bar.rotation.x = Math.PI / 2; bar.position.set(RW - 0.06, 1.25, 1.55); back.add(bar)
+  const curtain = new THREE.Mesh(cg, curtainMat); curtain.position.set(-RW + 0.27, 1.3, TZ0 + 0.02); back.add(curtain)
+  const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, TX1 + RW + 0.02, 8), chrome); rod.rotation.z = Math.PI / 2; rod.position.set((TX1 - RW) / 2, 2.07, TZ0 + 0.02); back.add(rod)
+  for (let i = 0; i < 9; i++) { const ring = new THREE.Mesh(new THREE.TorusGeometry(0.016, 0.0025, 6, 14), chrome); const x = -RW + 0.05 + (i < 7 ? i * 0.068 : 0.5 + (i - 7) * 0.12); ring.position.set(x, 2.07, TZ0 + 0.02); ring.rotation.y = Math.PI / 2; back.add(ring) }
+  // 오른쪽 벽: 수건걸이와 수건, 그 위 선반(병, 컵과 칫솔, 뚜껑 달린 병, 갠 수건)
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.6, 8), chrome); bar.rotation.x = Math.PI / 2; bar.position.set(RW - 0.06, 1.25, 1.75); back.add(bar)
   const tg = new THREE.PlaneGeometry(0.5, 0.7, 20, 1)
   const tp = tg.attributes.position
   for (let i = 0; i < tp.count; i++) { const x = tp.getX(i); tp.setZ(i, Math.sin(x * 18) * 0.012) }
   tg.computeVertexNormals()
-  const towel = new THREE.Mesh(tg, towelMat); towel.rotation.y = -Math.PI / 2; towel.position.set(RW - 0.07, 0.93, 1.55); back.add(towel)
-  back.traverse((o) => { if (o.isMesh) { o.layers.set(0); o.castShadow = true; o.receiveShadow = true } })
+  const towel = new THREE.Mesh(tg, towelMat); towel.rotation.y = -Math.PI / 2; towel.position.set(RW - 0.07, 0.93, 1.75); back.add(towel)
+  const SY = 1.6, SZ0 = 1.98, SZ1 = 2.62
+  const board = new THREE.Mesh(new RoundedBoxGeometry(0.16, 0.024, SZ1 - SZ0, 2, 0.006), trimMat); board.position.set(RW - 0.08, SY, (SZ0 + SZ1) / 2); back.add(board)
+  for (const z of [SZ0 + 0.07, SZ1 - 0.07]) { const br = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.05, 0.014), chrome); br.position.set(RW - 0.06, SY - 0.035, z); back.add(br) }
+  const onShelf = (pts, mat, x, z, segs = 24) => { const m = new THREE.Mesh(new THREE.LatheGeometry(pts.map(([a, b]) => new THREE.Vector2(a, b)), segs), mat); m.position.set(RW - x, SY + 0.012, z); back.add(m); return m }
+  onShelf([[0, 0], [0.03, 0], [0.032, 0.006], [0.032, 0.16], [0.024, 0.19], [0.011, 0.2], [0.011, 0.225], [0, 0.225]], plastic, 0.08, SZ0 + 0.08)
+  const pump = onShelf([[0, 0], [0.027, 0], [0.029, 0.006], [0.029, 0.12], [0.018, 0.135], [0.008, 0.14], [0.008, 0.162], [0, 0.162]], darkGlass, 0.075, SZ0 + 0.17)
+  const nozzle = new THREE.Mesh(new THREE.BoxGeometry(0.008, 0.008, 0.035), chrome); nozzle.position.set(0, 0.164, -0.014); pump.add(nozzle)
+  onShelf([[0, 0], [0.025, 0], [0.03, 0.095], [0.027, 0.095], [0.022, 0.006], [0, 0.006]], ceramic, 0.075, SZ0 + 0.29)
+  for (const [tilt, tw, c] of [[0.2, -0.3, plastic], [-0.16, 0.5, darkGlass]]) {
+    const brush = new THREE.Mesh(new RoundedBoxGeometry(0.009, 0.18, 0.013, 1, 0.004), c)
+    brush.position.set(RW - 0.075 + Math.sin(tilt) * 0.06, SY + 0.11, SZ0 + 0.29 + Math.sin(tw) * 0.01); brush.rotation.set(tw * 0.3, 0, tilt); back.add(brush)
+  }
+  onShelf([[0, 0], [0.04, 0], [0.042, 0.006], [0.042, 0.07], [0.036, 0.075], [0, 0.075]], darkGlass, 0.08, SZ0 + 0.41)
+  onShelf([[0, 0], [0.039, 0], [0.04, 0.02], [0, 0.02]], chrome, 0.08, SZ0 + 0.41).position.y += 0.075
+  const folded = new THREE.Mesh(new RoundedBoxGeometry(0.13, 0.07, 0.15, 3, 0.022), towelMat); folded.position.set(RW - 0.08, SY + 0.047, SZ1 - 0.1); back.add(folded)
+  // 천장 몰딩(뒷벽·옆벽 위를 한 바퀴): 천장 모서리가 보여 방의 깊이가 읽힌다
+  for (const [w, x, z, ry] of [[RW * 2, 0, RD - 0.035, 0], [RD, -RW + 0.035, RD / 2, Math.PI / 2], [RD, RW - 0.035, RD / 2, Math.PI / 2]]) {
+    const c = new THREE.Mesh(new RoundedBoxGeometry(w, 0.075, 0.07, 2, 0.02), trimMat); c.position.set(x, RH - 0.0375, z); c.rotation.y = ry; back.add(c)
+  }
+  // 구석 그늘(모서리에 빛이 덜 닿는 자리): 아주 옅은 검은 띠
+  const shade = (w, h, alpha, x, y, z, ry, dir) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: '#000', alphaMap: dir === 'v' ? aoV : aoH, transparent: true, opacity: alpha, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 }))
+    m.position.set(x, y, z); m.rotation.y = ry; back.add(m); return m
+  }
+  shade(RW * 2, 0.35, 0.55, 0, RH - 0.075 - 0.175, RD - 0.004, Math.PI, 'h') // 뒷벽 위
+  shade(RD, 0.35, 0.5, -RW + 0.004, RH - 0.075 - 0.175, RD / 2, Math.PI / 2, 'h')
+  shade(RD, 0.35, 0.5, RW - 0.004, RH - 0.075 - 0.175, RD / 2, -Math.PI / 2, 'h')
+  for (const s of [-1, 1]) {
+    const m = shade(0.3, RH, 0.45, s * (RW - 0.15), RH / 2, RD - 0.004, Math.PI, 'v'); if (s < 0) m.rotation.z = Math.PI // 뒷벽 양쪽 구석
+    const n = shade(0.3, RH, 0.45, s * (RW - 0.004), RH / 2, RD - 0.15, -s * Math.PI / 2, 'v'); if (s > 0) n.rotation.z = Math.PI // 옆벽 안쪽 구석
+  }
+  back.traverse((o) => { if (o.isMesh) { o.layers.set(0); const lit = !o.material.isMeshBasicMaterial; o.castShadow = lit; o.receiveShadow = lit } })
   scene.add(back)
   function setDoor(deg) {
     hinge.rotation.y = THREE.MathUtils.degToRad(deg) // 복도 쪽으로 열린다
     const open = deg / 58
-    hall.intensity = 0.15 + open * 1.4
-    glowEnd.material.opacity = 0.25 + open * 0.6
+    hall.intensity = 0.6 + open * 2.2
+    hallSpill.intensity = 0.4 + open * 1.8
+    glowEnd.material.opacity = 0.3 + open * 0.6
   }
   let doorNow = memory.door, doorTarget = memory.door
   setDoor(doorNow)
@@ -367,6 +478,7 @@ export function createMirror(canvas, { sfx, onStats }) {
   }
 
   /* ---------- 김 격자(GPU) ---------- */
+  const FIELD_Q = floatOK ? 1 / 1024 : 1 / 255 // 김 두께 눈금(SIM_FRAG 참고)
   const rtOpts = { type: floatOK ? THREE.HalfFloatType : THREE.UnsignedByteType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: false, generateMipmaps: false }
   let fieldA = new THREE.WebGLRenderTarget(FW, FH, rtOpts)
   let fieldB = new THREE.WebGLRenderTarget(FW, FH, rtOpts)
@@ -376,6 +488,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     uPrev: { value: null }, uStamp: { value: null }, uDt: { value: 0 }, uSteam: { value: 0 }, uInit: { value: 1 }, uAspect: { value: ASPECT },
     uStampAmt: { value: 0 }, uStampClear: { value: 0 }, uStampGrease: { value: 0 }, uStampProg: { value: 1 }, uStampRect: { value: new THREE.Vector4(0, 0, 1, 1) },
     uSeg: { value: segs }, uSegP: { value: segP }, uSegN: { value: 0 },
+    uQ: { value: FIELD_Q }, uQB: { value: floatOK ? 0 : 1 / 255 }, uSeed: { value: 0 },
   }
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({ vertexShader: QUAD_VERT, fragmentShader: SIM_FRAG, uniforms: simU, depthTest: false, depthWrite: false }))
   const quadScene = new THREE.Scene(); quadScene.add(quad)
@@ -388,6 +501,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     for (const s of list.splice(0, SEGS)) { segs[n].set(s.x0, s.y0, s.x1, s.y1); segP[n].set(s.r, s.k, s.type, s.g ?? 0); n++ }
     simU.uSegN.value = n
     simU.uDt.value = dt
+    simU.uSeed.value = Math.random() * 97
     simU.uPrev.value = fieldA.texture
     renderer.setRenderTarget(fieldB)
     renderer.render(quadScene, quadCam)
@@ -411,7 +525,7 @@ export function createMirror(canvas, { sfx, onStats }) {
   /* ---------- 거울 면과 물방울 ---------- */
   const mirrorU = {
     uRefl: { value: null }, uField: { value: fieldA.texture }, uMicro: { value: microBeads() }, uDesilver: { value: desilverMap() },
-    uTexMat: { value: texMat }, uFieldTexel: { value: new THREE.Vector2(1 / FW, 1 / FH) }, uAspect: { value: ASPECT }, uBulb: { value: 1 }, uTime: { value: 0 },
+    uTexMat: { value: texMat }, uFieldTexel: { value: new THREE.Vector2(1 / FW, 1 / FH) }, uAspect: { value: ASPECT }, uBulb: { value: 1 }, uTime: { value: 0 }, uQ: { value: FIELD_Q },
   }
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(MW, MH), new THREE.ShaderMaterial({ vertexShader: MIRROR_VERT, fragmentShader: MIRROR_FRAG, uniforms: mirrorU }))
   glass.position.set(MX, MY, MZ)
@@ -480,7 +594,7 @@ export function createMirror(canvas, { sfx, onStats }) {
       if (Math.random() > 0.22) continue
       const t = Math.random(), sideK = Math.random() < 0.5 ? -1 : 1
       const off = s.r * rand(0.85, 1.05) * sideK
-      drops.push({ u: s.x0 + (s.x1 - s.x0) * t + (nx / nl) * off / ASPECT, v: s.y0 + (s.y1 - s.y0) * t + (ny / nl) * off, r: rand(0.0014, 0.0028), vy: 0, vx: 0, slide: false })
+      drops.push({ u: s.x0 + (s.x1 - s.x0) * t + (nx / nl) * off / ASPECT, v: s.y0 + (s.y1 - s.y0) * t + (ny / nl) * off, r: rand(0.0019, 0.0034), vy: 0, vx: 0, slide: false })
     }
   }
   function stepDrops(dt) {
@@ -494,7 +608,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     if (drops.length && Math.random() < dt * 0.5) drops[Math.floor(Math.random() * drops.length)].r += 0.00025
     for (let i = drops.length - 1; i >= 0; i--) {
       const d = drops[i]
-      if (d.r > 0.0034) d.slide = true
+      if (d.r > 0.0042) d.slide = true
       if (!d.slide) continue
       moving = true
       d.vy = Math.min(d.vy + dt * 0.25, 0.03 + d.r * 22)
@@ -502,14 +616,14 @@ export function createMirror(canvas, { sfx, onStats }) {
       const pu = d.u, pv = d.v
       d.v -= (d.vy * dt) / MH
       d.u += (d.vx * dt) / MW
-      d.r = Math.max(0.0019, d.r - d.vy * dt * 0.006)
+      d.r = Math.max(0.0024, d.r - d.vy * dt * 0.006)
       queue.push({ x0: pu, y0: pv, x1: d.u, y1: d.v, r: (d.r * 0.75) / MH, k: 1, type: 1 })
-      if (d.r < 0.0022 && Math.random() < dt * 0.6) { d.slide = false; d.vy = 0 }
+      if (d.r < 0.0028 && Math.random() < dt * 0.6) { d.slide = false; d.vy = 0 }
       if (d.v < -0.02) { drops.splice(i, 1); sfx.play('mirror-drip', { gain: rand(0.12, 0.25), rate: rand(0.9, 1.15), at: 0.25, pan: (d.u - 0.5) * 0.6, send: 0.15 }) }
     }
     dropsMesh.count = drops.length
     drops.forEach((d, i) => {
-      const s = d.r * 2 * (d.slide ? 1.08 : 1)
+      const s = d.r * 2 * DROP_PAD * (d.slide ? 1.08 : 1)
       dm.makeScale(s, s * (d.slide ? 1.12 : 1), 1).setPosition(MX - MW / 2 + d.u * MW, MY - MH / 2 + d.v * MH, MZ + 0.0015)
       dropsMesh.setMatrixAt(i, dm)
     })
@@ -577,14 +691,50 @@ export function createMirror(canvas, { sfx, onStats }) {
     }
     wake()
   }
-  function onUp(e) {
-    if (!wiping || e.pointerId !== wiping.id) return
-    wiping = null
+  function endStroke() {
     strokes += 1
     strokesSinceReply += 1
     lastStrokeEnd = performance.now()
     if (!firstStrokeEnd) firstStrokeEnd = lastStrokeEnd
     wake()
+  }
+  function onUp(e) {
+    if (!wiping || e.pointerId !== wiping.id) return
+    wiping = null
+    endStroke()
+  }
+  // 손가락 대신(버튼·키보드): 손바닥으로 한 줄을 가로질러 훔친다. 누를 때마다 다른 높이
+  let band = null
+  let bandN = 0
+  function wipeBand() {
+    sfx.unlock(); sfx.reverb(1.1, 3.2, 0.7)
+    if (band) return
+    const v = BANDS[bandN % BANDS.length]
+    band = { t: 0, v, dir: bandN % 2 ? -1 : 1, last: null, rub: 0 }
+    bandN += 1
+    lastInteract = performance.now()
+    wake()
+  }
+  function stepBand(dt, now) {
+    band.t = Math.min(1, band.t + dt / 0.8)
+    const e = smooth(0, 1, band.t)
+    const p = { u: band.dir > 0 ? 0.05 + 0.9 * e : 0.95 - 0.9 * e, v: band.v + Math.sin(e * 8) * 0.014 }
+    if (band.last) {
+      const seg = { x0: band.last.u, y0: band.last.v, x1: p.u, y1: p.v, r: 0.042 / MH, k: 1, type: 0, g: 0.12 }
+      queue.push(seg)
+      spawnDrops(seg)
+      strokeCenter.x += p.u; strokeCenter.y += p.v; strokeCenter.n++
+      lastStroke = { x: p.u, y: p.v }
+      if (now - rubLast > 75) {
+        rubLast = now
+        const g = RUB[Math.floor(Math.random() * RUB.length)]
+        const dur = Math.min(g[1] - g[0], 0.09 + Math.random() * 0.1)
+        sfx.play('mirror-rub', { offset: g[0] + rand(0, g[1] - g[0] - dur), duration: dur, gain: 0.5, rate: rand(0.95, 1.15), pan: (p.u - 0.5) * 0.7, fade: 0.015 })
+      }
+    }
+    band.last = p
+    lastInteract = now
+    if (band.t >= 1) { band = null; endStroke() }
   }
   canvas.addEventListener('pointerdown', onDown)
   canvas.addEventListener('pointermove', onMove)
@@ -626,7 +776,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     const dt = Math.min(0.05, (now - last) / 1000)
     const sinceTouch = (now - lastInteract) / 1000
     const age = (now - born) / 1000
-    const interacting = !!wiping || sinceTouch < 1.5
+    const interacting = !!wiping || !!band || sinceTouch < 1.5
     // 손대지 않고 저절로 서리기만 할 땐 한 프레임 걸러 그린다(30fps)
     if (!interacting && !faucet && !palm && !reply && !flicker && Math.abs(lean.x - lean.tx) + Math.abs(lean.y - lean.ty) < 0.002) { skip = !skip; if (skip) { raf = requestAnimationFrame(frame); return } }
     const step = dt
@@ -719,6 +869,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     const lx = damp(lean.x, lean.tx, 4, step), ly = damp(lean.y, lean.ty, 4, step)
     if (Math.abs(lx - lean.x) + Math.abs(ly - lean.y) > 1e-5) { lean.x = lx; lean.y = ly; placeCamera(); reflDirty = true }
 
+    if (band) stepBand(step, now)
     const dropsMoving = stepDrops(step)
     // 김 격자: 쌓인 길을 24개씩
     sim(step, queue)
@@ -749,7 +900,7 @@ export function createMirror(canvas, { sfx, onStats }) {
     renderer.render(scene, camera)
 
     const growing = simU.uSteam.value > 0.2 && strokes > 0 && now - lastStrokeEnd < 70000 // 닦은 자리가 다시 서리는 동안만
-    if (wiping || dropsMoving || faucet || puffing || palm || reply || flicker || tap || growing || doorNow !== doorTarget || now < awakeUntil) raf = requestAnimationFrame(frame)
+    if (wiping || band || dropsMoving || faucet || puffing || palm || reply || flicker || tap || growing || doorNow !== doorTarget || now < awakeUntil) raf = requestAnimationFrame(frame)
   }
   const palmTex = palmStamp()
   function avgFog() { let s = 0; for (let i = 0; i < 64 * 48; i++) s += grid[i * 4]; return s / (64 * 48 * 255) }
@@ -801,6 +952,7 @@ export function createMirror(canvas, { sfx, onStats }) {
       wake()
     },
     toggleFaucet,
+    wipeBand,
     setPaused(p) { paused = p; if (p) { cancelAnimationFrame(raf); raf = 0 } else wake() },
     dispose() {
       cancelAnimationFrame(raf)
@@ -815,7 +967,7 @@ export function createMirror(canvas, { sfx, onStats }) {
         const mats = Array.isArray(o.material) ? o.material : o.material ? [o.material] : []
         for (const m of mats) { for (const val of Object.values(m)) if (val?.isTexture) val.dispose(); m.dispose() }
       })
-      env.dispose()
+      env?.dispose()
       renderer.dispose()
     },
   }
@@ -827,6 +979,15 @@ function haloTexture() {
   const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64)
   gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.2, 'rgba(255,255,255,.4)'); gr.addColorStop(0.55, 'rgba(255,255,255,.07)'); gr.addColorStop(1, 'rgba(255,255,255,0)')
   g.fillStyle = gr; g.fillRect(0, 0, 128, 128)
+  return new THREE.CanvasTexture(c)
+}
+// 구석 그늘 띠(밝기 = 불투명도): 한쪽 끝이 진하고 반대쪽으로 사라진다
+function shadeTexture(vertical) {
+  const c = document.createElement('canvas'); c.width = vertical ? 64 : 4; c.height = vertical ? 4 : 64
+  const g = c.getContext('2d')
+  const gr = vertical ? g.createLinearGradient(0, 0, 64, 0) : g.createLinearGradient(0, 0, 0, 64)
+  gr.addColorStop(0, '#fff'); gr.addColorStop(0.35, '#555'); gr.addColorStop(1, '#000')
+  g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height)
   return new THREE.CanvasTexture(c)
 }
 function puffTexture() {

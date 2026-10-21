@@ -45,9 +45,10 @@ export default function LabWell() {
       'well-whirr': whirrUrl, 'well-plunge': plungeUrl, 'well-glug': glugUrl, 'well-knock': knockUrl, 'mirror-drip': dripUrl,
     })
     sound.current = sfx
+    const reducedMq = window.matchMedia('(prefers-reduced-motion: reduce)')
     let well
     try {
-      well = createWell(canvasRef.current, { sfx, onStats: setStats, onNote: setNote })
+      well = createWell(canvasRef.current, { sfx, onStats: setStats, onNote: setNote, reduced: () => reducedMq.matches })
     } catch (e) {
       console.error(e)
       setStatus('unsupported')

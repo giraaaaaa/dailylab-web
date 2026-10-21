@@ -1,11 +1,13 @@
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
-import { woodMaps, ropeMaps, dirtMaps, speckleMaps, stoneWallMaps, staveMaps, glowTexture, mistTexture } from './textures'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+import { woodMaps, ropeMaps, dirtMaps, stoneMaps, stoneWallMaps, staveMaps, glowTexture, mistTexture } from './textures'
 import { makeItem, contentFor, caption, COLLECTIBLES, TWO_MOONS } from './items'
 
 /* 우물. 밤, 달빛, 도르래가 달린 돌 우물. 손잡이를 돌려 두레박을 끌어올린다.
    - 두레박을 놓으면 밧줄이 풀리며 떨어지고(관성), 깊은 물에 첨벙 빠져 물이 찬다. 손잡이를 돌리면 래칫이 딸깍이며 감기고, 물이 찬 만큼 무겁다.
-   - 두레박이 내려가는 동안 카메라는 우물 위로 올라가 등불을 내려다보고, 끌어올릴 때는 손잡이가 보이는 비스듬한 자리로 돌아온다.
+   - 두레박이 내려가는 동안 카메라는 우물 바로 위로 올라가 등불을 내려다보고, 끌어올릴 때는 손잡이가 보이는 비스듬한 자리로 돌아온다.
+     움직임 줄이기를 켠 사람에겐 카메라가 날아가지 않고 그 자리로 바로 바뀐다.
    - 물에서 올라오는 것: 대개 물. 가끔 우물 바닥에 있던 물건(편지, 멈춘 시계, 사진, 명찰, 파란 돌, 열쇠). 건진 물건은 둘레 돌 위에 놓여 다음에도 남는다.
    - 돌 떨어뜨리기: 우물 입구를 누르면 돌이 떨어지고, √(2h/g) + h/343초 뒤에 물소리가 난다(깊이는 방문마다 다르다).
    - 예산: 움직이는 것이 없으면 그리지 않는다. 그림자는 물체가 움직일 때만 다시 굽는다. 프레임이 자꾸 늦으면 해상도를 스스로 낮춘다. 재질은 모두 코드로 그린다. */
@@ -36,14 +38,36 @@ function readMemory() {
 }
 function writeMemory(m) { try { localStorage.setItem(MEMORY, JSON.stringify(m)) } catch { /* 저장 불가 */ } }
 
+// 돌 재질: 무늬를 세계 좌표에서 세 방향으로 읽어 섞는다(삼면 투영). 그래서 같은 모양 돌을 여러 개 놓아도 돌마다 무늬가 다르다
+function stoneMaterial(maps, { vertexColors = false } = {}) {
+  const m = new THREE.MeshStandardMaterial({ map: maps.map, normalMap: maps.normalMap, roughnessMap: maps.roughnessMap, normalScale: new THREE.Vector2(1.1, 1.1), roughness: 1, vertexColors })
+  m.onBeforeCompile = (s) => {
+    s.vertexShader = 'varying vec3 vTpP, vTpN;\n' + s.vertexShader.replace('#include <project_vertex>', `#include <project_vertex>
+  vec4 tpP = vec4(transformed, 1.0); vec3 tpN = objectNormal;
+  #ifdef USE_INSTANCING
+  tpP = instanceMatrix * tpP; tpN = mat3(instanceMatrix) * tpN;
+  #endif
+  vTpP = (modelMatrix * tpP).xyz; vTpN = normalize(mat3(modelMatrix) * tpN);`)
+    const tri = (tex, sw) => `(texture2D(${tex}, vTpP.zy * 1.45 + vec2(0.37, 0.11)) * tpW.x + texture2D(${tex}, vTpP.xz * 1.45) * tpW.y + texture2D(${tex}, vTpP.xy * 1.45 + vec2(0.61, 0.83)) * tpW.z)${sw}`
+    s.fragmentShader = 'varying vec3 vTpP, vTpN;\n' + s.fragmentShader
+      .replace('#include <map_fragment>', `vec3 tpW = pow(abs(vTpN), vec3(4.0)); tpW /= tpW.x + tpW.y + tpW.z;\n  diffuseColor *= ${tri('map', '')};`)
+      .replace('#include <roughnessmap_fragment>', `float roughnessFactor = roughness * ${tri('roughnessMap', '.g')};`)
+  }
+  m.customProgramCacheKey = () => 'stone-tri'
+  return m
+}
+
 // 깊은 곳까지 달빛·하늘빛이 닿지 않게(등불 빛은 그대로). 우물 안에 들어가는 재질에 쓴다
 const LIGHTS = THREE.ShaderChunk.lights_fragment_begin
   .replace(/(#if \( NUM_DIR_LIGHTS > 0 \) && defined\( RE_Direct \)[\s\S]*?)(RE_Direct\( directLight)/, '$1directLight.color *= moonReach;\n\t\t$2')
   .replace('irradiance += getHemisphereLightIrradiance(', 'irradiance += moonReach * getHemisphereLightIrradiance(')
+// 우물 안은 바람이 없어 안개가 옅다: 내려가는 등불과 그 빛을 받은 벽이 깊은 데까지 보인다
+const SHAFT_FOG = THREE.ShaderChunk.fog_fragment.replace('fogDensity * fogDensity * vFogDepth', 'fogDensity * fogDensity * 0.08 * vFogDepth')
 function deepen(material) {
   material.onBeforeCompile = (s) => {
     s.vertexShader = 'varying float vWorldY;\n' + s.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vWorldY = (modelMatrix * vec4(transformed, 1.0)).y;')
     s.fragmentShader = 'varying float vWorldY;\n' + s.fragmentShader.replace('#include <lights_fragment_begin>', 'float moonReach = smoothstep(-2.6, 0.35, vWorldY);\n' + LIGHTS)
+      .replace('#include <fog_fragment>', SHAFT_FOG)
   }
   material.customProgramCacheKey = () => 'deep'
   return material
@@ -97,7 +121,61 @@ void main() {
   #include <colorspace_fragment>
 }`
 
-export function createWell(canvas, { sfx, onStats, onNote }) {
+// 갓돌: 넓적하고 모양이 제각각인 판돌 아홉 장. 이음매는 비스듬하고, 바깥 테두리는 울퉁불퉁, 안쪽은 우물 입구로 조금 나온다.
+// 판마다 두께·기울기·밝기가 다르다. 모서리를 둥글게 깎아 뽑은 판들을 한 덩어리로 합친다(그리기 한 번)
+function capSlabs(material) {
+  const n = 9, rIn = R - 0.035, rOut = R2 + 0.05, gap = 0.008
+  const spans = Array.from({ length: n }, () => rand(0.75, 1.3))
+  const sum = spans.reduce((a, b) => a + b, 0)
+  let a = rand(0, Math.PI * 2)
+  const joints = spans.map((sp) => { const j = { a, skew: rand(-0.1, 0.1) }; a += (sp / sum) * Math.PI * 2; return j })
+  const at = (ang, r) => new THREE.Vector2(Math.sin(ang) * r, -Math.cos(ang) * r) // 모양 평면(x, -z)
+  const parts = []
+  for (let i = 0; i < n; i++) {
+    const j0 = joints[i], j1 = joints[(i + 1) % n]
+    const in0 = j0.a - j0.skew + gap / rIn, in1 = j1.a - j1.skew - gap / rIn + (i === n - 1 ? Math.PI * 2 : 0)
+    const out0 = j0.a + j0.skew + gap / rOut, out1 = j1.a + j1.skew - gap / rOut + (i === n - 1 ? Math.PI * 2 : 0)
+    const pts = []
+    const kIn = 7, kOut = 6
+    for (let k = 0; k <= kIn; k++) pts.push(at(in0 + ((in1 - in0) * k) / kIn, rIn + (k > 0 && k < kIn ? rand(-0.006, 0.006) : 0)))
+    const bulge = rand(0, 1) < 0.5 ? rand(0.01, 0.035) : 0, bk = Math.floor(rand(1, kOut))
+    for (let k = kOut; k >= 0; k--) {
+      const ang = out0 + ((out1 - out0) * k) / kOut
+      const r = rOut + (k > 0 && k < kOut ? rand(-0.025, 0.02) + (k === bk ? bulge : 0) : rand(-0.02, 0))
+      pts.push(at(ang, r))
+    }
+    // 모서리 하나쯤은 이 빠진 듯 깎는다
+    const chip = Math.floor(rand(0, 4)), corner = [0, kIn, kIn + 1, pts.length - 1][chip]
+    const c = pts[corner], prev = pts[(corner - 1 + pts.length) % pts.length], next = pts[(corner + 1) % pts.length]
+    const cut = rand(0.015, 0.035)
+    pts.splice(corner, 1, c.clone().lerp(prev, Math.min(0.45, cut / c.distanceTo(prev))), c.clone().lerp(next, Math.min(0.45, cut / c.distanceTo(next))))
+    const th = rand(0.075, 0.105), bt = 0.016
+    const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: th - bt * 2, bevelEnabled: true, bevelThickness: bt, bevelSize: 0.016, bevelOffset: -0.016, bevelSegments: 2, curveSegments: 1 })
+    geo.rotateX(-Math.PI / 2)
+    const base = 0.64 + rand(-0.006, 0.008)
+    geo.translate(0, base + bt, 0)
+    // 무게중심을 축으로 아주 조금 기운다
+    const mid = (in0 + in1 + out0 + out1) / 4, cx = Math.sin(mid) * (rIn + rOut) / 2, cz = Math.cos(mid) * (rIn + rOut) / 2
+    geo.applyMatrix4(new THREE.Matrix4().makeTranslation(cx, base, cz).multiply(new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(rand(-0.02, 0.02), 0, rand(-0.02, 0.02)))).multiply(new THREE.Matrix4().makeTranslation(-cx, -base, -cz)))
+    // 판마다 밝기, 아래쪽(비가 덜 씻긴 옆면)은 어둡게. 법선 무늬도 판마다 다른 자리를 읽게 UV를 옮긴다
+    const tone = rand(0.62, 1.0), pos = geo.attributes.position, uv = geo.attributes.uv
+    const ox = rand(0, 10), oy = rand(0, 10), cols = new Float32Array(pos.count * 3)
+    for (let k = 0; k < pos.count; k++) {
+      const t = tone * (0.68 + 0.32 * clamp((pos.getY(k) - base) / th, 0, 1))
+      cols[k * 3] = cols[k * 3 + 1] = cols[k * 3 + 2] = t
+      uv.setXY(k, uv.getX(k) * 1.8 + ox, uv.getY(k) * 1.8 + oy)
+    }
+    geo.setAttribute('color', new THREE.BufferAttribute(cols, 3))
+    parts.push(geo)
+  }
+  const merged = mergeGeometries(parts)
+  parts.forEach((g) => g.dispose())
+  const mesh = new THREE.Mesh(merged, material)
+  mesh.castShadow = mesh.receiveShadow = true
+  return mesh
+}
+
+export function createWell(canvas, { sfx, onStats, onNote, reduced = () => false }) {
   const small = window.matchMedia('(max-width: 760px)').matches
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
   if (!renderer.getContext()) throw new Error('webgl')
@@ -137,15 +215,19 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
   scene.add(rim)
 
   /* ---------- 재질(모두 코드로 그림) ---------- */
-  const wood = woodMaps(small ? 256 : 512)
-  const rot = (t, r, rx, ry) => { const c = t.clone(); c.center.set(0.5, 0.5); c.rotation = r; c.repeat.set(rx, ry); return c }
-  const woodMat = new THREE.MeshStandardMaterial({ map: rot(wood.map, Math.PI / 2, 1, 3), normalMap: rot(wood.normalMap, Math.PI / 2, 1, 3), roughness: 0.88 })
-  const axleMat = new THREE.MeshStandardMaterial({ map: wood.map, normalMap: wood.normalMap, roughness: 0.8 })
+  const wood = woodMaps(small ? 256 : 512, { base: 128 })
+  const oldWood = woodMaps(256, { base: 96 }) // 굴대·손잡이: 손때와 기름에 검어진 나무
+  const rot = (t, r, rx, ry, ox = 0, oy = 0) => { const c = t.clone(); c.center.set(0.5, 0.5); c.rotation = r; c.repeat.set(rx, ry); c.offset.set(ox, oy); return c }
+  // 기둥 둘은 같은 판에서 다른 자리를 잘라 쓴다(결·옹이가 겹치지 않게), 한쪽은 조금 더 바랬다
+  const postMats = [[0, 0, '#e2e0db'], [0.43, 0.61, '#f6f4f0']].map(([ox, oy, color]) => new THREE.MeshStandardMaterial({ map: rot(wood.map, Math.PI / 2, 1, 3, ox, oy), normalMap: rot(wood.normalMap, Math.PI / 2, 1, 3, ox, oy), color, roughness: 0.9 }))
+  const woodMat = postMats[0]
+  const axleMat = new THREE.MeshStandardMaterial({ map: rot(oldWood.map, Math.PI / 2, 2, 0.5), normalMap: rot(oldWood.normalMap, Math.PI / 2, 2, 0.5), roughness: 0.72 }) // 결이 굴대 길이를 따라
   const rope = ropeMaps()
   const coilMat = new THREE.MeshStandardMaterial({ map: rot(rope.map, Math.PI / 2, 26, 1), normalMap: rot(rope.normalMap, Math.PI / 2, 26, 1), normalScale: new THREE.Vector2(0.6, 0.6), roughness: 1 })
   const ropeMat = deepen(new THREE.MeshStandardMaterial({ map: rope.map, normalMap: rope.normalMap, roughness: 0.95 }))
-  const stoneTex = speckleMaps(small ? 128 : 256)
-  const rimMat = new THREE.MeshStandardMaterial({ map: stoneTex.map, normalMap: stoneTex.normalMap, normalScale: new THREE.Vector2(0.9, 0.9), roughness: 0.92 })
+  const stoneTex = stoneMaps(small ? 256 : 512)
+  const rimMat = stoneMaterial(stoneTex)
+  const capMat = stoneMaterial(stoneTex, { vertexColors: true })
   const shaftTex = stoneWallMaps(small ? 256 : 512, { cellsX: 8, cellsY: 6, base: 84, spread: 22 })
   shaftTex.map.repeat.set(3, 12); shaftTex.normalMap.repeat.set(3, 12)
   const shaftMat = deepen(new THREE.MeshStandardMaterial({ map: shaftTex.map, normalMap: shaftTex.normalMap, normalScale: new THREE.Vector2(1.5, 1.5), roughness: 0.95, side: THREE.BackSide, shadowSide: THREE.DoubleSide }))
@@ -184,7 +266,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
   })
   const placements = [[], [], []]
   const Rm = (R + R2) / 2
-  const courses = [{ y: 0, h: 0.25, n: 12 }, { y: 0.25, h: 0.2, n: 15 }, { y: 0.45, h: 0.19, n: 13 }, { y: 0.64, h: 0.095, n: 15, cap: true }]
+  const courses = [{ y: 0, h: 0.25, n: 12 }, { y: 0.25, h: 0.2, n: 15 }, { y: 0.45, h: 0.19, n: 13 }]
   courses.forEach((c, ci) => {
     // 길이가 제각각인 돌을 한 바퀴에 맞춰 차례로 놓는다(사이에 줄눈 틈)
     const lens = Array.from({ length: c.n }, () => rand(0.55, 1.45))
@@ -194,7 +276,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
       const span = (lens[i] / sum) * Math.PI * 2
       const mid = a + span / 2
       a += span
-      placements[(i + ci) % 3].push({ a: mid, y: c.y + c.h / 2 + rand(-0.01, 0.01), len: span * Rm * 0.955, h: c.h * rand(0.84, 0.98), d: (c.cap ? rand(0.36, 0.46) : R2 - R) * rand(0.92, 1.04), dr: rand(-0.018, 0.018), tone: rand(0.5, 1.05) * (c.cap ? 0.95 : 1), rot: rand(-0.07, 0.07) })
+      placements[(i + ci) % 3].push({ a: mid, y: c.y + c.h / 2 + rand(-0.01, 0.01), len: span * Rm * 0.955, h: c.h * rand(0.84, 0.98), d: (R2 - R) * rand(0.92, 1.04), dr: rand(-0.018, 0.018), tone: rand(0.5, 1.05), rot: rand(-0.07, 0.07) })
     }
   })
   const dummy = new THREE.Object3D()
@@ -212,6 +294,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
     mesh.castShadow = mesh.receiveShadow = true
     scene.add(mesh)
   })
+  scene.add(capSlabs(capMat))
   // 바닥에 흩어진 자갈
   const gravel = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), rimMat, 70)
   for (let i = 0; i < 70; i++) {
@@ -255,6 +338,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
 
   /* ---------- 도르래 ---------- */
   for (const s of [-1, 1]) {
+    const woodMat = postMats[s > 0 ? 1 : 0]
     const post = new THREE.Mesh(new RoundedBoxGeometry(0.16, AXLE_Y + 0.32, 0.16, 2, 0.025), woodMat)
     post.position.set(s * POST_X, (AXLE_Y + 0.32) / 2, 0)
     post.castShadow = post.receiveShadow = true
@@ -280,7 +364,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
   crank.position.set(POST_X + 0.13, AXLE_Y, 0)
   const arm = new THREE.Mesh(new RoundedBoxGeometry(0.045, ARM + 0.05, 0.06, 2, 0.012), woodMat)
   arm.position.y = ARM / 2
-  const handleMat = new THREE.MeshStandardMaterial({ map: wood.map, color: '#c9c6c0', roughness: 0.6, emissive: '#ffffff', emissiveIntensity: 0 })
+  const handleMat = new THREE.MeshStandardMaterial({ map: rot(oldWood.map, Math.PI / 2, 0.6, 0.3), color: '#d8d5cf', roughness: 0.5, emissive: '#ffffff', emissiveIntensity: 0 }) // 손에 닳아 반들반들
   const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 14), handleMat)
   handle.rotation.z = Math.PI / 2
   handle.position.set(0.1, ARM, 0)
@@ -410,15 +494,18 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
   function aim() {
     const sc = W / H < 0.8 ? 1.45 : small ? 1.25 : 1
     if (phase === 'reveal') Object.assign(look, { yaw: 0.42, pitch: 0.95, dist: 2.3 * sc, tx: 0, ty: BASE_TOP + 0.15, tz: 0.1 })
-    else if (phase === 'free' || phase === 'fill') Object.assign(look, { yaw: 0.3, pitch: 1.36, dist: 6.4 * sc, tx: 0, ty: -0.6, tz: 0.05 })
+    // 내려가는 동안: 거의 바로 위에서. 등불이 매달린 쪽(+z)으로 살짝 비켜 굴대에 가리지 않고, 입구 테 안으로 바닥까지 내려다보인다
+    else if (phase === 'free' || phase === 'fill') Object.assign(look, { yaw: 0.14, pitch: 1.48, dist: 5.6 * sc, tx: 0, ty: -0.4, tz: 0.14 })
     else Object.assign(look, { yaw: 0.52, pitch: 0.66, dist: 5.3 * sc, tx: 0.08, ty: 0.85, tz: 0 })
   }
   function placeCamera(dt) {
     aim()
     const k = phase === 'reveal' ? 2.2 : 1.7
+    const still = reduced() // 움직임 줄이기: 크레인처럼 날아가지 않고 바로 그 자리로(장면 전환), 마우스 기울임도 없다
     let moving = 0
-    for (const key of Object.keys(look)) { cam[key] = damp(cam[key], look[key], k, dt); moving = Math.max(moving, Math.abs(cam[key] - look[key])) }
-    const yaw = cam.yaw + userYaw + lean.x * 0.04, pitch = clamp(cam.pitch + lean.y * 0.03, 0.2, 1.5)
+    for (const key of Object.keys(look)) { cam[key] = still ? look[key] : damp(cam[key], look[key], k, dt); moving = Math.max(moving, Math.abs(cam[key] - look[key])) }
+    const lx = still ? 0 : lean.x, ly = still ? 0 : lean.y
+    const yaw = cam.yaw + userYaw + lx * 0.04, pitch = clamp(cam.pitch + ly * 0.03, 0.2, 1.5)
     camera.position.set(cam.tx + Math.sin(yaw) * Math.cos(pitch) * cam.dist, cam.ty + Math.sin(pitch) * cam.dist, cam.tz + Math.cos(yaw) * Math.cos(pitch) * cam.dist)
     camera.lookAt(cam.tx, cam.ty, cam.tz)
     return moving > 0.002
@@ -447,7 +534,8 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
     // 등불: 깊이 들어갈수록 안개 너머로 흐려지고, 입구로 빛이 샌다
     const below = -(y + BAIL_TOP)
     lampLight.intensity = (y > 0 ? 1.4 : 2.6) * (0.93 + 0.07 * Math.sin(time * 13.1) * Math.sin(time * 7.3)) // 위에서는 눈부시지 않게
-    leak.material.opacity = below > 0.4 ? 0.32 * Math.exp(-below / 5) : 0
+    halo.scale.setScalar(0.42 + Math.max(0, below) * 0.03) // 멀어져도 등불이 점으로 사라지지 않게
+    leak.material.opacity = below > 0.4 ? 0.5 * Math.exp(-below / 16) * Math.min(1, (below - 0.4) * 2) : 0 // 깊이 내려가도 입구에 빛이 오래 남는다
     // 바닥 물: 등불이 가까우면 밝게
     const lampH = Math.max(0, y + BAIL_TOP + 0.22 - WATER_Y)
     waterU.uLamp.value = 1.6 / (1 + lampH * lampH * 0.9)
@@ -721,7 +809,7 @@ export function createWell(canvas, { sfx, onStats, onNote }) {
     } else if (orbit && e.pointerId === orbit.id) {
       userYaw = clamp(orbit.yaw + (e.clientX - orbit.x) * 0.004, -0.5, 0.5)
       wake()
-    } else if (!small) wake(400)
+    } else if (!small && !reduced()) wake(400)
   }
   function onUp(e) {
     if (grab && e.pointerId === grab.id) { grab = null; canvas.style.cursor = '' }

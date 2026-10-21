@@ -70,7 +70,7 @@ export default function LabMirror() {
   }, [soundOn])
 
   return <Room id="mirror" tone="dark" className="mr" stageRef={stageRef}
-    instruction="손가락으로 김을 닦아 보세요. 천천히 쓰면 글씨, 빠르게 훔치면 넓게 닦입니다. 김이 다시 서릴 때 잘 보세요."
+    instruction="손가락으로 김을 닦아 보세요(닦기 버튼은 한 줄씩). 천천히 쓰면 글씨, 빠르게 훔치면 넓게 닦입니다. 김이 다시 서릴 때 잘 보세요."
     sound={{ on: soundOn, toggle: toggleSound }}
     notesTitle="어떻게 비치나요?" notes={NOTES}
     hud={<dl className="mr-hud">
@@ -78,6 +78,7 @@ export default function LabMirror() {
       <div><dt>문</dt><dd>{stats.door}<small>°</small></dd></div>
     </dl>}
     controls={<div className="mr-controls">
+      <button type="button" disabled={status !== 'ready'} onClick={() => engine.current?.wipeBand()} aria-label="닦기: 손바닥으로 김을 한 줄 훔칩니다">닦기</button>
       <button type="button" disabled={status !== 'ready'} aria-pressed={stats.faucet} onClick={() => engine.current?.toggleFaucet()}>{stats.faucet ? '물 잠그기' : '뜨거운 물 틀기'}</button>
     </div>}>
     <canvas ref={canvasRef} role="img" aria-label="밤 욕실, 세면대 위 김 서린 거울. 손가락으로 닦으면 등 뒤의 욕실과 살짝 열린 문이 비칩니다." />

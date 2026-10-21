@@ -45,14 +45,23 @@ function grain(g, w, h, amt) {
   g.putImageData(img, 0, 0)
 }
 
-/* 비바람에 바랜 나무: 결은 u 방향. 갈라진 틈과 옹이 */
-export function woodMaps(size = 512) {
+/* 비바람에 바랜 나무: 결은 u 방향. 갈라진 틈과 옹이, 은빛으로 바랜 자리와 빗물에 젖어 어두운 자리, 못 자국.
+   base로 판마다 밝기를 달리한다(기둥은 바래서 밝고, 굴대·손잡이는 손때로 어둡다) */
+export function woodMaps(size = 512, { base = 122 } = {}) {
   const [c, g] = canvas(size)
   g.fillStyle = '#6a6762'; g.fillRect(0, 0, size, size)
+  const ph = rnd(0, 6)
   for (let y = 0; y < size; y++) {
-    const v = Math.sin(y * 0.31 + Math.sin(y * 0.047) * 4) * 0.5 + Math.sin(y * 0.11 + 1.3) * 0.5
-    const t = 122 + v * 20 + rnd(-6, 6)
+    const v = Math.sin(y * 0.31 + Math.sin(y * 0.047 + ph) * 4) * 0.5 + Math.sin(y * 0.11 + 1.3 + ph) * 0.5
+    const t = base + v * 20 + rnd(-6, 6)
     g.fillStyle = `rgb(${t},${t - 2},${t - 5})`; g.fillRect(0, y, size, 1)
+  }
+  // 결 따라 길게 바랜 띠와 젖은 띠(나뭇결 방향으로 번진다)
+  for (let i = 0; i < 26; i++) {
+    const y = rnd(0, size), hgt = rnd(4, 26), light = Math.random() < 0.55
+    const gr = g.createLinearGradient(0, y - hgt, 0, y + hgt)
+    gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.5, light ? `rgba(205,203,198,${rnd(0.08, 0.2)})` : `rgba(18,17,16,${rnd(0.1, 0.25)})`); gr.addColorStop(1, 'rgba(0,0,0,0)')
+    g.fillStyle = gr; g.fillRect(0, y - hgt, size, hgt * 2)
   }
   for (let i = 0; i < 90; i++) { // 결을 따라 짧게 끊기는 어두운 줄
     const y = rnd(0, size), x = rnd(0, size), len = rnd(40, 260)
@@ -70,6 +79,12 @@ export function woodMaps(size = 512) {
     g.fillStyle = 'rgba(24,22,20,.8)'; g.beginPath(); g.ellipse(x, y, r, r * 0.45, 0, 0, Math.PI * 2); g.fill()
   }
   blobs(g, size, size, 18, 40, 140, () => `rgba(${Math.random() < 0.6 ? '190,188,182' : '40,38,36'},${rnd(0.05, 0.12)})`)
+  for (let i = 0; i < 5; i++) { // 못 자국: 쇠가 녹아 번진 어두운 얼룩과 박힌 머리
+    const x = rnd(0, size), y = rnd(0, size)
+    const gr = g.createRadialGradient(x, y, 0, x, y, rnd(8, 18)); gr.addColorStop(0, 'rgba(20,19,18,.55)'); gr.addColorStop(1, 'rgba(20,19,18,0)')
+    g.fillStyle = gr; g.fillRect(x - 20, y - 20, 40, 40)
+    g.fillStyle = 'rgba(70,70,72,.9)'; g.beginPath(); g.arc(x, y, rnd(2, 3.2), 0, Math.PI * 2); g.fill()
+  }
   grain(g, size, size, 14)
   return { map: tex(c), normalMap: tex(normalFrom(c, 3.2), { srgb: false }) }
 }
@@ -111,6 +126,58 @@ export function speckleMaps(size = 256) {
   for (let i = 0; i < 5; i++) { g.strokeStyle = 'rgba(40,40,42,.35)'; g.lineWidth = rnd(0.6, 1.4); g.beginPath(); let x = rnd(0, size), y = rnd(0, size); g.moveTo(x, y); for (let k = 0; k < 20; k++) { x += rnd(-12, 12); y += rnd(-12, 12); g.lineTo(x, y) } g.stroke() }
   grain(g, size, size, 20)
   return { map: tex(c), normalMap: tex(normalFrom(c, 2.8), { srgb: false }) }
+}
+
+/* 둘레 돌(갓돌·쌓은 돌): 여러 겹의 얼룩, 광물 알갱이, 비에 팬 작은 구멍, 하얗게 핀 지의류, 가는 석영 줄, 빗물 얼룩.
+   거칠기 지도도 같이(지의류는 꺼끌, 닳은 자리는 매끈). 돌마다 세계 좌표로 다른 자리를 읽어 쓴다 */
+export function stoneMaps(size = 512) {
+  const [c, g] = canvas(size)
+  const [hc, hg] = canvas(size)
+  const [rc, rg] = canvas(size)
+  g.fillStyle = '#9b9b9d'; g.fillRect(0, 0, size, size)
+  hg.fillStyle = '#808080'; hg.fillRect(0, 0, size, size)
+  rg.fillStyle = '#e0e0e0'; rg.fillRect(0, 0, size, size)
+  const k = size / 256
+  blobs(g, size, size, 14, 70 * k, 160 * k, () => `rgba(${Math.random() < 0.5 ? '178,178,180' : '58,58,60'},${rnd(0.12, 0.28)})`)
+  blobs(g, size, size, 60, 14 * k, 50 * k, () => `rgba(${Math.random() < 0.5 ? '186,186,188' : '50,50,52'},${rnd(0.1, 0.26)})`)
+  blobs(hg, size, size, 50, 20 * k, 70 * k, () => `rgba(${Math.random() < 0.5 ? '255,255,255' : '0,0,0'},${rnd(0.08, 0.2)})`)
+  blobs(rg, size, size, 20, 30 * k, 90 * k, () => `rgba(${Math.random() < 0.5 ? '255,255,255' : '120,120,120'},${rnd(0.15, 0.35)})`)
+  // 광물 알갱이
+  for (let i = 0; i < 4200 * k * k; i++) { const t = Math.random() < 0.55 ? rnd(55, 95) : rnd(150, 200); g.fillStyle = `rgba(${t},${t},${t},${rnd(0.15, 0.5)})`; g.fillRect(rnd(0, size), rnd(0, size), rnd(0.5, 1.8) * k, rnd(0.5, 1.6) * k) }
+  // 비에 팬 구멍: 가운데 어둡고 둘레가 살짝 밝다
+  for (let i = 0; i < 160 * k; i++) {
+    const x = rnd(0, size), y = rnd(0, size), r = rnd(0.7, 2.6) * k
+    g.fillStyle = 'rgba(200,200,202,.2)'; g.beginPath(); g.arc(x - r * 0.3, y - r * 0.3, r * 1.3, 0, Math.PI * 2); g.fill()
+    g.fillStyle = 'rgba(30,30,32,.55)'; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill()
+    hg.fillStyle = 'rgba(0,0,0,.8)'; hg.beginPath(); hg.arc(x, y, r, 0, Math.PI * 2); hg.fill()
+  }
+  // 가는 석영 줄
+  for (let i = 0; i < 4; i++) {
+    let x = rnd(0, size), y = rnd(0, size), a = rnd(0, Math.PI)
+    g.strokeStyle = `rgba(215,215,217,${rnd(0.25, 0.5)})`; g.lineWidth = rnd(0.8, 2.2) * k
+    g.beginPath(); g.moveTo(x, y)
+    for (let j = 0; j < 30; j++) { a += rnd(-0.25, 0.25); x += Math.cos(a) * 9 * k; y += Math.sin(a) * 9 * k; g.lineTo(x, y) }
+    g.stroke()
+  }
+  // 갈라진 금
+  for (let i = 0; i < 5; i++) { g.strokeStyle = 'rgba(30,30,32,.45)'; hg.strokeStyle = 'rgba(0,0,0,.7)'; const lw = rnd(0.6, 1.5) * k; g.lineWidth = hg.lineWidth = lw; let x = rnd(0, size), y = rnd(0, size); g.beginPath(); hg.beginPath(); g.moveTo(x, y); hg.moveTo(x, y); for (let j = 0; j < 18; j++) { x += rnd(-12, 12) * k; y += rnd(-12, 12) * k; g.lineTo(x, y); hg.lineTo(x, y) } g.stroke(); hg.stroke() }
+  // 지의류: 작은 딱지가 무리 지어 번진 옅은 자리(둥근 도장이 아니라 가장자리가 들쭉날쭉하게)
+  for (let i = 0; i < 6; i++) {
+    const x = rnd(0, size), y = rnd(0, size), r = rnd(14, 36) * k
+    for (let j = 0; j < 70; j++) {
+      const a = rnd(0, Math.PI * 2), d = Math.pow(Math.random(), 0.7) * r * (0.6 + 0.4 * Math.sin(a * 3 + i)), rr = rnd(1.5, 5) * k * (1 - d / (r * 1.2))
+      const px = (x + Math.cos(a) * d + size) % size, py = (y + Math.sin(a) * d + size) % size
+      g.fillStyle = `rgba(${Math.round(rnd(190, 225))},${Math.round(rnd(190, 225))},${Math.round(rnd(188, 222))},${rnd(0.12, 0.35)})`; g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.fill()
+      rg.fillStyle = 'rgba(255,255,255,.5)'; rg.beginPath(); rg.arc(px, py, rr, 0, Math.PI * 2); rg.fill()
+      hg.fillStyle = 'rgba(255,255,255,.2)'; hg.beginPath(); hg.arc(px, py, rr, 0, Math.PI * 2); hg.fill()
+    }
+  }
+  // 빗물 얼룩: 아래로 흘러내린 어두운 줄
+  for (let i = 0; i < 12; i++) { const x = rnd(0, size), y = rnd(0, size), len = rnd(30, 120) * k, w = rnd(3, 10) * k; const gr = g.createLinearGradient(0, y, 0, y + len); gr.addColorStop(0, 'rgba(25,25,27,.22)'); gr.addColorStop(1, 'rgba(25,25,27,0)'); g.fillStyle = gr; g.fillRect(x - w / 2, y, w, len) }
+  grain(g, size, size, 18)
+  grain(hg, size, size, 30)
+  hg.filter = `blur(${k}px)`; hg.drawImage(hc, 0, 0); hg.filter = 'none'
+  return { map: tex(c), normalMap: tex(normalFrom(hc, 2.4), { srgb: false }), roughnessMap: tex(rc, { srgb: false }) }
 }
 
 /* 보로노이 자연석 벽(우물 안). 같은 거리장으로 높이를 만들어 법선까지 */
