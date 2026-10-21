@@ -32,13 +32,13 @@ const PLANS = {
   glass: { settle: 2500, length: 5600, poster: 900, crf: 32, run: async (b) => {
     await sleep(300); await b.evaluate(click('톡 치기')); await sleep(700); await b.evaluate(click('톡 치기')); await sleep(800); await b.evaluate(click('와장창'))
   } },
-  // 돌 두 개: 떨어지는 동안 작아지고, 수면에 닿으면 물결
-  well: { settle: 3000, length: 6200, poster: 3600, run: async (b) => {
-    await sleep(200); await b.evaluate(click('돌 떨어뜨리기')); await sleep(2600); await b.evaluate(click('돌 떨어뜨리기'))
+  // 두레박을 놓으면 카메라가 우물 위로 올라가 등불이 내려가는 걸 내려다본다
+  well: { settle: 3000, length: 6400, poster: 1000, run: async (b) => {
+    await sleep(200); await b.evaluate(click('두레박 내리기'))
   } },
   // 김을 지그재그로 닦아 욕실이 비치게
   mirror: { settle: 2500, length: 6000, poster: 4600, run: async (b, mouse) => {
-    const x0 = W * 0.24, x1 = W * 0.76, y0 = H * 0.26
+    const x0 = W * 0.31, x1 = W * 0.69, y0 = H * 0.26
     await mouse('mouseMoved', x0, y0, 0); await mouse('mousePressed', x0, y0)
     for (let r = 0; r < 8; r++) {
       const from = r % 2 ? x1 : x0, to = r % 2 ? x0 : x1, y = y0 + r * 34
