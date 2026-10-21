@@ -1,6 +1,7 @@
 /* 방들이 같이 쓰는 작은 소리 엔진(Web Audio).
    효과음은 로컬 생성 모델로 만든 뒤 잘라·다듬은 m4a(assets/sfx). 높낮이·세기·좌우·잔향을 바꿔 매번 다르게 들리게 쓴다.
-   브라우저 정책상 AudioContext는 첫 터치(또는 소리 켜기) 때 연다. 끄면 마스터만 0으로 내린다. */
+   브라우저 정책상 AudioContext는 첫 터치(또는 소리 켜기) 때 연다. 끄면 마스터만 0으로 내린다.
+   소리 파일은 소리가 켜져 있을 때만 내려받는다(소리를 끈 채 둘러보는 사람은 한 바이트도 받지 않는다). */
 
 export function createSfx(sources, { level = 0.9 } = {}) {
   let ctx = null
@@ -9,6 +10,16 @@ export function createSfx(sources, { level = 0.9 } = {}) {
   let muted = false
   const buffers = {}
   let loading = null
+  const waiting = new Set() // 파일을 받기 전에 시작을 부탁받은 루프들
+
+  function load() {
+    if (loading || !ctx) return loading
+    loading = Promise.all(Object.entries(sources).map(([name, url]) =>
+      fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((buf) => { buffers[name] = buf })
+        .catch(() => {})))
+      .then(() => { for (const start of waiting) start(); waiting.clear() })
+    return loading
+  }
 
   function unlock() {
     if (!ctx) {
@@ -18,10 +29,8 @@ export function createSfx(sources, { level = 0.9 } = {}) {
       master = ctx.createGain()
       master.gain.value = muted ? 0 : level
       master.connect(ctx.destination)
-      loading = Promise.all(Object.entries(sources).map(([name, url]) =>
-        fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)).then((buf) => { buffers[name] = buf })
-          .catch(() => {})))
     }
+    if (!muted) load()
     if (ctx.state === 'suspended') ctx.resume()
   }
 
@@ -104,14 +113,15 @@ export function createSfx(sources, { level = 0.9 } = {}) {
       route(g, { send, dest })
       src.start(0, Math.random() * buffers[name].duration)
     }
-    loading?.then(start)
+    if (loading) loading.then(start)
+    else waiting.add(start)
     return {
       set(value, ramp = 0.15) {
         gain = value
         if (g) g.gain.setTargetAtTime(value, ctx.currentTime, ramp / 3)
       },
       rate(value, ramp = 0.15) { if (src) src.playbackRate.setTargetAtTime(value, ctx.currentTime, ramp / 3) },
-      stop() { try { src?.stop() } catch { /* 이미 멈춤 */ } src = null },
+      stop() { waiting.delete(start); try { src?.stop() } catch { /* 이미 멈춤 */ } src = null },
       get node() { return g },
     }
   }
@@ -127,6 +137,7 @@ export function createSfx(sources, { level = 0.9 } = {}) {
     setMuted(value) {
       muted = value
       if (master) master.gain.setTargetAtTime(value ? 0 : level, ctx.currentTime, 0.05)
+      if (!value) load()
     },
     close() { ctx?.close(); ctx = null },
   }

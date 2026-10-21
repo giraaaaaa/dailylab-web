@@ -3,12 +3,20 @@ import shatterUrl from '../../assets/sfx/glass-shatter.m4a'
 import tinkUrl from '../../assets/sfx/glass-tink.m4a'
 
 /* 효과음 3개(로컬 생성 모델로 만든 뒤 다듬은 것)를 높낮이·세기·좌우를 바꿔 재사용한다.
-   브라우저 정책상 AudioContext는 첫 터치 때 연다 */
+   브라우저 정책상 AudioContext는 첫 터치 때 연다. 파일은 소리가 켜져 있을 때만 내려받는다 */
 export function createSound() {
   let ctx = null
   let master = null
   let buffers = Promise.resolve(null)
+  let loaded = false
   let muted = false
+
+  function load() {
+    if (loaded || !ctx || muted) return
+    loaded = true
+    buffers = Promise.all([crackUrl, shatterUrl, tinkUrl].map((url) =>
+      fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)))).catch(() => null)
+  }
   let lastTink = 0
 
   function unlock() {
@@ -19,9 +27,8 @@ export function createSound() {
       master = ctx.createGain()
       master.gain.value = 0.85
       master.connect(ctx.destination)
-      buffers = Promise.all([crackUrl, shatterUrl, tinkUrl].map((url) =>
-        fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b)))).catch(() => null)
     }
+    load()
     if (ctx.state === 'suspended') ctx.resume()
   }
 
@@ -56,7 +63,7 @@ export function createSound() {
       lastTink = now
       play(2, Math.min(0.55, 0.1 + size * 1.1), Math.max(0.7, Math.min(1.9, 1.7 - size * 3)) + (Math.random() - 0.5) * 0.25, pan)
     },
-    setMuted(value) { muted = value },
+    setMuted(value) { muted = value; load() },
     close() { ctx?.close() },
   }
 }
