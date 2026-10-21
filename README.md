@@ -22,6 +22,7 @@ Daily Lab 사이트 — 오늘(Today) 앱 소개와 실험실. Vercel 정적 배
 - 워드마크 폰트는 Geist Black을 "Daily Lab" 글자만 남겨 서브셋한 것(`assets/fonts/geist-black-dl.woff2`, OFL). 글자를 바꾸면 다시 서브셋한다.
 - `/assets/*`는 7일 캐시라 `home.css`·`home.js`를 고치면 `index.html`의 `?v=` 숫자를 올린다.
 - 공유 이미지 `img/og-home.jpg`는 이 화면을 캡처한 것.
+- 홈 전용 파비콘은 `img/icons/dailylab.svg`(회색 바탕·검정 젤리 D·파란 반사광). PNG(32·180·512px)와 ICO(16·32·48px)를 함께 제공한다. 공용 `favicon.ico`와 오늘 앱의 아이콘은 유지한다.
 
 ## 실험실 (`/lab`)
 
