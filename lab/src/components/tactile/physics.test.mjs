@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createMembrane, stepMembrane, spring } from './physics.mjs'
+import { createMembrane, stepMembrane, releaseMembrane, spring } from './physics.mjs'
 
 const grab = { x: 0.4, z: -0.2, dx: 0.8, dz: -0.7, lift: 1.85 }
 
@@ -34,11 +34,24 @@ test('reduced motion keeps direct manipulation but removes residual oscillation'
   assert.ok(state.velocities.every((a) => a.every((v) => v === 0)))
 })
 
-test('tile returns to the magnet after a release at different frame rates', () => {
+test('restoring spring settles after a release at different frame rates', () => {
   for (const dt of [1 / 120, 1 / 60, 1 / 30, 0.1]) {
     let position = 1.4, velocity = 4
     for (let t = 0; t < 6; t += dt) [position, velocity] = spring(position, velocity, 0, 210, 12, dt)
     assert.ok(Math.abs(position) < 1e-6)
     assert.ok(Math.abs(velocity) < 1e-5)
+  }
+})
+
+
+test('release speed changes the membrane impulse without moving its pinned boundary', () => {
+  const slow = createMembrane(), fast = createMembrane()
+  releaseMembrane(slow, { ...grab, speed: [0, 0, 0] })
+  releaseMembrane(fast, { ...grab, speed: [0, 3, 0] })
+  assert.ok(fast.velocities[1].some((v) => v > 1))
+  assert.ok(slow.velocities[1].every((v) => v === 0))
+  for (let i = 0; i < fast.n; i++) {
+    assert.equal(fast.velocities[1][i], 0)
+    assert.equal(fast.velocities[1][i * fast.n], 0)
   }
 })

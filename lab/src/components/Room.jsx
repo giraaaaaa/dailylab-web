@@ -45,7 +45,7 @@ export default function Room({
     return () => window.removeEventListener('keydown', onKey)
   }, [morph, prev.path, next.path])
 
-  return <main className={`room room-${tone} ${className}`}>
+  return <main className={`room room-${tone} ${className}${new URLSearchParams(window.location.search).has('capture') ? ' room-capture' : ''}`}>
     <div ref={stageRef} className={`room-stage ${stageClass}`} onPointerDownCapture={() => setTouched(true)} {...stageProps}>
       {children}
       {room.still && <img className={`room-still${veiled ? '' : ' is-gone'}`} src={room.still} alt="" aria-hidden="true" decoding="async" />}

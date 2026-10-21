@@ -44,7 +44,9 @@ export function stepMembrane(s, elapsed, grab, reduced = false) {
       for (let row = 1; row < n - 1; row++) for (let col = 1; col < n - 1; col++) {
         const i = row * n + col
         const lap = q[i - 1] + q[i + 1] + q[i - n] + q[i + n] - 4 * q[i]
-        v[i] = (v[i] + (coupling * lap - 3 * q[i]) * h) * damping
+        const strain = Math.abs(q[i + 1] - q[i - 1]) / (2 * spacing) + Math.abs(q[i + n] - q[i - n]) / (2 * spacing)
+        const tension = 1 + Math.min(1.5, strain * .35)
+        v[i] = (v[i] + (coupling * tension * lap - 3 * q[i]) * h) * damping
       }
       for (let row = 1; row < n - 1; row++) for (let col = 1; col < n - 1; col++) {
         const i = row * n + col
@@ -54,7 +56,7 @@ export function stepMembrane(s, elapsed, grab, reduced = false) {
     if (grab) for (let row = 1; row < n - 1; row++) for (let col = 1; col < n - 1; col++) {
       const x = col * spacing - width / 2 - grab.x
       const z = row * spacing - width / 2 - grab.z
-      const weight = Math.exp(-(x * x + z * z) / 0.045) * pin
+      const weight = Math.exp(-(x * x + z * z) / 0.12) * pin
       if (weight < 0.0001) continue
       const i = row * n + col
       for (let axis = 0; axis < 3; axis++) {
@@ -68,6 +70,16 @@ export function stepMembrane(s, elapsed, grab, reduced = false) {
     energy += offsets[axis][i] ** 2 + velocities[axis][i] ** 2 * 0.002
   }
   return energy
+}
+
+export function releaseMembrane(s, grab, reduced = false) {
+  if (!grab || reduced) return
+  for (let row = 1; row < s.n - 1; row++) for (let col = 1; col < s.n - 1; col++) {
+    const d = (col * s.spacing - s.width / 2 - grab.x) ** 2 + (row * s.spacing - s.width / 2 - grab.z) ** 2
+    const w = Math.exp(-d / .16)
+    const i = row * s.n + col
+    for (let axis = 0; axis < 3; axis++) s.velocities[axis][i] += clamp(grab.speed?.[axis] || 0, -4, 4) * w * .6
+  }
 }
 
 export function spring(value, velocity, target, stiffness, damping, dt) {

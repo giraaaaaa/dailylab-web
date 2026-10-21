@@ -122,3 +122,12 @@
   .room-top, .room-hud, .room-bottom, .room-sheet[open] { animation: none; }
   .room-caption p, .room-pill { transition: none; }
 }
+
+/* Recording view: same scene and controls, chrome omitted from exported loops. */
+.room-capture .room-top, .room-capture .room-hud, .room-capture .room-bottom { opacity: 0 !important; animation: none; }
+.room-capture .room-still { display: none; }
+
+@media (max-width: 760px) {
+  /* Desktop posters cannot reproduce the portrait camera's composition. */
+  .tactile-room .room-still, .spatial-study .room-still { display: none; }
+}

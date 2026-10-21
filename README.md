@@ -122,3 +122,12 @@ pyftsubset PretendardVariable.woff2 --text-file=chars.txt --flavor=woff2 --layou
 - [ ] [리치 결과 테스트](https://search.google.com/test/rich-results)로 FAQ·VideoObject·SoftwareApplication 확인
 - [ ] 카카오톡 공유 캐시 초기화: [카카오 개발자 공유 디버거](https://developers.kakao.com/tool/debugger/sharing)
 - [ ] 안드로이드 정식 출시 시 JSON-LD `operatingSystem`에 Android 추가, FAQ·CTA 문구 갱신
+
+
+## 실험 개편 (2026-10-21)
+
+타일·막·포털의 첫 개편 기록은 `docs/lab-rework-result.md`에 있다. 세 방의 추가 개편은 보류했다.
+
+접히는 도시는 팝업 모형을 폐기하고 거리 내부 시점으로 다시 만들었다. 연결된 12개 구역의 도로와 건물이 먼 쪽부터 솟아 머리 위로 접힌다. 드래그·휠·방향키로 직접 조작하거나, 6초 접힘과 자동 왕복 시연을 볼 수 있다. 콘크리트·창문·가로등·실시간 그림자와 이동 속도에 따른 저음 효과음을 적용했다. 기본 무음과 공통 소리 설정을 따른다.
+
+새 도시의 목록 영상·포스터는 실제 렌더링을 기록한 것이다. `?capture=1`은 기록용으로 방 틀만 투명하게 만든다. 이번 구현과 검증 범위는 `docs/city-rebuild-result.md`, 화면은 `docs/city-rebuild-preview/`에 있다.

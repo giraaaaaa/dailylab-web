@@ -1,8 +1,7 @@
 /* Lab — 불가능한 방 · 접히는 도시. 틀(제목·버튼 자리)은 components/Room, 여기선 장면 색과 조작 모양만.
-   --sp-* 는 장면 위 조작부 색: 어두운 방(첫 번째 방)과 밝은 장면(두 번째 방, 도시). 배경은 장면 색과 맞춘다. */
+   --sp-* 는 장면 위 조작부 색: 어두운 방과 밝은 포털 장면. 배경은 장면 색과 맞춘다. */
 .spatial-study { --sp-ink: #ececea; --sp-muted: #9a9aa2; --sp-line: rgb(236 236 234 / .2); --sp-panel: rgb(14 15 18 / .72); background: #0e0f12; }
-.spatial-city, .spatial-portal.spatial-bright { --sp-ink: #0E0E10; --sp-muted: #66666B; --sp-line: rgb(14 14 16 / .18); --sp-panel: rgb(255 255 255 / .72); }
-.spatial-city { background: #ecece9; }
+.spatial-portal.spatial-bright { --sp-ink: #0E0E10; --sp-muted: #66666B; --sp-line: rgb(14 14 16 / .18); --sp-panel: rgb(255 255 255 / .72); }
 .spatial-portal.spatial-bright { background: #cfcfcb; }
 .spatial-study .room-stage > canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; outline: none; }
 .spatial-study .room-stage > canvas:focus-visible { box-shadow: inset 0 0 0 2px var(--sp-muted); }
@@ -36,3 +35,19 @@
   .spatial-controls .spatial-primary { flex: 1 1 100%; justify-content: center; }
 }
 @media (prefers-reduced-motion: reduce) { .spatial-study * { transition: none !important; animation: none !important; } }
+
+/* The city is viewed from within the street; its controls stay below the horizon. */
+.spatial-city { --sp-ink: #f2f1eb; --sp-muted: #c1c7c7; --sp-line: rgb(239 242 237 / .24); --sp-panel: rgb(15 24 29 / .72); background: #18252b; }
+.spatial-city .room-top .room-pill { background: rgb(15 24 29 / .62); }
+.spatial-city .room-top .room-pill:hover { background: rgb(15 24 29 / .8); }
+.spatial-city .room-caption { max-width: 360px; }
+.spatial-city .room-caption h1 { font-size: clamp(27px, 3vw, 42px); }
+.spatial-city .room-bottom { padding-top: 44px; background: linear-gradient(transparent, rgb(8 15 20 / .65)); }
+.spatial-city .spatial-primary { background: #e5e9e5; border-color: #e5e9e5; color: #19262c; }
+.spatial-city .room-still { display: none; }
+@media (max-width: 760px) {
+  .spatial-city .spatial-controls { flex-wrap: nowrap; }
+  .spatial-city .spatial-primary { flex: initial; }
+  .spatial-city .room-controls { justify-self: center; }
+  .spatial-city .room-caption p { max-width: 240px; }
+}

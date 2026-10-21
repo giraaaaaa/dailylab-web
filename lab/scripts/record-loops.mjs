@@ -21,14 +21,9 @@ const PLANS = {
   tiles: { settle: 2500, length: 4200, poster: 0, crop: 'crop=1000:640:140:93', still: true, run: async (b) => { await sleep(250); await b.evaluate(click('자동 시연')) } },
   surface: { settle: 2500, length: 5600, poster: 1300, crop: 'crop=1000:640:140:93', still: true, run: async (b) => { await sleep(200); await b.evaluate(click('자동 시연')) } },
   horizon: { settle: 9000, length: 5000, poster: 0, run: async () => {} },
-  portal: { settle: 3000, length: 4200, poster: 0, run: async (b, mouse) => {
-    const x = W * 0.5, y = H * 0.5
-    await mouse('mouseMoved', x, y, 0); await mouse('mousePressed', x, y)
-    for (let i = 1; i <= 40; i++) { await mouse('mouseMoved', x - Math.sin((i / 40) * Math.PI) * 240, y); await sleep(45) }
-    await mouse('mouseReleased', x, y, 0)
-  } },
+  portal: { settle: 3000, length: 6200, poster: 0, run: async (b) => { await b.evaluate(click('공 굴리기')) } },
   // 자동 시연은 2π/0.65 ≈ 9.67초 주기라 딱 한 바퀴를 떠서 끝과 처음이 이어지게
-  city: { settle: 3500, length: 9670, poster: 2600, crf: 31, run: async (b) => { await b.evaluate(click('천천히 자동 시연')) } },
+  city: { settle: 2000, length: 15600, poster: 6500, crf: 29, run: async (b) => { await b.evaluate(click('시연')) } },
   glass: { settle: 2500, length: 5600, poster: 900, crf: 32, run: async (b) => {
     await sleep(300); await b.evaluate(click('톡 치기')); await sleep(700); await b.evaluate(click('톡 치기')); await sleep(800); await b.evaluate(click('와장창'))
   } },
