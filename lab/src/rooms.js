@@ -12,6 +12,14 @@ import cityLoop from './assets/loops/city.mp4'
 import cityPoster from './assets/loops/city.jpg'
 import glassLoop from './assets/loops/glass.mp4'
 import glassPoster from './assets/loops/glass.jpg'
+import wellLoop from './assets/loops/well.mp4'
+import wellPoster from './assets/loops/well.jpg'
+import mirrorLoop from './assets/loops/mirror.mp4'
+import mirrorPoster from './assets/loops/mirror.jpg'
+import radioLoop from './assets/loops/radio.mp4'
+import radioPoster from './assets/loops/radio.jpg'
+import wallpaperLoop from './assets/loops/wallpaper.mp4'
+import wallpaperPoster from './assets/loops/wallpaper.jpg'
 
 /* 실험실의 방 목록. 이 순서가 목록(선반) 순서이자 방 안의 이전/다음 순서다.
    loop·poster는 목록 칸에 쓰는 녹화 영상과 첫 장면, still은 방이 열릴 때 장면이 그려지기 전까지 깔아 두는 그림
@@ -27,9 +35,17 @@ export const ROOMS = [
   { id: 'glass', title: '유리 한 장', feel: '쩍, 와장창.', loop: glassLoop, poster: glassPoster,
     summary: '톡 치면 금이 가고, 꾹 눌렀다 놓을수록 세게 칩니다.', tags: ['보로노이 파괴', '굴절', '효과음'] },
   { id: 'portal', title: '불가능한 방', feel: '옮기고, 건너고.', loop: portalLoop, poster: portalPoster,
-    summary: '문 너머에는 다른 중력의 방이 있습니다.', tags: ['포털 렌더링', '시점 변환'] },
-  { id: 'city', title: '접히는 도시', feel: '한 장에서, 도시로.', loop: cityLoop, poster: cityPoster,
-    summary: '64개의 건물이 순서대로 일어나고 다시 접힙니다.', tags: ['경첩 구조', '인스턴싱'] },
+    summary: '공 하나가 문을 건너면, 아래가 옆이 됩니다.', tags: ['포털 렌더링', '경계 클리핑', '중력 전환'] },
+  { id: 'city', title: '접히는 도시', feel: '위가, 아래가 되는 곳.', loop: cityLoop, poster: cityPoster,
+    summary: '거리를 밀면 도시가 솟아올라 머리 위로 접혀옵니다.', tags: ['연결된 지형', '인스턴싱', '실시간 그림자'] },
+  { id: 'well', title: '우물', feel: '퐁, 그리고 한참.', loop: wellLoop, poster: wellPoster,
+    summary: '두레박을 내리고 손잡이를 돌려 끌어올리세요. 가끔 물 말고 다른 것이 딸려 옵니다.', tags: ['도르래 물리', '소리 지연', '등불 하나'] },
+  { id: 'mirror', title: '김 서린 거울', feel: '뽀득, 주르륵.', loop: mirrorLoop, poster: mirrorPoster,
+    summary: '닦으면 등 뒤가 비칩니다. 다시 서리면, 저쪽에서 쓴 것이 드러납니다.', tags: ['진짜 반사', 'GPU 김 격자', '물방울 렌즈'] },
+  { id: 'radio', title: '주파수', feel: '지직, 딸깍.', loop: radioLoop, poster: radioPoster,
+    summary: '다이얼을 돌려 방송을 찾아보세요. 눈금이 끝난 곳에도 무언가 나옵니다.', tags: ['원통 다이얼', '합성 잡음', '음성 합성'] },
+  { id: 'wallpaper', title: '벽지 한 겹', feel: '찌익, 바스락.', loop: wallpaperLoop, poster: wallpaperPoster,
+    summary: '한 겹 뜯으면 그 아래 또 한 겹. 맨 아래에는 누가 무언가를 적어 두었습니다.', tags: ['종이 말림', '겹 마스크', '절차적 무늬'] },
 ].map((room) => ({ ...room, path: `/${room.id}`, still: room.still ?? room.poster }))
 
 export function neighbors(id) {

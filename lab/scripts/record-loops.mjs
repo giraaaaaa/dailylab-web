@@ -21,16 +21,33 @@ const PLANS = {
   tiles: { settle: 2500, length: 4200, poster: 0, crop: 'crop=1000:640:140:93', still: true, run: async (b) => { await sleep(250); await b.evaluate(click('자동 시연')) } },
   surface: { settle: 2500, length: 5600, poster: 1300, crop: 'crop=1000:640:140:93', still: true, run: async (b) => { await sleep(200); await b.evaluate(click('자동 시연')) } },
   horizon: { settle: 9000, length: 5000, poster: 0, run: async () => {} },
-  portal: { settle: 3000, length: 4200, poster: 0, run: async (b, mouse) => {
-    const x = W * 0.5, y = H * 0.5
-    await mouse('mouseMoved', x, y, 0); await mouse('mousePressed', x, y)
-    for (let i = 1; i <= 40; i++) { await mouse('mouseMoved', x - Math.sin((i / 40) * Math.PI) * 240, y); await sleep(45) }
-    await mouse('mouseReleased', x, y, 0)
-  } },
+  portal: { settle: 3000, length: 6200, poster: 0, run: async (b) => { await b.evaluate(click('공 굴리기')) } },
   // 자동 시연은 2π/0.65 ≈ 9.67초 주기라 딱 한 바퀴를 떠서 끝과 처음이 이어지게
-  city: { settle: 3500, length: 9670, poster: 2600, crf: 31, run: async (b) => { await b.evaluate(click('천천히 자동 시연')) } },
+  city: { settle: 2000, length: 15600, poster: 6500, crf: 29, run: async (b) => { await b.evaluate(click('시연')) } },
   glass: { settle: 2500, length: 5600, poster: 900, crf: 32, run: async (b) => {
     await sleep(300); await b.evaluate(click('톡 치기')); await sleep(700); await b.evaluate(click('톡 치기')); await sleep(800); await b.evaluate(click('와장창'))
+  } },
+  // 두레박을 놓으면 카메라가 우물 위로 올라가 등불이 내려가는 걸 내려다본다
+  well: { settle: 3000, length: 6400, poster: 1000, run: async (b) => {
+    await sleep(200); await b.evaluate(click('두레박 내리기'))
+  } },
+  // 김을 지그재그로 닦아 욕실이 비치게
+  mirror: { settle: 2500, length: 6000, poster: 4600, run: async (b, mouse) => {
+    const x0 = W * 0.31, x1 = W * 0.69, y0 = H * 0.26
+    await mouse('mouseMoved', x0, y0, 0); await mouse('mousePressed', x0, y0)
+    for (let r = 0; r < 8; r++) {
+      const from = r % 2 ? x1 : x0, to = r % 2 ? x0 : x1, y = y0 + r * 34
+      for (let i = 0; i <= 16; i++) { await mouse('mouseMoved', from + (to - from) * (i / 16), y + Math.sin(i) * 3); await sleep(18) }
+    }
+    await mouse('mouseReleased', x0, y0 + 272, 0)
+  } },
+  // 잡음에서 방송 두 곳으로 훑어 간다
+  radio: { settle: 2500, length: 6400, poster: 2600, run: async (b) => {
+    await sleep(300); await b.evaluate(click('다음 방송')); await sleep(3200); await b.evaluate(click('다음 방송'))
+  } },
+  // 한 줄씩 세 번 뜯는다(말려 올라가는 모습과 떨어지는 조각)
+  wallpaper: { settle: 2500, length: 6400, poster: 900, run: async (b) => {
+    await sleep(250); await b.evaluate(click('한 줄 뜯기')); await sleep(2000); await b.evaluate(click('한 줄 뜯기')); await sleep(2000); await b.evaluate(click('한 줄 뜯기'))
   } },
 }
 
@@ -68,7 +85,7 @@ async function record(room) {
   const mouse = (type, x, y, buttons = 1) => b.send('Input.dispatchMouseEvent', { type, x, y, button: 'left', buttons, clickCount: type === 'mouseMoved' ? 0 : 1 })
   await b.send('Page.navigate', { url: `${BASE}/lab/${room}` })
   await sleep(plan.settle)
-  await b.evaluate(`(() => { const s = document.createElement('style'); s.textContent = '.room-top,.room-hud,.room-bottom,.room-still,.gx-hint,.gx-ring,.hz-stats,.hz-gauge,.hz-veil{display:none!important}'; document.head.append(s); return true })()`)
+  await b.evaluate(`(() => { const s = document.createElement('style'); s.textContent = '.room-top,.room-hud,.room-bottom,.room-still,.gx-hint,.gx-ring,.hz-stats,.hz-gauge,.hz-veil,.wl-note{display:none!important}'; document.head.append(s); return true })()`)
   await sleep(300)
 
   const shots = []

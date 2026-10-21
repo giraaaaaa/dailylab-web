@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <title>Daily Lab</title>
+  <defs>
+    <linearGradient id="jelly" x1="52" y1="40" x2="142" y2="150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#454548"/>
+      <stop offset=".22" stop-color="#111113"/>
+      <stop offset=".58" stop-color="#08080A"/>
+      <stop offset=".82" stop-color="#1B1B20"/>
+      <stop offset="1" stop-color="#2A4BFF"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="60" y1="42" x2="89" y2="88" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity=".85"/>
+      <stop offset=".45" stop-color="#FFFFFF" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="122" y1="109" x2="135" y2="143" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6680FF" stop-opacity="0"/>
+      <stop offset="1" stop-color="#6680FF" stop-opacity=".75"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-30%" width="180%" height="180%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#0E0E10" flood-opacity=".23"/>
+    </filter>
+  </defs>
+  <rect width="192" height="192" rx="42" fill="#F1F1EF"/>
+  <!-- A single inflated D keeps its open counter legible at 16px. -->
+  <path fill="url(#jelly)" fill-rule="evenodd" filter="url(#shadow)"
+    d="M49 37H91C133 37 153 59 153 96S133 155 91 155H49Q43 155 43 149V43Q43 37 49 37ZM77 68V124H90C110 124 119 115 119 96S110 68 90 68Z"/>
+  <path d="M51 43H91C120 43 137 55 143 76" fill="none" stroke="url(#shine)" stroke-width="5" stroke-linecap="round"/>
+  <path d="M78 128H91C112 128 124 117 124 97" fill="none" stroke="#FFFFFF" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/>
+  <path d="M145 108C142 135 124 148 95 149" fill="none" stroke="url(#rim)" stroke-width="4" stroke-linecap="round"/>
+</svg>

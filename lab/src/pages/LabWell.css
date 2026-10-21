@@ -1,0 +1,30 @@
+/* Lab — 우물. 밤의 돌 우물이라 늘 어둡다. 틀(제목·버튼 자리)은 components/Room. */
+.wl { background: #050506; }
+.wl .room-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
+.wl .room-stage canvas:active { cursor: grabbing; }
+
+.wl-hud { margin: 0; display: flex; gap: 26px; font-variant-numeric: tabular-nums; }
+.wl-hud > div { display: grid; justify-items: end; gap: 3px; }
+.wl-hud dt { font-size: 11px; font-weight: 600; color: rgb(255 255 255 / .5); }
+.wl-hud dd { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -.03em; color: #fff; }
+.wl-hud small { font-size: 13px; margin-left: 2px; color: rgb(255 255 255 / .55); font-weight: 600; }
+
+.wl-note { position: absolute; left: 50%; bottom: calc(var(--r-gap) + 74px); transform: translateX(-50%); margin: 0; font-size: 13px; letter-spacing: -.01em; color: rgb(255 255 255 / .78); text-shadow: 0 1px 12px rgb(0 0 0 / .8); pointer-events: none; white-space: nowrap; opacity: 0; transition: opacity 1.2s var(--dl-ease); font-variant-numeric: tabular-nums; }
+.wl-note.is-on { opacity: 1; }
+
+.wl-controls { display: flex; justify-content: center; gap: 8px; }
+.wl-controls button { font: inherit; font-size: 13px; font-weight: 600; color: rgb(255 255 255 / .9); background: rgb(255 255 255 / .07); border: 1px solid rgb(255 255 255 / .18); border-radius: 999px; min-height: 40px; padding: 8px 18px; cursor: pointer; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); transition: background .2s; }
+.wl-controls button:hover:not(:disabled) { background: rgb(255 255 255 / .14); }
+.wl-controls button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.wl-controls button:disabled { opacity: .45; cursor: default; }
+
+.wl-veil { position: absolute; inset: 0; z-index: 3; display: grid; place-content: center; justify-items: center; gap: 14px; background: #050506; color: rgb(255 255 255 / .8); font-size: 14px; }
+.wl-veil a { color: #fff; font-weight: 600; }
+
+@media (max-width: 760px) {
+  .wl-hud { justify-content: flex-end; gap: 18px; }
+  .wl-hud dd { font-size: 20px; }
+  .wl-note { bottom: calc(var(--r-gap) + 150px); }
+  .wl-controls button { flex: 1; min-height: 46px; }
+  .wl-note { white-space: normal; width: calc(100% - 2 * var(--r-gap)); text-align: center; }
+}

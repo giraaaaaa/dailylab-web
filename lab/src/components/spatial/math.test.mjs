@@ -1,7 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import * as THREE from 'three'
-import { portalTransform, foldPose, cityLots } from './math.js'
+import { portalTransform } from './math.js'
+import { createPortalBall, crossBall, stepPortalBall } from './portalBall.js'
 
 const close = (a, b) => assert.ok(Math.abs(a - b) < 1e-9, `${a} != ${b}`)
 
@@ -25,19 +26,25 @@ test('crossing changes the entry back side to the exit front side', () => {
   close(localExit.z, .25)
 })
 
-test('all 64 building walls keep their length at every fold angle', () => {
-  const lots = cityLots()
-  assert.equal(lots.length, 64)
-  for (const lot of lots) {
-    let previous = 0
-    for (let progress = 0; progress <= 1.001; progress += .01) {
-      const pose = foldPose(progress, lot.h, lot.delay)
-      close(Math.hypot(pose.rise, pose.drift), lot.h)
-      assert.ok(pose.rise >= previous - 1e-9)
-      previous = pose.rise
-    }
-    close(foldPose(0, lot.h, lot.delay).rise, 0)
-    close(foldPose(1, lot.h, lot.delay).rise, lot.h)
-    close(foldPose(1, lot.h, lot.delay).drift, 0)
+const pair = () => [new THREE.Matrix4().makeTranslation(0, 2.55, 0), new THREE.Matrix4().compose(new THREE.Vector3(0, 2.55, 0), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI), new THREE.Vector3(1, 1, 1))]
+
+test('a moving ball crosses once, keeps its speed and lands on the receiving wall', () => {
+  for (const dt of [1 / 120, 1 / 30, .1]) {
+    const b = createPortalBall(); b.velocity.set(.04, 1.38, -2.65); b.flying = true
+    for (let i = 0; i < 1400; i++) stepPortalBall(b, dt, pair())
+    assert.equal(b.room, 1); assert.equal(b.crossings, 1); assert.equal(b.flying, false)
+    assert.ok(Math.abs(b.position.x - (-2.15 + .31)) < .005)
+    assert.ok(b.position.toArray().every(Number.isFinite))
   }
+})
+
+test('the doorway rejects an out-of-aperture crossing and maps velocity when rotated', () => {
+  const p = pair(); p[1].multiply(new THREE.Matrix4().makeRotationZ(Math.PI / 2))
+  const b = createPortalBall(); b.position.set(0, 2.55, -.05); b.velocity.set(1, 2, -3)
+  const speed = b.velocity.length()
+  assert.equal(crossBall(b, new THREE.Vector3(0, 2.55, .05), p), true)
+  close(b.velocity.length(), speed)
+  const outside = createPortalBall(); outside.position.set(4, 2.55, -.1)
+  assert.equal(crossBall(outside, new THREE.Vector3(4, 2.55, .1), p), false)
+  assert.equal(outside.room, 0)
 })
